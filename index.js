@@ -50,6 +50,8 @@
 /**
  * Serializr utilities
  */
+        var _defaultPrimitiveProp = primitive()
+
         function createSimpleSchema(props) {
             return {
                 factory: function() {
@@ -60,6 +62,8 @@
         }
 
         function createModelSchema(clazz, props) {
+            invariant(clazz !== Object, "one cannot simply put define a model schema for Object")
+            invariant(typeof clazz === "function", "expected constructor function")
             setDefaultModelSchema(clazz, {
                 factory: function() {
                     return new clazz()
@@ -75,8 +79,8 @@
                 return thing
             if (isModelSchema(thing.serializeInfo))
                 return thing.serializeInfo
-            if (thing.constructor && thing.constructor.prototype && thing.constructor.prototype.serializeInfo)
-                return thing.constructor.prototype.serializeInfo
+            if (thing.constructor && thing.constructor.serializeInfo)
+                return thing.constructor.serializeInfo
         }
 
         function setDefaultModelSchema(clazz, modelSchema) {
@@ -163,9 +167,11 @@
             else
                 res = {}
             Object.keys(schema.props).forEach(function (key) {
-                var def = schema.props[key]
-                var jsonValue = def.serializer(obj[key])
-                res[def.jsonname || key] = jsonValue
+                var propDef = schema.props[key]
+                if (propDef === true)
+                    propDef = _defaultPrimitiveProp
+                var jsonValue = propDef.serializer(obj[key])
+                res[propDef.jsonname || key] = jsonValue
             })
             return res
         }
@@ -213,6 +219,8 @@
                 deserializePropsWithSchema(context, schema.extends, json, target)
             Object.keys(schema.props).forEach(function (propName) {
                 var propDef = schema.props[propName]
+                if (propDef === true)
+                    propDef = _defaultPrimitiveProp
                 var jsonAttr = propDef.jsonname || propName
                 if (!(jsonAttr in json))
                     return
@@ -301,7 +309,7 @@
 
         function alias(name, propSchema) {
             invariant(name && typeof name === "string", "expected prop name as first argument")
-            propSchema = propSchema || primitive()
+            propSchema = propSchema || _defaultPrimitiveProp
             invariant(isPropSchema(propSchema), "expected prop schema as second argument")
             invariant(!isAliasedPropSchema(propSchema), "provided prop is already aliased")
             return {
@@ -312,7 +320,7 @@
         }
 
         function list(propSchema) {
-            propSchema = propSchema || primitive()
+            propSchema = propSchema || _defaultPrimitiveProp
             invariant(isPropSchema(propSchema), "expected prop schema as second argument")
             invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
             return {
