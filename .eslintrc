@@ -1,0 +1,17 @@
+{
+    "env": {
+        "browser": true,
+        "amd": true,
+        "node": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+        "semi": ["error", "never"],
+        "quotes": ["error", "double"],
+        "indent": ["error", 4],
+        "no-implicit-globals": 2,
+        "no-restricted-globals": 2,
+        "no-shadow": 2,
+        "no-use-before-define": ["error", { "functions" : false }]
+    }
+}
