@@ -10,8 +10,10 @@
         function  once(fn) {
             var fired = false
             return function() {
-                if (!fired)
-                    fn.apply(null, arguments)
+                if (!fired) {
+                    fired = true
+                    return fn.apply(null, arguments)
+                }
                 invariant(false, "callback was invoked twice")
             }
         }
@@ -48,6 +50,15 @@
 /**
  * Serializr utilities
  */
+        function createSimpleSchema(props) {
+            return {
+                factory: function() {
+                    return {}
+                },
+                props: props
+            }
+        }
+
         function createModelSchema(clazz, props) {
             setDefaultModelSchema(clazz, {
                 factory: function() {
@@ -79,6 +90,10 @@
 
         function isPropSchema(thing) {
             return thing && thing.serializer && thing.deserializer
+        }
+
+        function isAliasedPropSchema(propSchema) {
+            return ("jsonname" in propSchema)
         }
 
         function isContext(thing) {
@@ -122,7 +137,7 @@
         function serialize(arg1, arg2) {
             invariant(arguments.length === 1 || arguments.length === 2, "serialize expects one or 2 arguments")
             var thing = arguments.length === 1 ? arg1 : arg2
-            var schema
+            var schema = arguments.length === 1 ? null : arg1
             if (Array.isArray(thing)) {
                 if (thing.length === 0)
                     return [] // don't bother finding a schema
@@ -149,8 +164,8 @@
                 res = {}
             Object.keys(schema.props).forEach(function (key) {
                 var def = schema.props[key]
-                var jsonValue = def.serialize(obj[key])
-                res[def.alias || key] = jsonValue
+                var jsonValue = def.serializer(obj[key])
+                res[def.jsonname || key] = jsonValue
             })
             return res
         }
@@ -159,7 +174,7 @@
  * Deserialization
  */
         function deserialize(schema, json, callback) {
-            invariant(arguments.length === 3, "deserialize expects 3 arguments")
+            invariant(arguments.length >= 2, "deserialize expects at least 2 arguments")
             schema = getDefaultModelSchema(schema)
             invariant(isModelSchema(schema), "first argument should be model schema")
             callback = callback || NOOP
@@ -196,17 +211,16 @@
         function deserializePropsWithSchema(context, schema, json, target) {
             if (schema.extends)
                 deserializePropsWithSchema(context, schema.extends, json, target)
-            schema.props.forEach(function (propName) {
+            Object.keys(schema.props).forEach(function (propName) {
                 var propDef = schema.props[propName]
                 var jsonAttr = propDef.jsonname || propName
                 if (!(jsonAttr in json))
                     return
                 propDef.deserializer(
                     json[jsonAttr],
-                    // once: defend agains userland calling 'done' twice
-                    once(context.createCallback(function (value) {
+                    context.createCallback(function (value) {
                         target[propName] = value
-                    })),
+                    }),
                     context,
                     target[propName]
                 )
@@ -215,7 +229,7 @@
 
         function Context(parentContext, json, onReadyCb) {
             this.parentContext = parentContext
-            this.onReadyCb = onReadyCb
+            this.onReadyCb = onReadyCb || NOOP
             this.json = json
             this.target = null
             this.pendingCallbacks = 0
@@ -223,7 +237,8 @@
         }
         Context.prototype.createCallback = function (fn) {
             this.pendingCallbacks++
-            return function(err, value) {
+            // once: defend agains userland calling 'done' twice
+            return once(function(err, value) {
                 if (err) {
                     if (!this.hasError) {
                         this.hasError = true
@@ -234,7 +249,7 @@
                     if (--this.pendingCallbacks === 0)
                         this.onReadyCb(null, this.target)
                 }
-            }.bind(this)
+            }.bind(this))
         }
         Context.prototype.getParentObject = function() {
             return this.parentContext ? this.parentContext.target : null
@@ -286,8 +301,9 @@
 
         function alias(name, propSchema) {
             invariant(name && typeof name === "string", "expected prop name as first argument")
+            propSchema = propSchema || primitive()
             invariant(isPropSchema(propSchema), "expected prop schema as second argument")
-            invariant(!("jsonname" in propSchema), "provided prop is already aliased")
+            invariant(!isAliasedPropSchema(propSchema), "provided prop is already aliased")
             return {
                 jsonname: name,
                 serializer: propSchema.serializer,
@@ -296,7 +312,9 @@
         }
 
         function list(propSchema) {
+            propSchema = propSchema || primitive()
             invariant(isPropSchema(propSchema), "expected prop schema as second argument")
+            invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
             return {
                 serializer: function (ar) {
                     invariant(ar && "length" in ar && "map" in ar, "expected array (like) object")
@@ -326,10 +344,14 @@
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
             return {
                 serializer: function (item) {
+                    if (item === null || item === undefined)
+                        return item
                     return serialize(modelSchema, item)
                 },
                 deserializer: function (childJson, done, context) {
-                    return deserializeObjectWithSchema(context, modelSchema, childJson, done)
+                    if (childJson === null || childJson === undefined)
+                        return void done(null, childJson)
+                    return void deserializeObjectWithSchema(context, modelSchema, childJson, done)
                 }
             }
         }
@@ -352,6 +374,7 @@
  */        
         return {
             createModelSchema: createModelSchema,
+            createSimpleSchema: createSimpleSchema,
             getDefaultModelSchema: getDefaultModelSchema,
             isModelSchema: isModelSchema,
             isPropSchema: isPropSchema,
