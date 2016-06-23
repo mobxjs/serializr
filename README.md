@@ -1,3 +1,18 @@
+# Serializr
+
+__Don't use this package yet, it is under development_
+
+-------
+# TODO
+
+ * [ ] If MobX, use createTransformer, transaction
+ * [ ] Typings
+ * [ ] Docs
+ * [ ] Test in Babel
+ * [ ] Test in Typescript
+
+-------
+
 # Api
 
 ## ModelSchema

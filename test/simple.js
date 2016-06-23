@@ -41,6 +41,23 @@ test("it should serialize simple object", t => {
     t.end()
 })
 
+test("it should respect extends", t => {
+    var superSchema = _.createSimpleSchema({
+        x: primitive()
+    })
+    var subSchema = _.createSimpleSchema({
+        y: _.alias("z", primitive())
+    })
+    subSchema.extends = superSchema
+
+    var source = { x: 7, y: 8}
+    var json = { x: 7, z: 8}
+    t.deepEqual(serialize(subSchema, source), json)
+    t.deepEqual(deserialize(subSchema, json), source)
+
+    t.end()
+})
+
 test("it should respect aliases", t => {
     var schema = _.createSimpleSchema({
         x: primitive(),
@@ -68,6 +85,33 @@ test("it should respect lists", t => {
 
     t.end()
 })
+
+test("it should recycle arrays when deserializing if possible", t => {
+    var baseValue = [7, 8, 9]
+
+    var schema = {
+        factory: function() {
+            return {
+                x: baseValue
+            }
+        },
+        props: {
+            x: _.list(primitive())
+        }
+    }
+
+    var json = { x: [ 1, 2 ]}
+    var obj = deserialize(schema, json)
+    t.deepEqual(obj, json)
+    t.equal(obj.x, baseValue)
+
+    update(schema, obj, { x: [ 3, 4 ]})
+    t.deepEqual(obj, { x: [3, 4 ]})
+    t.equal(obj.x, baseValue)
+
+    t.end()
+})
+
 
 test("it should respect childs", t => {
     var childSchema = _.createSimpleSchema({
@@ -113,6 +157,67 @@ test("it should respect refs", t => {
 
     t.deepEqual(serialize(schema, source), json)
     t.deepEqual(deserialize(schema, json), source)
+
+    t.end()
+})
+
+test("it should support maps", t => {
+    var schema = _.createSimpleSchema({
+        x: _.map()
+    })
+
+    var source = {
+        x: {
+            foo: 1,
+            bar: 2
+        }
+    }
+    var json = source
+
+    t.deepEqual(serialize(schema, source), json)
+    t.deepEqual(deserialize(schema, json), source)
+
+    // recycle objects if possible
+    var m = source.x
+    update(schema, source, { x: { bar: 3, baz: 4 }})
+    t.deepEqual(source, { x: { bar: 3, baz: 4 }})
+    t.equal(source.x, m)
+
+    t.end()
+})
+
+test("it should support ES6 maps", t => {
+    var factory = function() {
+        return {
+            x: new Map()
+        }
+    }
+    var schema = {
+        factory: factory,
+        props: {
+            x: _.map()
+        }
+    }
+
+    var source = factory()
+    source.x.set("foo", 1)
+    source.x.set("bar", 2)
+    var json = {
+        x: {
+            foo: 1,
+            bar: 2
+        }
+    }
+
+    t.deepEqual(serialize(schema, source), json)
+    t.deepEqual(deserialize(schema, json), source)
+
+    // recycle objects if possible
+    var m = source.x
+    update(schema, source, { x: { bar: 3, baz: 4 }})
+    t.deepEqual(serialize(schema, source), { x: { bar: 3, baz: 4 }})
+    t.equal(source.x, m)
+    t.equal(source.x instanceof Map)
 
     t.end()
 })

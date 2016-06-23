@@ -319,34 +319,6 @@
             }
         }
 
-        function list(propSchema) {
-            propSchema = propSchema || _defaultPrimitiveProp
-            invariant(isPropSchema(propSchema), "expected prop schema as second argument")
-            invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
-            return {
-                serializer: function (ar) {
-                    invariant(ar && "length" in ar && "map" in ar, "expected array (like) object")
-                    return ar.map(propSchema.serializer)
-                },
-                deserializer: function(jsonArray, done, context) {
-                    // todo asyncInvariant
-                    if (!Array.isArray(jsonArray))
-                        return void done("[serializr] expected JSON array")
-                    parallel(
-                        jsonArray,
-                        function (item, itemDone) {
-                            return propSchema.deserializer(
-                                item,
-                                itemDone,
-                                context
-                            )
-                        },
-                        done
-                    )
-                }
-            }            
-        }
-
         function child(modelSchema) {
             modelSchema = getDefaultModelSchema(modelSchema)
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
@@ -377,6 +349,95 @@
             }
         }
 
+        function list(propSchema) {
+            propSchema = propSchema || _defaultPrimitiveProp
+            invariant(isPropSchema(propSchema), "expected prop schema as second argument")
+            invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
+            return {
+                serializer: function (ar) {
+                    invariant(ar && "length" in ar && "map" in ar, "expected array (like) object")
+                    return ar.map(propSchema.serializer)
+                },
+                deserializer: function(jsonArray, done, context, oldValues) {
+                    if (!Array.isArray(jsonArray))
+                        return void done("[serializr] expected JSON array")
+                    parallel(
+                        jsonArray,
+                        function (item, itemDone) {
+                            return propSchema.deserializer(
+                                item,
+                                itemDone,
+                                context
+                            )
+                        },
+                        function (err, newValues) {
+                            if (err)
+                                return void done(err)
+                            if (oldValues) {
+                                oldValues.splice(0)
+                                for (var i = 0, l = newValues.length; i < l; i++)
+                                    oldValues.push(newValues[i])
+                                done(null, oldValues)
+                            } else
+                                done(null, newValues)
+                        }
+                    )
+                }
+            }            
+        }
+
+        function isMapLike(thing) {
+            return thing && typeof thing.keys === "function"
+        }
+
+        function map(propSchema) {
+            propSchema = propSchema || _defaultPrimitiveProp
+            invariant(isPropSchema(propSchema), "expected prop schema as second argument")
+            invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
+            return {
+                serializer: function (m) {
+                    invariant(m && typeof m === "object", "expected object or Map")
+                    var isMap = isMapLike(m)
+                    var result = {}
+                    for (var key in (isMap ? m.keys() : m))
+                        result[key] = isMap ? m.get(key) : m[key]
+                    return result
+                },
+                deserializer: function(jsonObject, done, context, oldValue) {
+                    if (!jsonObject || typeof jsonObject !== "object")
+                        return void done("[serializr] expected JSON object")
+                    var keys = Object.keys(jsonObject)
+                    list(propSchema).deserializer(
+                        keys.map(function (key) {
+                            return jsonObject[key]
+                        }),
+                        function (err, values) {
+                            if (err)
+                                return void done(err)
+                            var isMap = isMapLike(oldValue)
+                            var newValue
+                            if (oldValue) {
+                                if (isMap)
+                                    oldValue.clear()
+                                else
+                                    for (var key in oldValue)
+                                        delete oldValue[key]
+                                newValue = oldValue
+                            } else
+                                newValue = {}
+                            for (var i = 0, l = keys.length; i < l; i++)
+                                if (isMap)
+                                    newValue.set(keys[i], values[i])
+                                else
+                                    newValue[keys[i]] = values[i]
+                            done(null, newValue)
+                        },
+                        context
+                    )
+                }
+            }            
+        }
+
 /**
  * UMD shizzle
  */        
@@ -394,6 +455,7 @@
             primitive: primitive,
             alias: alias,
             list: list,
+            map: map,
             child: child,
             ref: ref
         }
