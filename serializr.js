@@ -358,36 +358,22 @@
                     invariant(ar && "length" in ar && "map" in ar, "expected array (like) object")
                     return ar.map(propSchema.serializer)
                 },
-                deserializer: function(jsonArray, done, context, oldValues) {
+                deserializer: function(jsonArray, done, context) {
                     if (!Array.isArray(jsonArray))
                         return void done("[serializr] expected JSON array")
                     parallel(
                         jsonArray,
                         function (item, itemDone) {
-                            return propSchema.deserializer(
-                                item,
-                                itemDone,
-                                context
-                            )
+                            return propSchema.deserializer(item, itemDone, context)
                         },
-                        function (err, newValues) {
-                            if (err)
-                                return void done(err)
-                            if (oldValues) {
-                                oldValues.splice(0)
-                                for (var i = 0, l = newValues.length; i < l; i++)
-                                    oldValues.push(newValues[i])
-                                done(null, oldValues)
-                            } else
-                                done(null, newValues)
-                        }
+                        done
                     )
                 }
             }            
         }
 
         function isMapLike(thing) {
-            return thing && typeof thing.keys === "function"
+            return thing && typeof thing.keys === "function" && typeof thing.clear === "function"
         }
 
         function map(propSchema) {
@@ -399,8 +385,12 @@
                     invariant(m && typeof m === "object", "expected object or Map")
                     var isMap = isMapLike(m)
                     var result = {}
-                    for (var key in (isMap ? m.keys() : m))
-                        result[key] = isMap ? m.get(key) : m[key]
+                    if (isMap)
+                        m.forEach(function(value, key) {
+                            result[key] = propSchema.serializer(value)
+                        })
+                    else for (var key in m)
+                        result[key] = propSchema.serializer(m[key])
                     return result
                 },
                 deserializer: function(jsonObject, done, context, oldValue) {
@@ -416,12 +406,11 @@
                                 return void done(err)
                             var isMap = isMapLike(oldValue)
                             var newValue
-                            if (oldValue) {
-                                if (isMap)
-                                    oldValue.clear()
-                                else
-                                    for (var key in oldValue)
-                                        delete oldValue[key]
+                            if (isMap) {
+                                // if the oldValue is a map, we recycle it
+                                // there are many variations and this way we don't have to 
+                                // know about the original constructor
+                                oldValue.clear()
                                 newValue = oldValue
                             } else
                                 newValue = {}

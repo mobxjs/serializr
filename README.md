@@ -6,6 +6,7 @@ __Don't use this package yet, it is under development_
 # TODO
 
  * [ ] If MobX, use createTransformer, transaction
+ * [ ] coverage, travis
  * [ ] Typings
  * [ ] Docs
  * [ ] Test in Babel

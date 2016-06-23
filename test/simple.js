@@ -86,33 +86,6 @@ test("it should respect lists", t => {
     t.end()
 })
 
-test("it should recycle arrays when deserializing if possible", t => {
-    var baseValue = [7, 8, 9]
-
-    var schema = {
-        factory: function() {
-            return {
-                x: baseValue
-            }
-        },
-        props: {
-            x: _.list(primitive())
-        }
-    }
-
-    var json = { x: [ 1, 2 ]}
-    var obj = deserialize(schema, json)
-    t.deepEqual(obj, json)
-    t.equal(obj.x, baseValue)
-
-    update(schema, obj, { x: [ 3, 4 ]})
-    t.deepEqual(obj, { x: [3, 4 ]})
-    t.equal(obj.x, baseValue)
-
-    t.end()
-})
-
-
 test("it should respect childs", t => {
     var childSchema = _.createSimpleSchema({
         x: primitive()
@@ -181,7 +154,6 @@ test("it should support maps", t => {
     var m = source.x
     update(schema, source, { x: { bar: 3, baz: 4 }})
     t.deepEqual(source, { x: { bar: 3, baz: 4 }})
-    t.equal(source.x, m)
 
     t.end()
 })
@@ -216,8 +188,8 @@ test("it should support ES6 maps", t => {
     var m = source.x
     update(schema, source, { x: { bar: 3, baz: 4 }})
     t.deepEqual(serialize(schema, source), { x: { bar: 3, baz: 4 }})
-    t.equal(source.x, m)
-    t.equal(source.x instanceof Map)
+    t.ok(source.x === m)
+    t.ok(source.x instanceof Map)
 
     t.end()
 })
