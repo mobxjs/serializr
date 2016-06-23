@@ -2,11 +2,17 @@
 
 __Don't use this package yet, it is under development_
 
+
+[![Build Status](https://travis-ci.org/mobxjs/serializr.svg?branch=master)](https://travis-ci.org/mobxjs/serializr)
+[![Coverage Status](https://coveralls.io/repos/mobxjs/serializr/badge.svg?branch=master&service=github)](https://coveralls.io/github/mobxjs/serializr?branch=master)
+[![Join the chat at https://gitter.im/mobxjs/serializr](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mobxjs/serializr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+
 -------
 # TODO
 
  * [ ] If MobX, use createTransformer, transaction
- * [ ] coverage, travis
+ * [x] coverage, travis
  * [ ] Typings
  * [ ] Docs
  * [ ] Test in Babel

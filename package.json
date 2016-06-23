@@ -5,19 +5,30 @@
   "main": "serializr.js",
   "scripts": {
     "test": "node test/index",
-    "lint": "eslint serializr.js"
+    "lint": "eslint serializr.js",
+    "prepublish": "npm run small-build",
+    "small-build": "uglifyjs -m sort,toplevel -c --screw-ie8 --preamble '/** serializr - (c) Michel Weststrate 2016 - MIT Licensed */' --source-map serializr.min.js.map -o serializr.min.js serializr.js",
+    "coverage": "istanbul cover tape test/*.js"
   },
   "keywords": [
-      "serialize",
-       "deserialize",
-       "graph",
-       "json",
-       "mobx"
+    "serialize",
+    "deserialize",
+    "graph",
+    "json",
+    "mobx"
   ],
   "author": "Michel Weststrate",
   "license": "MIT",
+  "files": [
+      "serializr.js",
+      "serializr.min.js",
+      "serializr.min.js.map"
+  ],
   "devDependencies": {
+    "coveralls": "^2.11.9",
     "eslint": "^2.12.0",
-    "tape": "^4.5.1"
+    "istanbul": "^0.4.4",
+    "tape": "^4.5.1",
+    "uglify-js": "^2.6.4"
   }
 }
