@@ -17,8 +17,15 @@
     "json",
     "mobx"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mobxjs/serializr.git"
+  },
   "author": "Michel Weststrate",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mobxjs/serializr/issues"
+  },
   "files": [
       "serializr.js",
       "serializr.min.js",
