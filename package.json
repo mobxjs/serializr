@@ -1,6 +1,6 @@
 {
   "name": "serializr",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Serialize and deserialize complex object graphs to JSON",
   "main": "serializr.js",
   "scripts": {
@@ -27,9 +27,9 @@
     "url": "https://github.com/mobxjs/serializr/issues"
   },
   "files": [
-      "serializr.js",
-      "serializr.min.js",
-      "serializr.min.js.map"
+    "serializr.js",
+    "serializr.min.js",
+    "serializr.min.js.map"
   ],
   "devDependencies": {
     "coveralls": "^2.11.9",
