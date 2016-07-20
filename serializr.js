@@ -111,7 +111,7 @@
             if (!info) {
                 var constructor = target.constructor
                 info = setDefaultModelSchema(
-                    target,
+                    constructor,
                     {
                         factory: function() {
                             return new constructor()
