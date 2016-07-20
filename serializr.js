@@ -336,6 +336,7 @@
             }
         }
 
+// Todo no id attr, but optional schema
         function ref(childIdentifierAttribute, lookupFn) {
             invariant(typeof childIdentifierAttribute === "string", "first argument should be a string")
             invariant(typeof lookupFn === "function", "second argument should be a lookup function")
