@@ -11,6 +11,8 @@ __Don't use this package yet, it is under development_
 -------
 # TODO
 
+ * [x] Solve id
+ * [ ] Solve circular deps
  * [ ] If MobX, use createTransformer, transaction
  * [x] coverage, travis
  * [ ] Typings
@@ -35,18 +37,18 @@ const todoSchema = {
     factory: (context) => new Todo(),
     extends: ModelSchema,
     props: {
-        modelfield: PropSchema 
+        modelfield: PropSchema
     }
 }
 ```
 
 The `factory` tells how to construct new instances durint deserialization.
 `PropSchema`'s describe how individual properties are (de)serialized.
-The props map from _model_ fields, not from json fields 
+The props map from _model_ fields, not from json fields
 
 _implementation details:_
 The `context` parameter to the factory contains the `parent` field (see the `child` PropSchema`),
-a `addDeserializationCallback` method (with synchronous functions that are run after the deserialization but before returning), 
+a `addDeserializationCallback` method (with synchronous functions that are run after the deserialization but before returning),
 and a `createCallback` funtion to create a new callback which will automatically be waited for until deserialization is completed.
 
 ## createModelSchema(constructorFunc, props): ModelSchema
@@ -65,7 +67,7 @@ Serializes an object according to the provided modelSchema, or the modelSchema t
 
 ## deserialize(modelSchema, json(array), callback?): modelObject(s)
 
-Deserialize directly returns the instantiated model objects for the root of the json. However, properties are allowed to 
+Deserialize directly returns the instantiated model objects for the root of the json. However, properties are allowed to
 deserialize asynchronous (for example to fetch additional data). The callback will be invoked once the modelObjects have been constructed completely
 Note: fields not _present_ in json are also not updated
 
@@ -77,7 +79,7 @@ Note: fields not _present_ in json are also not updated
 A prop schema describes how a property should be (deserialized).
 ```
 {
-    serializer: propValue => jsonValue 
+    serializer: propValue => jsonValue
     deserializer: (jsonValue, cb(err, propvalue), context?, oldValue?) => void
     jsonname: aliased name
 }
@@ -98,7 +100,7 @@ Higher order propSchema, allows to use a different name in the json
 TODO: or seperate field of a propSchema?
 
 ### list(PropSchema)
-Higher order propSchema, indicates that this property is a list 
+Higher order propSchema, indicates that this property is a list
 
 ## @serializable[(PropSchema)]
 Field decorator that adds a property to the ModelSchema of the current class
@@ -130,7 +132,7 @@ const todoSchema = {
     }
 }
 
-const todo = deserialize(todoSchema, 
+const todo = deserialize(todoSchema,
     { task: "grab coffee", owner: 17, children: [] },
     (err, todo) => { console.log("finished loading todos") }
 );
@@ -155,7 +157,7 @@ const todoSchema = {
 }
 setDefaultModelSchema(Todo, todoSchema)
 
-const todo = deserialize(Todo, // just pass the constructor name, schema will be picked up 
+const todo = deserialize(Todo, // just pass the constructor name, schema will be picked up
     { task: "grab coffee", owner: 17, children: [] },
     (err, todos) => { console.log("finished loading todos") }
 );
@@ -175,7 +177,7 @@ createModelSchema(Todo, {
     task: primitive()
 })
 
-const todo = deserialize(Todo, // just pass the constructor name, schema will be picked up 
+const todo = deserialize(Todo, // just pass the constructor name, schema will be picked up
     { task: "grab coffee", owner: 17, children: [] },
     (err, todos) => { console.log("finished loading todos") }
 );
@@ -198,9 +200,9 @@ class Todo {
 }
 
 // note that (de)serialize also accepts lists
-const todos = deserialize(Todo, 
+const todos = deserialize(Todo,
     [{
-        task: "grab coffee", owner: 17, children: [] 
+        task: "grab coffee", owner: 17, children: []
     }],
     (err, todos) => { console.log("finished loading todos") }
 );
@@ -216,7 +218,7 @@ const someTodoStoreById = {}
 
 getDefaultModelSchema(Todo).factory = (context, json) => {
   if (someTodoStoreById[json.id])
-    return someTodoStoreById[json.id] // reuse instance 
+    return someTodoStoreById[json.id] // reuse instance
   return someTodoStoreById[json.id] = new Todo()
 };
 ```

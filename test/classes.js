@@ -37,13 +37,13 @@ test("complex async schema", t => {
     }
 
     _.createModelSchema(Comment, {
-        id: true,
+        id: _.alias("__id", _.identifier()), // mark as identifier, use alias
         message: true
     })
     _.createModelSchema(Post, {
         id: true,
         message: true,
-        comments: _.list(_.ref("id", fetchComment))
+        comments: _.list(_.ref(Comment, fetchComment))
     })
 
     var postStore = []
@@ -59,6 +59,16 @@ test("complex async schema", t => {
                 cb(null, commentStore[id])
             }, 10)
     }
+
+    test("aliased identifier is (de)serialized correctly ", t => {
+        var c1 = new Comment(2, "World")
+        var serialized = _.serialize(c1)
+        t.deepEqual(serialized, {
+            __id: 2, message: "World"
+        })
+        t.deepEqual(_.serialize(_.deserialize(Comment, serialized)), serialized)
+        t.end()
+    })
 
     test("simple async fetch", t => {
         var p = new Post(1, "Hello")

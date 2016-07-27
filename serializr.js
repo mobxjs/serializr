@@ -47,6 +47,16 @@
             })
         }
 
+        function extend(target) {
+            for (var i = 1; i < arguments.length; i++) {
+                var source =  arguments[i]
+                if (source && typeof source === "object") for (var key in source)
+                    if (source.hasOwnProperty(key))
+                        target[key] = source[key]
+            }
+            return target
+        }
+
 /**
  * Serializr utilities
  */
@@ -97,11 +107,24 @@
         }
 
         function isAliasedPropSchema(propSchema) {
-            return ("jsonname" in propSchema)
+            return !!propSchema.jsonname
+        }
+
+        function isIdentifierPropSchema(propSchema) {
+            return propSchema.identifier === true
         }
 
         function isContext(thing) {
             return thing instanceof Context
+        }
+
+        function getIdentifierProp(modelSchema) {
+            invariant(isModelSchema(modelSchema))
+            // optimizatoin: cache this lookup
+            for (var propName in modelSchema.props)
+                if (modelSchema.props[propName].identifier === true)
+                    return propName
+            return null
         }
 
         function serializableDecorator(propSchema, target, propName, descriptor) {
@@ -176,7 +199,7 @@
             return res
         }
 
-/** 
+/**
  * Deserialization
  */
         function deserialize(schema, json, callback) {
@@ -205,7 +228,7 @@
                 return void callback(null, null)
             var context = new Context(parentContext, json, callback)
             var target = schema.factory(context)
-            // todo async invariant            
+            // todo async invariant
             invariant(!!target, "No object returned from factory")
             context.target = target
             var lock = context.createCallback(NOOP)
@@ -267,7 +290,7 @@
  * Update
  */
         function update(arg1, arg2, arg3, arg4) {
-            var modelSchemaProvided = arguments.length === 4 || typeof arg3 !== "function" 
+            var modelSchemaProvided = arguments.length === 4 || typeof arg3 !== "function"
             var schema, target, json, callback
             if (modelSchemaProvided) {
                 schema = arg1
@@ -307,6 +330,12 @@
             }
         }
 
+        function identifier() {
+            return extend({
+                identifier: true
+            }, _defaultPrimitiveProp)
+        }
+
         function alias(name, propSchema) {
             invariant(name && typeof name === "string", "expected prop name as first argument")
             propSchema = propSchema || _defaultPrimitiveProp
@@ -315,7 +344,8 @@
             return {
                 jsonname: name,
                 serializer: propSchema.serializer,
-                deserializer: propSchema.deserializer
+                deserializer: propSchema.deserializer,
+                identifier: isIdentifierPropSchema(propSchema)
             }
         }
 
@@ -336,16 +366,23 @@
             }
         }
 
-// Todo no id attr, but optional schema
-        function ref(childIdentifierAttribute, lookupFn) {
-            invariant(typeof childIdentifierAttribute === "string", "first argument should be a string")
+        function ref(target, lookupFn) {
             invariant(typeof lookupFn === "function", "second argument should be a lookup function")
+            var childIdentifierAttribute
+            if (typeof target === "string")
+                childIdentifierAttribute = target
+            else {
+                var modelSchema = getDefaultModelSchema(target)
+                invariant(isModelSchema(modelSchema), "expected model schema or string as first argument for 'ref', got " + modelSchema)
+                childIdentifierAttribute = getIdentifierProp(modelSchema)
+                invariant(!!childIdentifierAttribute, "provided model schema doesn't define an identifier() property and cannot be used by 'ref'.")
+            }
             return {
                 serializer: function (item) {
                     return item ? item[childIdentifierAttribute] : null
                 },
-                deserializer: function(identifier, done, context) {
-                    lookupFn(identifier, done, context)   
+                deserializer: function(identifierValue, done, context) {
+                    lookupFn(identifierValue, done, context)
                 }
             }
         }
@@ -370,7 +407,7 @@
                         done
                     )
                 }
-            }            
+            }
         }
 
         function isMapLike(thing) {
@@ -409,7 +446,7 @@
                             var newValue
                             if (isMap) {
                                 // if the oldValue is a map, we recycle it
-                                // there are many variations and this way we don't have to 
+                                // there are many variations and this way we don't have to
                                 // know about the original constructor
                                 oldValue.clear()
                                 newValue = oldValue
@@ -425,12 +462,12 @@
                         context
                     )
                 }
-            }            
+            }
         }
 
 /**
  * UMD shizzle
- */        
+ */
         return {
             createModelSchema: createModelSchema,
             createSimpleSchema: createSimpleSchema,
@@ -443,6 +480,7 @@
             deserialize: deserialize,
             update: update,
             primitive: primitive,
+            identifier: identifier,
             alias: alias,
             list: list,
             map: map,
