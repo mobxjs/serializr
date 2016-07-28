@@ -1,34 +1,142 @@
 # Serializr
 
-
-__Don't use this package yet, it is under development_
-
+_Serialize and deserialize complex object graphs to JSON_
 
 [![Build Status](https://travis-ci.org/mobxjs/serializr.svg?branch=master)](https://travis-ci.org/mobxjs/serializr)
 [![Coverage Status](https://coveralls.io/repos/github/mobxjs/serializr/badge.svg?branch=master)](https://coveralls.io/github/mobxjs/serializr?branch=master)
 [![Join the chat at https://gitter.im/mobxjs/serializr](https://badges.gitter.im/mobxjs/serializr.svg)](https://gitter.im/mobxjs/serializr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
--------
-# TODO
+# Introduction
 
- * [x] Solve id
- * [ ] Solve circular deps
- * [ ] If MobX, use createTransformer, transaction
- * [x] coverage, travis
- * [ ] Typings
- * [ ] Docs
- * [ ] Test in Babel
- * [ ] Test in Typescript
+Serializr is a utility library that helps converting json structures into complex object graphs and the other way around.
 
--------
 
-# Api
+Features:
+ * (De)serialize objects created with a constructor / class
+ * (De)serialize primitive values
+ * (De)serialize nested objects, maps and arrays
+ * Resolve references asynchronously (during deserialization)
+ * Supports inheritance
+ * Works on any ES3+ environment.
+ * Convenience decorators for ESNext / Typescript
+ * Ships with typescript / flow(?) typings
+ * Works well with MobX out of the box (but not limited too, the serialization mechanism is generic and MobX is not a dependency)
+
+Non-features:
+ * Serializr is not an ORM or data management library. It doesn't manage object instances, provided api's like fetch, search etc. If you are building such a thing though, serializr might definitely take care of the serialization part for you :-).
+
+# Installation
+
+`npm install serializr --save`
+
+# Quick example:
+
+```
+import {
+    createModelSchema, primitive, ref, list, child, identifier, serialize, deserialize
+} from "serializr";
+
+// Example model classes
+class User {
+    uuid = Math.random();
+    displayName = "John Doe";
+}
+
+class Message {
+    message = "Test";
+    author = null;
+    comments = [];
+}
+
+findUserById(uuid, callback) {
+    callback(null, fetchUserSomewhere(uuid))
+}
+
+// Create model schemas
+createModelSchema(Message, {
+    message: primitive(),
+    author: ref(User, findUserById),
+    comments: list(child(Message))
+})
+
+createModelSchema(User, {
+    uuid: identifier(),
+    displayName: primitive()
+})
+
+// can now deserialize and serialize!
+const message = deserialize(Message, {
+    message: "Hello world",
+    author: 17,
+    comments: [{
+        message: "Welcome!",
+        author: 23
+    }]
+})
+
+const json = serialize(message)
+```
+
+## Using decorators (optional)
+
+With decorators (TypeScript or ESNext) building model schemas is even more trivial:
+
+```javascript
+import {
+    createModelSchema, primitive, ref, list, child, identifier, serialize, deserialize,
+    serializable
+} from "serializr";
+
+class User {
+    @serializable(identifier())
+    uuid = Math.random();
+
+    @serializable(primitive())
+    displayName = "John Doe";
+}
+
+class Message {
+    @serializable(primitive())
+    message = "Test";
+
+    @serializable(ref(User, findUserById))
+    author = null;
+
+    @serializable(list(child(Message)))
+    comments = [];
+}
+```
+
+## Enabling decorators (optional)
+
+**TypeScript**
+
+Enable the compiler option `experimentalDecorators` in `tsconfig.json` or pass it as flag `--experimentalDecorators` to the compiler.
+
+**Babel:**
+
+Install support for decorators: `npm i --save-dev babel-plugin-transform-decorators-legacy`. And enable it in your `babelrc` file:
+
+```
+{
+  "presets": [
+    "es2015",
+    "stage-1"
+  ],
+  "plugins": ["transform-decorators-legacy"]
+}
+```
+Probably you have more plugins and presets in your `.babelrc` already, note that the order is important and `transform-decorators-legacy` should come as first.
+
+# Concepts
+
+The two most important functions exposed by serializr are `serialize(modelschema?, object) -> json tree` and `deserialize(modelschema, json tree) -> object graph`.
+What are those model schemas?
 
 ## ModelSchema
 
 The driving concept behind (de)serialization is a ModelSchema.
-The configuration for how to (de)serialize plain JS structures to objects.
-See also the examples below
+It describes how model object instances can be (de)serialize to json.
 
 A model schema simple looks like this:
 
@@ -43,82 +151,32 @@ const todoSchema = {
 ```
 
 The `factory` tells how to construct new instances durint deserialization.
-`PropSchema`'s describe how individual properties are (de)serialized.
-The props map from _model_ fields, not from json fields
+The optional `extends` property denotes that this model schema inherits it's props from another model schema.
+The props section describe how individual model properties are to be (de)serialized. Their names match the model field names.
+The combination `fieldname: true` is simply a shorthand for `fieldname: primitive()`
 
-_implementation details:_
-The `context` parameter to the factory contains the `parent` field (see the `child` PropSchema`),
-a `addDeserializationCallback` method (with synchronous functions that are run after the deserialization but before returning),
-and a `createCallback` funtion to create a new callback which will automatically be waited for until deserialization is completed.
+For convenience, model schemas can be stored on the constructor function of a class.
+This allows you to pass in a class reference everywhere where a model schema is required.
+See the examples below.
 
-## createModelSchema(constructorFunc, props): ModelSchema
+## PropSchema
 
-Convenient method to create a `ModelSchema`.
-The new modelschema will be returned, but also stored as static field on the constructor.
-This allows to just pass class instances to `serialize` without expicitly defining a model schema.
+Prop schemas contain the strategy on how individual fields should be serialized.
+It denotes whether a field is a primitive, list, whether it needs to be aliased, refers to other model objects etc.
+Propschemas are composable. See the API section below for all possibilities.
+It is possible to define your own prop schemas.
+For now take a look at the source code of the existing ones on how they work, it is pretty straight forward.
 
-## getDefaultModelSchema(modelObject | constructor): ModelSchema
+## (De)serialization context
 
-## setDefaultModelSchema(modelObject | constructor, ModelSchema)
-
-## serialize(modelSchema?, modelObject(s)): json(array)
-
-Serializes an object according to the provided modelSchema, or the modelSchema that was stored on its constructor schema (see `createModelSchema`).
-
-## deserialize(modelSchema, json(array), callback?): modelObject(s)
-
-Deserialize directly returns the instantiated model objects for the root of the json. However, properties are allowed to
-deserialize asynchronous (for example to fetch additional data). The callback will be invoked once the modelObjects have been constructed completely
-Note: fields not _present_ in json are also not updated
-
-## update(modelSchema?, modelObject(array), json(array), callback?)
+TODO
 
 
-### Prop schema
-
-A prop schema describes how a property should be (deserialized).
-```
-{
-    serializer: propValue => jsonValue
-    deserializer: (jsonValue, cb(err, propvalue), context?, oldValue?) => void
-    jsonname: aliased name
-}
-```
- Built in prop schema's are:
-
-### primitive()
-
-### child(ModelSchema)
-For childs, the current object will be passed in as `context.parent` object to the factory
-
-### ref(childAttribute, lookup: (id, cb: (err, res) => void, context) => void)
-Serializes an object to just a reference. Note that for deserialization a `lookup` method needs to be provided to restore the reference.
-
-
-### alias(PropSchema, jsonName)
-Higher order propSchema, allows to use a different name in the json
-TODO: or seperate field of a propSchema?
-
-### list(PropSchema)
-Higher order propSchema, indicates that this property is a list
-
-## @serializable[(PropSchema)]
-Field decorator that adds a property to the ModelSchema of the current class
-
-### Creating custom prop schema's
-
-A PropSchema is just an object with two fields, a `serializer` and `deserializer`
-
-#### serializer: (modelPropValue) => jsonValue
-
-#### deserializer: (jsonValue) => modelValue
-
-Deserializer should invoke the `done` method after deserialization. This allows the deserialization process to be asynchronous and perform additional data fetch if needed.
-See also `deserialize`.
+# API
 
 
 
-# Examples
+# Recipes and examples
 
 ## 1. Plain schema with plain objects
 
@@ -165,7 +223,7 @@ const todo = deserialize(Todo, // just pass the constructor name, schema will be
 const todoJson = serialize(todo) // no need to pass schema explicitly
 ```
 
-### 3. Create schema for simple argumentless constructors
+## 3. Create schema for simple argumentless constructors
 
 ```javascript
 function Todo() {
@@ -185,7 +243,7 @@ const todo = deserialize(Todo, // just pass the constructor name, schema will be
 const todoJson = serialize(todo) // no need to pass schema explicitly
 ```
 
-#### 4. Create schema for simple argumentless constructors using decorators
+## 4. Create schema for simple argumentless constructors using decorators
 
 ```
 class Todo {
@@ -211,7 +269,7 @@ const todoJson = serialize(todos)
 
 ```
 
-#### 5. use custom factory methods to reuse model object instances
+## 5. use custom factory methods to reuse model object instances
 
 ```javascript
 const someTodoStoreById = {}
@@ -222,3 +280,18 @@ getDefaultModelSchema(Todo).factory = (context, json) => {
   return someTodoStoreById[json.id] = new Todo()
 };
 ```
+
+
+
+-------
+# TODO
+
+ * [ ] Explain context
+ * [ ] Document/ Solve circular deps?
+ * [ ] If MobX, use createTransformer, transaction (future)
+ * [ ] Support async serialization (future)
+ * [x] coverage, travis
+ * [ ] Typings
+ * [ ] Docs
+ * [ ] Test in Babel
+ * [ ] Test in Typescript

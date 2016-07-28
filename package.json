@@ -33,6 +33,7 @@
   ],
   "devDependencies": {
     "coveralls": "^2.11.9",
+    "documentation": "^4.0.0-beta9",
     "eslint": "^2.12.0",
     "istanbul": "^0.4.4",
     "tape": "^4.5.1",

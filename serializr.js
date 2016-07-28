@@ -2,7 +2,7 @@
     "use strict"
 
     function mrFactory() {
-/**
+/*
  * Generic utility functions
  */
         function NOOP() {}
@@ -58,10 +58,25 @@
         }
 
 /**
- * Serializr utilities
+ * ## Managing model schemas
  */
         var _defaultPrimitiveProp = primitive()
 
+        /**
+         * Creates a model schema that (de)serializes from / to plain javascript objects
+         *
+         * @example
+         * var todoSchema = createSimpleSchema({
+         *   title: true,
+         *   done: true
+         * };
+         *
+         * var json = serialize(todoSchema, { title: "Test", done: false })
+         * var todo = deserialize(todoSchema, json)
+         *
+         * @param {object} props property mapping,
+         * @returns {object} model schema
+         */
         function createSimpleSchema(props) {
             return {
                 factory: function() {
@@ -71,6 +86,28 @@
             }
         }
 
+        /**
+         * Creates a model schema that (de)serializes an object created by a constructor function (class).
+         * The created model schema is associated by the targeted type as default model schema, see setDefaultModelSchema
+         *
+         * @example
+         * function Todo(title, done) {
+         *   this.title = title;
+         *   this.done = done;
+         * }
+         *
+         * createModelSchema(Todo, {
+         *   title: true,
+         *   done: true
+         * })
+         *
+         * var json = serialize(new Todo("Test", false))
+         * var todo = deserialize(Todo, json)
+         *
+         * @param {function} clazz clazz or constructor function
+         * @param {object} props property mapping
+         * @returns {object} model schema
+         */
         function createModelSchema(clazz, props) {
             invariant(clazz !== Object, "one cannot simply put define a model schema for Object")
             invariant(typeof clazz === "function", "expected constructor function")
@@ -82,49 +119,37 @@
             })
         }
 
-        function getDefaultModelSchema(thing) {
-            if (!thing)
-                return null
-            if (isModelSchema(thing))
-                return thing
-            if (isModelSchema(thing.serializeInfo))
-                return thing.serializeInfo
-            if (thing.constructor && thing.constructor.serializeInfo)
-                return thing.constructor.serializeInfo
-        }
-
-        function setDefaultModelSchema(clazz, modelSchema) {
-            invariant(isModelSchema(modelSchema))
-            return clazz.serializeInfo = modelSchema
-        }
-
-        function isModelSchema(thing) {
-            return thing && thing.factory && thing.props
-        }
-
-        function isPropSchema(thing) {
-            return thing && thing.serializer && thing.deserializer
-        }
-
-        function isAliasedPropSchema(propSchema) {
-            return !!propSchema.jsonname
-        }
-
-        function isIdentifierPropSchema(propSchema) {
-            return propSchema.identifier === true
-        }
-
-        function isContext(thing) {
-            return thing instanceof Context
-        }
-
-        function getIdentifierProp(modelSchema) {
-            invariant(isModelSchema(modelSchema))
-            // optimizatoin: cache this lookup
-            for (var propName in modelSchema.props)
-                if (modelSchema.props[propName].identifier === true)
-                    return propName
-            return null
+        /**
+         * Decorator that defines a new property mapping on the default model schema for the class
+         * it is used in.
+         *
+         * @example
+         * class Todo {
+         *   @serializable(primitive())
+         *   title;
+         *
+         *   @serializable // shorthand for primitves
+         *   done;
+         *
+         *   constructor(title, done) {
+         *     this.title = title;
+         *     this.done = done;
+         *   }
+         * }
+         *
+         * var json = serialize(new Todo("Test", false))
+         * var todo = deserialize(Todo, json)
+         */
+        function serializable(arg1, arg2, arg3) {
+            if (arguments.length === 1) {
+                // decorated with propSchema
+                var propSchema = arg1
+                invariant(isPropSchema(propSchema), "@serializable expects prop schema")
+                return serializableDecorator.bind(null, propSchema)
+            } else {
+                // decorated without arguments, treat as primitive
+                return serializableDecorator(primitive(), arg1, arg2, arg3)
+            }
         }
 
         function serializableDecorator(propSchema, target, propName, descriptor) {
@@ -147,20 +172,81 @@
             return descriptor
         }
 
-        function serializable(arg1, arg2, arg3) {
-            if (arguments.length === 1) {
-                // decorated with propSchema
-                var propSchema = arg1
-                invariant(isPropSchema(propSchema), "@serializable expects prop schema")
-                return serializableDecorator.bind(null, propSchema)
-            } else {
-                // decorated without arguments, treat as primitive
-                return serializableDecorator(primitive(), arg1, arg2, arg3)
-            }
+        /**
+         * Returns the standard model schema associated with a class / constructor function
+         *
+         * @param {function} clazz class or constructor function
+         * @returns {object} model schema
+         */
+        function getDefaultModelSchema(thing) {
+            if (!thing)
+                return null
+            if (isModelSchema(thing))
+                return thing
+            if (isModelSchema(thing.serializeInfo))
+                return thing.serializeInfo
+            if (thing.constructor && thing.constructor.serializeInfo)
+                return thing.constructor.serializeInfo
         }
+
+        /**
+         * Sets the default model schema for class / constructor function.
+         * Everywhere where a model schema is required as argument, this class / constructor function
+         * can be passed in as well (for example when using `child` or `ref`.
+         *
+         * When passing an instance of this class to `serialize`, it is not required to pass the model schema
+         * as first argument anymore, because the default schema will be inferred from the instance type.
+         *
+         * @param {function} clazz class or constructor function
+         * @returns {object} model schema
+         */
+        function setDefaultModelSchema(clazz, modelSchema) {
+            invariant(isModelSchema(modelSchema))
+            return clazz.serializeInfo = modelSchema
+        }
+
+        function isModelSchema(thing) {
+            return thing && thing.factory && thing.props
+        }
+
+        function isPropSchema(thing) {
+            return thing && thing.serializer && thing.deserializer
+        }
+
+        function isAliasedPropSchema(propSchema) {
+            return !!propSchema.jsonname
+        }
+
+        function isIdentifierPropSchema(propSchema) {
+            return propSchema.identifier === true
+        }
+
+        function getIdentifierProp(modelSchema) {
+            invariant(isModelSchema(modelSchema))
+            // optimizatoin: cache this lookup
+            for (var propName in modelSchema.props)
+                if (modelSchema.props[propName].identifier === true)
+                    return propName
+            return null
+        }
+
 /**
+ * ## Serialization and deserialization
+ */
+
+/*
  * Serialization
  */
+
+        /**
+         * Serializes an object (graph) into json using the provided model schema.
+         * The model schema can be omitted if the object type has a default model schema associated with it.
+         * If a list of objects is provided, they should have an uniform type.
+         *
+         * @param {object} modelschema to use. Optional
+         * @param {object or array} object object(s) to serialize
+         * @returns {object} serialized representation of the object
+         */
         function serialize(arg1, arg2) {
             invariant(arguments.length === 1 || arguments.length === 2, "serialize expects one or 2 arguments")
             var thing = arguments.length === 1 ? arg1 : arg2
@@ -199,9 +285,22 @@
             return res
         }
 
-/**
+/*
  * Deserialization
  */
+
+        /**
+         * Deserializes an json structor into an object graph.
+         * This process might be asynchronous (for example if there are references with an asynchronous
+         * lookup function). The function returns an object (or array of objects), but the returned object
+         * might be incomplete until the callback has fired as well (which might happen immediately)
+         *
+         * @param {object or array} modelschema to use for deserialization
+         * @param {json} json data to deserialize
+         * @param {function} callback node style callback that is invoked once the deserializaiton has finished.
+         * First argument is the optional error, second argument is the deserialized object (same as the return value)
+         * @param {object or array} deserialized object, possibly incomplete.
+         */
         function deserialize(schema, json, callback) {
             invariant(arguments.length >= 2, "deserialize expects at least 2 arguments")
             schema = getDefaultModelSchema(schema)
@@ -286,9 +385,19 @@
             return this.parentContext ? this.parentContext.target : null
         }
 
-/**
+/*
  * Update
  */
+        /**
+         * Similar to deserialize, but updates an existing object instance.
+         * Properties will always updated entirely, but properties not present in the json will be kept as is.
+         * Further this method behaves similar to deserialize.
+         *
+         * @param {object} modelschema, optional if it can be inferred from the instance type
+         * @param {object} target target instance to update
+         * @param {object} json the json to deserialize
+         * @param {function} callback the callback to invoke once deserialization has completed.
+         */
         function update(arg1, arg2, arg3, arg4) {
             var modelSchemaProvided = arguments.length === 4 || typeof arg3 !== "function"
             var schema, target, json, callback
@@ -311,9 +420,24 @@
             deserializePropsWithSchema(context, schema, json, target)
             lock()
         }
+
 /**
- * Built in property types
+ * ## Property schemas
  */
+
+        /**
+         * Indicates that this field contains a primitive value (or Date) which should be serialized literally to json.
+         *
+         * @example
+         * createModelSchema(Todo, {
+         *   title: primitive()
+         * })
+         *
+         * console.dir(serialize(new Todo("test")))
+         * // { title : "test" }
+         *
+         * @returns {PropSchema}
+         */
         function primitive() {
             return {
                 serializer: function (value) {
@@ -330,12 +454,34 @@
             }
         }
 
+        /**
+         * Similar to primitive, but this field will be marked as the identifier for the given Model type.
+         * This is used by for example `ref()` to serialize the reference
+         *
+         * @returns
+         */
         function identifier() {
             return extend({
                 identifier: true
             }, _defaultPrimitiveProp)
         }
 
+        /**
+         * Alias indicates that this model property should be named differently in the generated json.
+         * Alias should be the outermost propschema.
+         *
+         * @example
+         * createModelSchema(Todo, {
+         *   title: alias("task", primitive())
+         * })
+         *
+         * console.dir(serialize(new Todo("test")))
+         * // { task : "test" }
+         *
+         * @param {string} alias name of the json field to be used for this property
+         * @param {PropSchema} propSchema propSchema to (de)serialize the contents of this field
+         * @returns {PropSchema}
+         */
         function alias(name, propSchema) {
             invariant(name && typeof name === "string", "expected prop name as first argument")
             propSchema = propSchema || _defaultPrimitiveProp
@@ -349,6 +495,30 @@
             }
         }
 
+
+        /**
+         * Child indicates that this property contains an object that needs to be (de)serialized
+         * using it's own model schema.
+         *
+         * @example
+         * createModelSchema(SubTask, {
+         *   title: true
+         * })
+         * createModelSchema(Todo, {
+         *   title: true
+         *   subTask: child(SubTask)
+         * })
+         *
+         * const todo = deserialize(Todo, {
+         *   title: "Task",
+         *   subTask: {
+         *     title: "Sub task"
+         *   }
+         * })
+         *
+         * @param {modelSchema} modelSchema to be used to (de)serialize the child
+         * @returns {PropSchema}
+         */
         function child(modelSchema) {
             modelSchema = getDefaultModelSchema(modelSchema)
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
@@ -366,6 +536,54 @@
             }
         }
 
+        /**
+         * Ref can be used to (de)serialize references that points to other models.
+         *
+         * The first parameter should be either a ModelSchema that has an `identifier()` property (see identifier)
+         * or a string that represents which attribute in the target object represents the identifier of the object.
+         *
+         * The second parameter is a lookup function that is invoked during deserialization to resolve an identifier to
+         * an object. It's signature should be as follows:
+         *
+         * `lookupFunction(identifier, callback, context)` where:
+         * 1. `identifier` is the identifier being resolved
+         * 2. `callback` is a node style calblack function to be invoked with the found object (as second arg) or an error (first arg)
+         * 3. `context` see context.
+         *
+         * @example
+         * createModelSchema(User, {
+         *   uuid: identifier(),
+         *   displayname: primitive()
+         * })
+         *
+         * createModelSchema(Post, {
+         *   author: ref(User, findUserById)
+         *   message: primitive()
+         * })
+         *
+         * function findUserById(uuid, callback) {
+         *   fetch("http://host/user/" + uuid)
+         *     .then((userData) => {
+         *       deserialize(User, userData, callback)
+         *     })
+         *     .catch(callback)
+         * }
+         *
+         * deserialize(
+         *   Post,
+         *   {
+         *     message: "Hello World",
+         *     author: 234
+         *   },
+         *   (err, post) => {
+         *     console.log(post)
+         *   }
+         * )
+         *
+         * @param {ModelSchema or string} target
+         * @param {function} lookup function
+         * @returns {PropSchema}
+         */
         function ref(target, lookupFn) {
             invariant(typeof lookupFn === "function", "second argument should be a lookup function")
             var childIdentifierAttribute
@@ -386,6 +604,30 @@
                 }
             }
         }
+
+        /**
+         * List indicates that this property contains a list of things.
+         * Accepts a sub model schema to serialize the contents
+         *
+         * @example
+         * createModelSchema(SubTask, {
+         *   title: true
+         * })
+         * createModelSchema(Todo, {
+         *   title: true
+         *   subTask: list(child(SubTask))
+         * })
+         *
+         * const todo = deserialize(Todo, {
+         *   title: "Task",
+         *   subTask: [{
+         *     title: "Sub task 1"
+         *   }]
+         * })
+         *
+         * @param {PropSchema} propSchema to be used to (de)serialize the contents of the array
+         * @returns {PropSchema}
+         */
 
         function list(propSchema) {
             propSchema = propSchema || _defaultPrimitiveProp
@@ -414,6 +656,14 @@
             return thing && typeof thing.keys === "function" && typeof thing.clear === "function"
         }
 
+        /**
+         * Similar to list, but map represents a string keyed dynamic collection.
+         * This can be both plain objects (default) or ES6 Map like structures.
+         * This will be inferred from the initial value of the targetted attribute.
+         *
+         * @param {any} propSchema
+         * @returns
+         */
         function map(propSchema) {
             propSchema = propSchema || _defaultPrimitiveProp
             invariant(isPropSchema(propSchema), "expected prop schema as second argument")
@@ -471,10 +721,8 @@
         return {
             createModelSchema: createModelSchema,
             createSimpleSchema: createSimpleSchema,
+            setDefaultModelSchema: getDefaultModelSchema,
             getDefaultModelSchema: getDefaultModelSchema,
-            isModelSchema: isModelSchema,
-            isPropSchema: isPropSchema,
-            isContext: isContext,
             serializable: serializable,
             serialize: serialize,
             deserialize: deserialize,
