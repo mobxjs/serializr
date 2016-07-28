@@ -4,3 +4,4 @@ old
 .vscode
 serializr.min.js*
 coverage
+*.log

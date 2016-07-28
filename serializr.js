@@ -57,10 +57,9 @@
             return target
         }
 
-/**
+/*
  * ## Managing model schemas
  */
-        var _defaultPrimitiveProp = primitive()
 
         /**
          * Creates a model schema that (de)serializes from / to plain javascript objects
@@ -139,6 +138,9 @@
          *
          * var json = serialize(new Todo("Test", false))
          * var todo = deserialize(Todo, json)
+         *
+         * @param
+         * @returns {PropertyDescriptor}
          */
         function serializable(arg1, arg2, arg3) {
             if (arguments.length === 1) {
@@ -230,12 +232,8 @@
             return null
         }
 
-/**
- * ## Serialization and deserialization
- */
-
 /*
- * Serialization
+ * ## Serialization and deserialization
  */
 
         /**
@@ -243,8 +241,8 @@
          * The model schema can be omitted if the object type has a default model schema associated with it.
          * If a list of objects is provided, they should have an uniform type.
          *
-         * @param {object} modelschema to use. Optional
-         * @param {object or array} object object(s) to serialize
+         * @param arg1 modelschema to use. Optional
+         * @param arg2 object(s) to serialize
          * @returns {object} serialized representation of the object
          */
         function serialize(arg1, arg2) {
@@ -393,10 +391,10 @@
          * Properties will always updated entirely, but properties not present in the json will be kept as is.
          * Further this method behaves similar to deserialize.
          *
-         * @param {object} modelschema, optional if it can be inferred from the instance type
-         * @param {object} target target instance to update
-         * @param {object} json the json to deserialize
-         * @param {function} callback the callback to invoke once deserialization has completed.
+         * @param {object} arg1 modelschema, optional if it can be inferred from the instance type
+         * @param {object} arg2 target target instance to update
+         * @param {object} arg3 json the json to deserialize
+         * @param {function} arg4 callback the callback to invoke once deserialization has completed.
          */
         function update(arg1, arg2, arg3, arg4) {
             var modelSchemaProvided = arguments.length === 4 || typeof arg3 !== "function"
@@ -421,9 +419,12 @@
             lock()
         }
 
-/**
+/*
  * ## Property schemas
  */
+
+        var _defaultPrimitiveProp = primitive()
+
 
         /**
          * Indicates that this field contains a primitive value (or Date) which should be serialized literally to json.
@@ -434,7 +435,7 @@
          * })
          *
          * console.dir(serialize(new Todo("test")))
-         * // { title : "test" }
+         * // outputs: { title : "test" }
          *
          * @returns {PropSchema}
          */
@@ -580,7 +581,7 @@
          *   }
          * )
          *
-         * @param {ModelSchema or string} target
+         * @param target: ModelSchema or string
          * @param {function} lookup function
          * @returns {PropSchema}
          */
@@ -715,7 +716,7 @@
             }
         }
 
-/**
+/*
  * UMD shizzle
  */
         return {
