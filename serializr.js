@@ -62,7 +62,8 @@
  */
 
         /**
-         * Creates a model schema that (de)serializes from / to plain javascript objects
+         * Creates a model schema that (de)serializes from / to plain javascript objects.
+         * It's factory method is: `() => ({})`
          *
          * @example
          * var todoSchema = createSimpleSchema({
@@ -87,7 +88,8 @@
 
         /**
          * Creates a model schema that (de)serializes an object created by a constructor function (class).
-         * The created model schema is associated by the targeted type as default model schema, see setDefaultModelSchema
+         * The created model schema is associated by the targeted type as default model schema, see setDefaultModelSchema.
+         * It's factory method is `() => new clazz()` (unless overriden, see third arg).
          *
          * @example
          * function Todo(title, done) {
@@ -105,13 +107,14 @@
          *
          * @param {function} clazz clazz or constructor function
          * @param {object} props property mapping
+         * @param {function} factory optional custom factory. Receives context as first arg
          * @returns {object} model schema
          */
-        function createModelSchema(clazz, props) {
+        function createModelSchema(clazz, props, factory) {
             invariant(clazz !== Object, "one cannot simply put define a model schema for Object")
             invariant(typeof clazz === "function", "expected constructor function")
             setDefaultModelSchema(clazz, {
-                factory: function() {
+                factory: factory || function() {
                     return new clazz()
                 },
                 props: props
@@ -297,9 +300,10 @@
          * @param {json} json data to deserialize
          * @param {function} callback node style callback that is invoked once the deserializaiton has finished.
          * First argument is the optional error, second argument is the deserialized object (same as the return value)
-         * @param {object or array} deserialized object, possibly incomplete.
+         * @param {any} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
+         * @returns {object or array} deserialized object, possibly incomplete.
          */
-        function deserialize(schema, json, callback) {
+        function deserialize(schema, json, callback, customArgs) {
             invariant(arguments.length >= 2, "deserialize expects at least 2 arguments")
             schema = getDefaultModelSchema(schema)
             invariant(isModelSchema(schema), "first argument should be model schema")
@@ -309,7 +313,7 @@
                 parallel(
                     json,
                     function (childJson, itemDone) {
-                        var instance = deserializeObjectWithSchema(null, schema, childJson, itemDone)
+                        var instance = deserializeObjectWithSchema(null, schema, childJson, itemDone, customArgs)
                         // instance is created synchronously so can be pushed
                         items.push(instance)
                     },
@@ -317,13 +321,13 @@
                 )
                 return items
             } else
-                return deserializeObjectWithSchema(null, schema, json, callback)
+                return deserializeObjectWithSchema(null, schema, json, callback, customArgs)
         }
 
-        function deserializeObjectWithSchema(parentContext, schema, json, callback) {
+        function deserializeObjectWithSchema(parentContext, schema, json, callback, customArgs) {
             if (json === null || json === undefined)
                 return void callback(null, null)
-            var context = new Context(parentContext, json, callback)
+            var context = new Context(parentContext, json, callback, customArgs)
             var target = schema.factory(context)
             // todo async invariant
             invariant(!!target, "No object returned from factory")
@@ -350,18 +354,19 @@
                         target[propName] = value
                     }),
                     context,
-                    target[propName]
+                    target[propName] // initial value
                 )
             })
         }
 
-        function Context(parentContext, json, onReadyCb) {
+        function Context(parentContext, json, onReadyCb, customArgs) {
             this.parentContext = parentContext
             this.onReadyCb = onReadyCb || NOOP
             this.json = json
             this.target = null
             this.pendingCallbacks = 0
             this.hasError = false
+            this.args = parentContext ? parentContext.args : customArgs
         }
         Context.prototype.createCallback = function (fn) {
             this.pendingCallbacks++
@@ -379,9 +384,6 @@
                 }
             }.bind(this))
         }
-        Context.prototype.getParentObject = function() {
-            return this.parentContext ? this.parentContext.target : null
-        }
 
 /*
  * Update
@@ -391,31 +393,30 @@
          * Properties will always updated entirely, but properties not present in the json will be kept as is.
          * Further this method behaves similar to deserialize.
          *
-         * @param {object} arg1 modelschema, optional if it can be inferred from the instance type
-         * @param {object} arg2 target target instance to update
-         * @param {object} arg3 json the json to deserialize
-         * @param {function} arg4 callback the callback to invoke once deserialization has completed.
+         * @param {object} modelSchema, optional if it can be inferred from the instance type
+         * @param {object} target target instance to update
+         * @param {object} json the json to deserialize
+         * @param {function} callback the callback to invoke once deserialization has completed.
+         * @param {any} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
          */
-        function update(arg1, arg2, arg3, arg4) {
-            var modelSchemaProvided = arguments.length === 4 || typeof arg3 !== "function"
-            var schema, target, json, callback
-            if (modelSchemaProvided) {
-                schema = arg1
-                target = arg2
-                json = arg3
-                callback = arg4
-            } else {
-                target = arg1
-                schema = getDefaultModelSchema(target)
-                json = arg2
-                callback = arg3
+        function update(modelSchema, target, json, callback, customArgs) {
+            var inferModelSchema =
+                arguments.length === 2 // only target and json
+                || typeof arguments[2] === "function" // callback as third arg
+
+            if (inferModelSchema) {
+                target = arguments[0]
+                modelSchema = getDefaultModelSchema(target)
+                json = arguments[1]
+                callback = arguments[2]
+                customArgs = arguments[2]
             }
-            invariant(isModelSchema(schema), "update failed to determine schema")
+            invariant(isModelSchema(modelSchema), "update failed to determine schema")
             invariant(typeof target === "object" && target && !Array.isArray(target), "update needs an object")
-            var context = new Context(null, json, callback)
+            var context = new Context(null, json, callback, customArgs)
             context.target = target
             var lock = context.createCallback(NOOP)
-            deserializePropsWithSchema(context, schema, json, target)
+            deserializePropsWithSchema(context, modelSchema, json, target)
             lock()
         }
 
@@ -501,6 +502,8 @@
          * Child indicates that this property contains an object that needs to be (de)serialized
          * using it's own model schema.
          *
+         * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
+         *
          * @example
          * createModelSchema(SubTask, {
          *   title: true
@@ -550,6 +553,8 @@
          * 1. `identifier` is the identifier being resolved
          * 2. `callback` is a node style calblack function to be invoked with the found object (as second arg) or an error (first arg)
          * 3. `context` see context.
+         *
+         * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
          *
          * @example
          * createModelSchema(User, {

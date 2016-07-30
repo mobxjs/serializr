@@ -100,3 +100,62 @@ test("complex async schema", t => {
 
     t.end()
 })
+
+test("test context and factories", t => {
+    function Message() {
+        this.title = "test"
+        this.comments = []
+    }
+
+    function Comment() {
+        this.title = "bla"
+    }
+
+    var myArgs = "myStore";
+    var theMessage = null;
+    var json = {
+        title: "bloopie",
+        comments: [{
+            title: "42"
+        }]
+    }
+    var mContext;
+
+    var commentModel = {
+        factory: (context) => {
+            t.deepEqual(context.json, json.comments[0])
+            t.deepEqual(context.parentContext, mContext)
+            t.deepEqual(context.parentContext.target, theMessage)
+            t.deepEqual(context.args, myArgs)
+            t.deepEqual(context.target, null) // only available after factory has been invoked
+            return new Comment()
+        },
+        props: {
+            title: true
+        }
+    }
+
+    var messageModel = {
+        factory: (context) => {
+            mContext = context
+            t.deepEqual(context.json, json)
+            t.deepEqual(context.parentContext, null)
+            t.deepEqual(context.args, myArgs)
+            t.deepEqual(context.target, null) // only available after factory has been invoked
+            return (theMessage = new Message())
+        },
+        props: {
+            title: true,
+            comments: _.list(_.child(commentModel))
+        }
+    }
+
+    var res = _.deserialize(messageModel, json, (err, message) => {
+        t.ok(message === theMessage)
+        t.notOk(err)
+        t.deepEqual(_.serialize(messageModel, message), json)
+    }, myArgs)
+
+    t.ok(res === theMessage)
+    t.end()
+})
