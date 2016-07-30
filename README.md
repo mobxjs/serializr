@@ -149,7 +149,7 @@ const todoSchema = {
 }
 ```
 
-The `factory` tells how to construct new instances durint deserialization.
+The `factory` tells how to construct new instances during deserialization.
 The optional `extends` property denotes that this model schema inherits it's props from another model schema.
 The props section describe how individual model properties are to be (de)serialized. Their names match the model field names.
 The combination `fieldname: true` is simply a shorthand for `fieldname: primitive()`
@@ -162,13 +162,42 @@ See the examples below.
 
 Prop schemas contain the strategy on how individual fields should be serialized.
 It denotes whether a field is a primitive, list, whether it needs to be aliased, refers to other model objects etc.
-Propschemas are composable. See the API section below for all possibilities.
-It is possible to define your own prop schemas.
-For now take a look at the source code of the existing ones on how they work, it is pretty straight forward.
+Propschemas are composable. See the API section below for the details, but these are the built in property schemas:
 
-## (De)serialization context
+* `primitive()`: Serialize a field as primitive value
+* `identifier()`: Serialize a field as primitive value, use it as identifier when serializing references (see `ref`)
+* `alias(name, propSchema)`: Serializes a field under a different name
+* `list(propSchema)`: Serializes an array based collection
+* `map(propSchema)`: Serializes an Map or string key based collection
+* `child(modelSchema)`: Serializes an child model element
+* `ref(modelSchema, lookupFunction)`: Serializes a reference to another model element
 
-TODO
+It is possible to define your own prop schemas. You can define your own propSchema by creating a function that returns an object with the following signature:
+
+```javascript
+{
+    serializer: (sourcePropertyValue: any) => jsonValue,
+    deserializer: (jsonValue: any, callback: (err, targetPropertyValue: any) => void, context?, currentPropertyValue?) => void
+}
+```
+
+For inspiration, take a look at the source code of the existing ones on how they work, it is pretty straight forward.
+
+## Deserialization context
+
+The context object is an advanced feature and can be used to obtain additional context related information about the deserialization process.
+`context` is available as:
+
+ 1. first argument of factory functions
+ 2. third argument of the lookup callback of `ref` prop schema's (see below)
+ 3. third argument of the `deserializer` of a custom propSchema
+
+When deserializing a model elememt / property, the following fields are available on the context object:
+
+ * `json`: Returns the complete current json object that is being deserialized
+ * `target`: The object currently being deserialized. This is the object that is returned from the factory function.
+ * `parentContext`: Returns the parent context of the current context. For example if a child element is being deserialized, the `context.target` refers to the current model object, and `context.parentContext.target` refers to the parent model object that owns the current model object.
+ * `args`: If custom arguments were passed to the `deserialize` / `update` function, they are available as `context.args`.
 
 # API
 
@@ -236,9 +265,9 @@ it is used in.
 
 **Parameters**
 
--   `arg1`  
--   `arg2`  
--   `arg3`  
+-   `arg1`
+-   `arg2`
+-   `arg3`
 
 **Examples**
 
@@ -246,7 +275,7 @@ it is used in.
 class Todo {
 ```
 
-Returns **PropertyDescriptor** 
+Returns **PropertyDescriptor**
 
 ## getDefaultModelSchema
 
@@ -257,7 +286,7 @@ Returns the standard model schema associated with a class / constructor function
 **Parameters**
 
 -   `clazz` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** class or constructor function
--   `thing`  
+-   `thing`
 
 Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** model schema
 
@@ -275,7 +304,7 @@ as first argument anymore, because the default schema will be inferred from the 
 **Parameters**
 
 -   `clazz` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** class or constructor function
--   `modelSchema`  
+-   `modelSchema`
 
 Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** model schema
 
@@ -305,7 +334,7 @@ might be incomplete until the callback has fired as well (which might happen imm
 
 **Parameters**
 
--   `schema`  
+-   `schema`
 -   `json` **[json](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON)** data to deserialize
 -   `callback` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** node style callback that is invoked once the deserializaiton has finished.
     First argument is the optional error, second argument is the deserialized object (same as the return value)
@@ -342,7 +371,7 @@ console.dir(serialize(new Todo("test")))
 // outputs: { title : "test" }
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## identifier
 
@@ -361,7 +390,7 @@ Alias should be the outermost propschema.
 **Parameters**
 
 -   `alias` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** name of the json field to be used for this property
--   `name`  
+-   `name`
 -   `propSchema` **PropSchema** propSchema to (de)serialize the contents of this field
 
 **Examples**
@@ -375,7 +404,7 @@ console.dir(serialize(new Todo("test")))
 // { task : "test" }
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## child
 
@@ -407,7 +436,7 @@ const todo = deserialize(Todo, {
 })
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## ref
 
@@ -431,7 +460,7 @@ an object. It's signature should be as follows:
 
 -   `target`  : ModelSchema or string
 -   `lookup` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function
--   `lookupFn`  
+-   `lookupFn`
 
 **Examples**
 
@@ -466,7 +495,7 @@ deserialize(
 )
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## list
 
@@ -498,7 +527,7 @@ const todo = deserialize(Todo, {
 })
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## map
 
@@ -510,7 +539,7 @@ This will be inferred from the initial value of the targetted attribute.
 
 **Parameters**
 
--   `propSchema` **any** 
+-   `propSchema` **any**
 
 # Recipes and examples
 
