@@ -3,6 +3,7 @@
   "version": "0.0.3",
   "description": "Serialize and deserialize complex object graphs to JSON",
   "main": "serializr.js",
+  "typings": "serializr.d.ts",
   "scripts": {
     "test": "node test/index",
     "lint": "eslint serializr.js",

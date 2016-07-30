@@ -142,7 +142,9 @@
          * var json = serialize(new Todo("Test", false))
          * var todo = deserialize(Todo, json)
          *
-         * @param
+         * @param arg1
+         * @param arg2
+         * @param arg3
          * @returns {PropertyDescriptor}
          */
         function serializable(arg1, arg2, arg3) {
