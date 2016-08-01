@@ -113,12 +113,14 @@
         function createModelSchema(clazz, props, factory) {
             invariant(clazz !== Object, "one cannot simply put define a model schema for Object")
             invariant(typeof clazz === "function", "expected constructor function")
-            setDefaultModelSchema(clazz, {
+            var model = {
                 factory: factory || function() {
                     return new clazz()
                 },
                 props: props
-            })
+            }
+            setDefaultModelSchema(clazz, model)
+            return model
         }
 
         /**
@@ -150,7 +152,7 @@
         function serializable(arg1, arg2, arg3) {
             if (arguments.length === 1) {
                 // decorated with propSchema
-                var propSchema = arg1
+                var propSchema = arg1 === true ? _defaultPrimitiveProp : arg1
                 invariant(isPropSchema(propSchema), "@serializable expects prop schema")
                 return serializableDecorator.bind(null, propSchema)
             } else {
@@ -163,19 +165,12 @@
             invariant(arguments.length >= 2, "too few arguments. Please use @serializable as property decorator")
             invariant(typeof propName === "string", "incorrect usage of @serializable decorator")
             var info = getDefaultModelSchema(target)
-            if (!info) {
-                var constructor = target.constructor
-                info = setDefaultModelSchema(
-                    constructor,
-                    {
-                        factory: function() {
-                            return new constructor()
-                        },
-                        props: {}
-                    }
-                )
-            }
+            if (!info)
+                info = createModelSchema(target.constructor, {})
             info.props[propName] = propSchema
+            // MWE: why won't babel work without?
+            if (!descriptor.get && !descriptor.set)
+                descriptor.writable = true
             return descriptor
         }
 
@@ -608,7 +603,11 @@
                     return item ? item[childIdentifierAttribute] : null
                 },
                 deserializer: function(identifierValue, done, context) {
-                    lookupFn(identifierValue, done, context)
+                    // TODO: refs should always be deserialized at the end of the root context!
+                    if (identifierValue === null || identifierValue === undefined)
+                        done(null, null)
+                    else
+                        lookupFn(identifierValue, done, context)
                 }
             }
         }
