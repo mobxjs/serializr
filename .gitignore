@@ -6,4 +6,5 @@ serializr.min.js*
 coverage
 *.log
 
-test/ts.js
+test/typescript/ts.js
+test/babel/babel-compiled.js

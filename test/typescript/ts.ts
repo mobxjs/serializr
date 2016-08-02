@@ -1,4 +1,4 @@
-import {serializable, primitive, serialize, deserialize} from "../";
+import {serializable, primitive, serialize, deserialize} from "../../";
 import {observable, autorun} from "mobx";
 
 declare var require;

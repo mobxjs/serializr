@@ -5,7 +5,7 @@
   "main": "serializr.js",
   "typings": "serializr.d.ts",
   "scripts": {
-    "test": "tsc -p test/ && node test/index",
+    "test": "tsc -p test/typescript && babel test/babel/babel.js -o test/babel/babel-compiled.js && node test/index",
     "lint": "eslint serializr.js",
     "prepublish": "npm run small-build && npm run build-docs",
     "small-build": "uglifyjs -m sort,toplevel -c --screw-ie8 --preamble '/** serializr - (c) Michel Weststrate 2016 - MIT Licensed */' --source-map serializr.min.js.map -o serializr.min.js serializr.js",
@@ -34,6 +34,8 @@
     "serializr.min.js.map"
   ],
   "devDependencies": {
+    "babel-cli": "^6.11.4",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "coveralls": "^2.11.9",
     "documentation": "^4.0.0-beta9",
     "eslint": "^2.12.0",

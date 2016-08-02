@@ -1,3 +1,4 @@
 require("./simple")
 require("./classes")
-require("./ts.js")
+require("./typescript/ts.js")
+require("./babel/babel-compiled.js")
