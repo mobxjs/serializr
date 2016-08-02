@@ -5,12 +5,13 @@
   "main": "serializr.js",
   "typings": "serializr.d.ts",
   "scripts": {
-    "test": "tsc -p test/typescript && babel test/babel/babel.js -o test/babel/babel-compiled.js && node test/index",
+    "test": "npm run build-test && node test/index",
     "lint": "eslint serializr.js",
     "prepublish": "npm run small-build && npm run build-docs",
     "small-build": "uglifyjs -m sort,toplevel -c --screw-ie8 --preamble '/** serializr - (c) Michel Weststrate 2016 - MIT Licensed */' --source-map serializr.min.js.map -o serializr.min.js serializr.js",
     "build-docs": "documentation readme serializr.js --github --section API",
-    "coverage": "istanbul cover tape test/*.js"
+    "build-test": "tsc -p test/typescript && babel test/babel/babel.js -o test/babel/babel-compiled.js",
+    "coverage": "npm run build-test && istanbul cover tape test/*.js"
   },
   "keywords": [
     "serialize",
