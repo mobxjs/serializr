@@ -440,9 +440,7 @@
         function primitive() {
             return {
                 serializer: function (value) {
-                    if (value instanceof Date)
-                        return 0 + value
-                    invariant((typeof value !== "object" || value === null) && typeof value !== "function", "this value is not primitive: " + value)
+                    invariant(value === null || (typeof value !== "object" && typeof value !== "function"), "this value is not primitive: " + value)
                     return value
                 },
                 deserializer: function (jsonValue, done) {
@@ -464,6 +462,29 @@
                 identifier: true
             }, _defaultPrimitiveProp)
         }
+
+        /**
+         * Similar to primitive, serializes instances of Date objects
+         *
+         * @returns
+         */
+        function date() {
+            // TODO: add format option?
+            return {
+                serializer: function(value) {
+                    if (value === null || value === undefined)
+                        return value
+                    invariant(value instanceof Date, "Expected Date object")
+                    return value.getTime()
+                },
+                deserializer: function (jsonValue, done) {
+                    if (jsonValue === null || jsonValue === undefined)
+                        return void done(null, jsonValue)
+                    return void done(null, new Date(jsonValue))
+                }
+            }
+        }
+
 
         /**
          * Alias indicates that this model property should be named differently in the generated json.
@@ -736,6 +757,7 @@
             update: update,
             primitive: primitive,
             identifier: identifier,
+            date: date,
             alias: alias,
             list: list,
             map: map,

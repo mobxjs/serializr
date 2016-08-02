@@ -31,10 +31,10 @@ test("it should serialize simple object", t => {
 
     test("it should (de)serialize arrays", t => {
         var data = [ { x: 1 }, { x: 2}]
-        
+
         t.deepEqual(serialize(schema, data), data)
         t.deepEqual(deserialize(schema, data), data)
-        
+
         t.end()
     })
 
@@ -190,6 +190,29 @@ test("it should support ES6 maps", t => {
     t.deepEqual(serialize(schema, source), { x: { bar: 3, baz: 4 }})
     t.ok(source.x === m)
     t.ok(source.x instanceof Map)
+
+    t.end()
+})
+
+test("it should support dates", t => {
+    var s = _.createSimpleSchema({
+        d1: _.date(),
+        d2: _.date()
+    })
+
+    var now = Date.now();
+    var a = _.deserialize(s, {
+        d1: null,
+        d2: now
+    })
+    t.equal(a.d1, null)
+    t.ok(a.d2 instanceof Date)
+    t.equal(a.d2.getTime(), now)
+
+    t.deepEqual(_.serialize(s, a), {
+        d1: null,
+        d2: now
+    })
 
     t.end()
 })

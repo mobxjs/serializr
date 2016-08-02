@@ -49,6 +49,8 @@ export function primitive(): PropSchema;
 
 export function identifier(): PropSchema;
 
+export function date(): PropSchema;
+
 export function alias(jsonName: string, propSchema: PropSchema): PropSchema;
 
 export function child(modelschema: ModelSchema<any>): PropSchema;
