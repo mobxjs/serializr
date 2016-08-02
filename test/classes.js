@@ -159,3 +159,73 @@ test("test context and factories", t => {
     t.ok(res === theMessage)
     t.end()
 })
+
+test("sync error handling", t => {
+    var sub = _.createSimpleSchema({
+        id: true
+    });
+
+    var parent = _.createSimpleSchema({
+        r: _.list(_.ref("id", (id, cb) => {
+            if (id === 42)
+                cb("oops")
+            else
+                cb(null, null)
+        }))
+    })
+
+    t.throws(() => {
+        var a = _.deserialize(parent, { r: [1, 42] })
+    }, /oops/)
+
+    t.end();
+})
+
+test("async error handling without handler", t => {
+    var sub = _.createSimpleSchema({
+        id: true
+    });
+
+    var parent = _.createSimpleSchema({
+        r: _.list(_.ref("id", (id, cb) => {
+            if (id === 42)
+                setImmediate(() => {
+                    // normally this error would be ungarded, killing the app
+                    t.throws(
+                        () => cb("oops"),
+                        /oops/
+                    )
+                    t.end()
+                })
+            else
+                setImmediate(() => cb(null, null))
+        }))
+    })
+
+    var a = _.deserialize(parent, { r: [1, 42] })
+})
+
+
+test("async error handling with handler", t => {
+    var sub = _.createSimpleSchema({
+        id: true
+    });
+
+    var parent = _.createSimpleSchema({
+        r: _.list(_.ref("id", (id, cb) => {
+            if (id === 42)
+                setImmediate(() => {
+                    cb("oops")
+                })
+            else
+                setImmediate(() => cb(null, null))
+        }))
+    })
+
+    var a = _.deserialize(parent, { r: [1, 42] }, (err, res) => {
+        t.notOk(res)
+        t.ok(a)
+        t.equal(err, "oops")
+        t.end()
+    })
+})

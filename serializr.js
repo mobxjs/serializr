@@ -6,6 +6,10 @@
  * Generic utility functions
  */
         function NOOP() {}
+        function GUARDED_NOOP(err) {
+            if (err) // unguarded error...
+                throw new Error(err)
+        }
 
         function  once(fn) {
             var fired = false
@@ -304,7 +308,6 @@
             invariant(arguments.length >= 2, "deserialize expects at least 2 arguments")
             schema = getDefaultModelSchema(schema)
             invariant(isModelSchema(schema), "first argument should be model schema")
-            callback = callback || NOOP
             if (Array.isArray(json)) {
                 var items = []
                 parallel(
@@ -314,7 +317,7 @@
                         // instance is created synchronously so can be pushed
                         items.push(instance)
                     },
-                    callback
+                    callback || GUARDED_NOOP
                 )
                 return items
             } else
@@ -358,7 +361,7 @@
 
         function Context(parentContext, json, onReadyCb, customArgs) {
             this.parentContext = parentContext
-            this.onReadyCb = onReadyCb || NOOP
+            this.onReadyCb = onReadyCb || GUARDED_NOOP
             this.json = json
             this.target = null
             this.pendingCallbacks = 0
@@ -626,7 +629,7 @@
                 deserializer: function(identifierValue, done, context) {
                     // TODO: refs should always be deserialized at the end of the root context!
                     if (identifierValue === null || identifierValue === undefined)
-                        done(null, null)
+                        done(null, identifierValue)
                     else
                         lookupFn(identifierValue, done, context)
                 }
