@@ -169,7 +169,7 @@
                 info = createModelSchema(target.constructor, {})
             info.props[propName] = propSchema
             // MWE: why won't babel work without?
-            if (!descriptor.get && !descriptor.set)
+            if (descriptor && !descriptor.get && !descriptor.set)
                 descriptor.writable = true
             return descriptor
         }

@@ -5,7 +5,7 @@
   "main": "serializr.js",
   "typings": "serializr.d.ts",
   "scripts": {
-    "test": "node test/index",
+    "test": "tsc -p test/ && node test/index",
     "lint": "eslint serializr.js",
     "prepublish": "npm run small-build && npm run build-docs",
     "small-build": "uglifyjs -m sort,toplevel -c --screw-ie8 --preamble '/** serializr - (c) Michel Weststrate 2016 - MIT Licensed */' --source-map serializr.min.js.map -o serializr.min.js serializr.js",
@@ -38,6 +38,7 @@
     "documentation": "^4.0.0-beta9",
     "eslint": "^2.12.0",
     "istanbul": "^0.4.4",
+    "mobx": "^2.4.1",
     "tape": "^4.5.1",
     "typescript": "^1.8.10",
     "uglify-js": "^2.6.4"

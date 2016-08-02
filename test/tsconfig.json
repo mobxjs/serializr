@@ -1,0 +1,13 @@
+{
+    "version": "1.7.5",
+    "compilerOptions": {
+        "target": "es5",
+        "sourceMap": false,
+        "module": "commonjs",
+        "removeComments": false,
+        "experimentalDecorators": true
+    },
+    "files": [
+        "ts.ts"
+    ]
+}

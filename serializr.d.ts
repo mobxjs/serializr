@@ -23,23 +23,27 @@ export interface ModelSchema<T> {
     props: Props
 }
 
+export type Clazz<T> = new() => T;
+export type ClazzOrModelSchema<T> = ModelSchema<T> | Clazz<T>;
+
 export function createSimpleSchema<T extends Object>(props: Props): ModelSchema<T>;
 
-export function createModelSchema<T extends Object>(clazz: new() => T, props: Props, factory?: Factory<T>): ModelSchema<T>;
+export function createModelSchema<T extends Object>(clazz: Clazz<T>, props: Props, factory?: Factory<T>): ModelSchema<T>;
 
-export function serializable(propSchema: PropSchema): (target: Object, key: string, baseDescriptor?: PropertyDescriptor) => any;
+export function serializable(propSchema: PropSchema | boolean): (target: Object, key: string, baseDescriptor?: PropertyDescriptor) => void;
+export function serializable(target: Object, key: string, baseDescriptor?: PropertyDescriptor);
 
-export function getDefaultModelSchema<T>(clazz: new() => T): ModelSchema<T>;
+export function getDefaultModelSchema<T>(clazz: Clazz<T>): ModelSchema<T>;
 
-export function setDefaultModelSchema<T>(clazz: new() => T, modelschema: ModelSchema<T>);
+export function setDefaultModelSchema<T>(clazz: Clazz<T>, modelschema: ModelSchema<T>);
 
 export function serialize<T>(modelschema: ModelSchema<T>, instance: T): any;
 export function serialize<T>(instance: T): any;
 
-export function deserialize<T>(modelschema: ModelSchema<T>, json: any, callback: (err: any, result: T) => void, customArgs?: any): T;
+export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, json: any, callback?: (err: any, result: T) => void, customArgs?: any): T;
 
-export function update<T>(modelschema: ModelSchema<T>, instance:T, json: any, callback: (err: any, result: T) => void, customArgs?: any);
-export function update<T>(instance:T, json: any, callback: (err: any, result: T) => void, customArgs?: any);
+export function update<T>(modelschema: ModelSchema<T>, instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any);
+export function update<T>(instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any);
 
 export function primitive(): PropSchema;
 

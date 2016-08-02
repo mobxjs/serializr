@@ -5,3 +5,5 @@ old
 serializr.min.js*
 coverage
 *.log
+
+test/ts.js
