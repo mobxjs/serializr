@@ -26,6 +26,15 @@ test("it should serialize simple object", t => {
             y: 1337, x: 1
         })
 
+        test("it should skip missing attrs", t => {
+            update(schema, a, {}, (err, res) => {
+                t.ok(res === a)
+                t.notOk(err)
+                t.equal(res.x, 1)
+                t.end()
+            })
+        })
+
         t.end()
     })
 

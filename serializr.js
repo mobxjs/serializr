@@ -5,7 +5,6 @@
 /*
  * Generic utility functions
  */
-        function NOOP() {}
         function GUARDED_NOOP(err) {
             if (err) // unguarded error...
                 throw new Error(err)
@@ -332,7 +331,7 @@
             // todo async invariant
             invariant(!!target, "No object returned from factory")
             context.target = target
-            var lock = context.createCallback(NOOP)
+            var lock = context.createCallback(GUARDED_NOOP)
             deserializePropsWithSchema(context, schema, json, target)
             lock()
             return target
@@ -415,7 +414,7 @@
             invariant(typeof target === "object" && target && !Array.isArray(target), "update needs an object")
             var context = new Context(null, json, callback, customArgs)
             context.target = target
-            var lock = context.createCallback(NOOP)
+            var lock = context.createCallback(GUARDED_NOOP)
             deserializePropsWithSchema(context, modelSchema, json, target)
             lock()
         }

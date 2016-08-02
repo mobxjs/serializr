@@ -20,6 +20,20 @@ test("schema's can be defined on constructors", t => {
     t.equal(res.title, "test")
     t.equal(res instanceof Todo, true)
 
+    _.update(res, {
+        title: "bloop"
+    })
+    t.equal(res.title, "bloop")
+
+    test("serialize list", t => {
+        var jsonlist = [{ title: "test1" }, { title: "test2" }]
+        var todos = _.deserialize(Todo, jsonlist)
+        t.equal(todos.length, 2)
+        t.deepEqual(_.serialize(todos), jsonlist)
+
+        t.end()
+    })
+
     t.end()
 })
 
