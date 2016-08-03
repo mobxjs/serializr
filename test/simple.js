@@ -50,6 +50,21 @@ test("it should serialize simple object", t => {
     t.end()
 })
 
+test("it should support 'false' and 'true' propSchemas", t => {
+    var s = _.createSimpleSchema({
+        x: true,
+        y: false
+    })
+
+    var a = { x: 1, y : 2}
+    t.deepEqual(_.serialize(s, a), { x: 1 })
+
+    _.update(s, a, { x: 4, y : 3})
+    t.equal(a.x, 4)
+    t.equal(a.y, 2)
+    t.end()
+})
+
 test("it should respect extends", t => {
     var superSchema = _.createSimpleSchema({
         x: primitive()

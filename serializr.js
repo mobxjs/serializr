@@ -292,6 +292,8 @@
                 var propDef = schema.props[key]
                 if (propDef === true)
                     propDef = _defaultPrimitiveProp
+                if (propDef === false)
+                    return
                 var jsonValue = propDef.serializer(obj[key])
                 res[propDef.jsonname || key] = jsonValue
             })
@@ -356,6 +358,8 @@
                 var propDef = schema.props[propName]
                 if (propDef === true)
                     propDef = _defaultPrimitiveProp
+                if (propDef === false)
+                    return
                 var jsonAttr = propDef.jsonname || propName
                 if (!(jsonAttr in json))
                     return
