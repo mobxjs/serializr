@@ -270,9 +270,9 @@ it is used in.
 
 **Parameters**
 
--   `arg1`  
--   `arg2`  
--   `arg3`  
+-   `arg1`
+-   `arg2`
+-   `arg3`
 
 **Examples**
 
@@ -280,7 +280,7 @@ it is used in.
 class Todo {
 ```
 
-Returns **PropertyDescriptor** 
+Returns **PropertyDescriptor**
 
 ## getDefaultModelSchema
 
@@ -291,7 +291,7 @@ Returns the standard model schema associated with a class / constructor function
 **Parameters**
 
 -   `clazz` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** class or constructor function
--   `thing`  
+-   `thing`
 
 Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** model schema
 
@@ -309,7 +309,7 @@ as first argument anymore, because the default schema will be inferred from the 
 **Parameters**
 
 -   `clazz` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** class or constructor function
--   `modelSchema`  
+-   `modelSchema`
 
 Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** model schema
 
@@ -339,7 +339,7 @@ might be incomplete until the callback has fired as well (which might happen imm
 
 **Parameters**
 
--   `schema`  
+-   `schema`
 -   `json` **[json](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON)** data to deserialize
 -   `callback` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** node style callback that is invoked once the deserializaiton has finished.
     First argument is the optional error, second argument is the deserialized object (same as the return value)
@@ -378,7 +378,7 @@ console.dir(serialize(new Todo("test")))
 // outputs: { title : "test" }
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## identifier
 
@@ -403,7 +403,7 @@ Alias should be the outermost propschema.
 **Parameters**
 
 -   `alias` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** name of the json field to be used for this property
--   `name`  
+-   `name`
 -   `propSchema` **PropSchema** propSchema to (de)serialize the contents of this field
 
 **Examples**
@@ -417,7 +417,7 @@ console.dir(serialize(new Todo("test")))
 // { task : "test" }
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## child
 
@@ -451,7 +451,7 @@ const todo = deserialize(Todo, {
 })
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## ref
 
@@ -477,7 +477,7 @@ N.B. mind issues with circular dependencies when importing model schema's from o
 
 -   `target`  : ModelSchema or string
 -   `lookup` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function
--   `lookupFn`  
+-   `lookupFn`
 
 **Examples**
 
@@ -512,7 +512,7 @@ deserialize(
 )
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## list
 
@@ -544,7 +544,7 @@ const todo = deserialize(Todo, {
 })
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## map
 
@@ -556,7 +556,7 @@ This will be inferred from the initial value of the targetted attribute.
 
 **Parameters**
 
--   `propSchema` **any** 
+-   `propSchema` **any**
 
 # Recipes and examples
 
@@ -781,6 +781,10 @@ function deserializeState = (store, json) {
 
 # Future ideas
 
+-   [ ] Rename `child` to `object`
+-   [ ] Alias `ref` to `reference`
+-   [ ] Introduce `"*": true` prop to (de)serialize all enumerable, unmentioned props (throw on non primitive props)
+-   [ ] Support `prop: false` as prop schema
 -   [ ] If MobX, optimize by leveraging createTransformer and transactions
 -   [ ] Support async serialization (future)
 -   [ ] Support ImmutableJS out of the box
