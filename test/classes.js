@@ -243,3 +243,193 @@ test("async error handling with handler", t => {
         t.end()
     })
 })
+
+test("default reference resolving", t => {
+    function Store() {
+        this.boxes = []
+        this.arrows = []
+    }
+    function Box(id) {
+        this.id = id
+    }
+    function Arrow(from, to) {
+
+    }
+    _.createModelSchema(Box, {
+        id: _.identifier()
+    })
+    _.createModelSchema(Arrow, {
+        from: _.ref(Box),
+        to: _.ref(Box)
+    })
+    _.createModelSchema(Store, {
+        boxes: _.list(_.child(Box)),
+        arrows: _.list(_.child(Arrow))
+    })
+
+    test("it should resolve references", t => {
+        var s = _.deserialize(Store, {
+            boxes : [ { id: 1 }, { id: 2 }],
+            arrows: [
+                { from: 1, to: 2 },
+                { from: 2, to: 2 }
+            ]
+        })
+        t.equal(s.boxes.length, 2)
+        t.equal(s.arrows.length, 2)
+        t.ok(s.arrows[0].from === s.boxes[0])
+        t.ok(s.arrows[0].to === s.boxes[1])
+        t.ok(s.arrows[1].from === s.boxes[1])
+        t.ok(s.arrows[1].to === s.boxes[1])
+        t.end()
+    })
+
+    test("it should resolve wrongly ordered references", t => {
+        var swappedScheme = _.createModelSchema(Store, {
+            arrows: _.list(_.child(Arrow)),
+            boxes: _.list(_.child(Box))
+        })
+        var s = _.deserialize(Store, {
+            arrows: [
+                { from: 1, to: 2 },
+                { from: 2, to: 2 }
+            ],
+            boxes : [ { id: 1 }, { id: 2 }]
+        })
+        t.equal(s.boxes.length, 2)
+        t.equal(s.arrows.length, 2)
+        t.ok(s.arrows[0].from === s.boxes[0])
+        t.ok(s.arrows[0].to === s.boxes[1])
+        t.ok(s.arrows[1].from === s.boxes[1])
+        t.ok(s.arrows[1].to === s.boxes[1])
+        t.end()
+
+    })
+
+    test("it should throw on missing references", t => {
+         _.deserialize(
+             Store,
+             {
+                boxes : [ { id: 1 }, { id: 2 }],
+                arrows: [
+                    { from: 1, to: 4 },
+                    { from: 3, to: 2 }
+                ]
+            },
+            (err, res) => {
+                t.notOk(res)
+                t.equal("" + err, 'Error: Unresolvable references in json: "3", "4"')
+                t.end()
+            }
+        )
+    })
+
+    t.end()
+})
+
+test("it should hand to handle colliding references", t => {
+    function Store() {
+        this.boxes = []
+        this.arrows = []
+        this.circles = []
+    }
+    function Box(id) {
+        this.id = id
+    }
+    function Circle(id) {
+        this.id = id
+    }
+    function Arrow(from, to) {
+
+    }
+    _.createModelSchema(Box, {
+        id: _.identifier()
+    })
+    _.createModelSchema(Circle, {
+        id: _.identifier()
+    })
+    _.createModelSchema(Arrow, {
+        from: _.ref(Box),
+        to: _.ref(Circle)
+    })
+    _.createModelSchema(Store, {
+        boxes: _.list(_.child(Box)),
+        arrows: _.list(_.child(Arrow)),
+        circles: _.list(_.child(Circle))
+    })
+
+    var s = _.deserialize(Store, {
+        boxes: [{ id: 1 }],
+        arrows: [{ from: 1, to: 1 }],
+        circles: [{ id: 1 }]
+    })
+
+    t.ok(s.arrows[0].from instanceof Box)
+    t.ok(s.arrows[0].to instanceof Circle)
+    t.ok(s.arrows[0].from === s.boxes[0])
+    t.ok(s.arrows[0].to === s.circles[0])
+
+    t.end()
+})
+
+test("it should hand to handle subtypes", t => {
+    function Store() {
+        this.boxes = []
+        this.arrows = []
+        this.circles = []
+    }
+    function Box(id) {
+        this.id = id
+    }
+    function Circle(id) {
+    }
+    function Arrow(from, to) {
+
+    }
+    _.createModelSchema(Box, {
+        id: _.identifier()
+    })
+    _.createModelSchema(Circle, {
+    })
+    _.getDefaultModelSchema(Circle).extends = _.getDefaultModelSchema(Box)
+
+    _.createModelSchema(Arrow, {
+        from: _.ref(Box),
+        to: _.ref(Circle)
+    })
+    _.createModelSchema(Store, {
+        boxes: _.list(_.child(Box)),
+        arrows: _.list(_.child(Arrow)),
+        circles: _.list(_.child(Circle))
+    })
+
+    test("it should accept subtypes", t => {
+        var s = _.deserialize(Store, {
+            boxes: [{ id: 1 }],
+            arrows: [{ from: 2, to: 2 }],
+            circles: [{ id: 2 }]
+        })
+
+        t.ok(s.arrows[0].from instanceof Circle)
+        t.ok(s.arrows[0].to instanceof Circle)
+        t.ok(s.arrows[0].from === s.circles[0])
+        t.ok(s.arrows[0].to === s.circles[0])
+        t.end()
+    })
+
+    test("it should not find supertypes", t => {
+        t.throws(
+            () => {
+                _.deserialize(Store, {
+                    boxes: [{ id: 1 }, { id: 2}],
+                    arrows: [{ from: 1, to: 2 }], // to should be Circle, not a Box
+                    circles: [{ id: 3 }]
+                })
+            },
+            /Error: Unresolvable references in json: "2"/
+        )
+        t.end()
+    })
+
+    t.end()
+})

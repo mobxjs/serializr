@@ -57,7 +57,7 @@ export function child(modelschema: ModelSchema<any>): PropSchema;
 
 export type RefLookupFunction = (id: string, callback: (err, result) => void) => void;
 
-export function ref(modelschema: ModelSchema<any>, lookupFn: RefLookupFunction): PropSchema;
+export function ref(modelschema: ModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
 export function ref(identiierAttr: string, lookupFn: RefLookupFunction): PropSchema;
 
 export function list(propSchema: PropSchema): PropSchema;
