@@ -602,7 +602,7 @@
 
 
         /**
-         * Child indicates that this property contains an object that needs to be (de)serialized
+         * `object` indicates that this property contains an object that needs to be (de)serialized
          * using it's own model schema.
          *
          * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
@@ -613,7 +613,7 @@
          * })
          * createModelSchema(Todo, {
          *   title: true
-         *   subTask: child(SubTask)
+         *   subTask: object(SubTask)
          * })
          *
          * const todo = deserialize(Todo, {
@@ -626,7 +626,7 @@
          * @param {modelSchema} modelSchema to be used to (de)serialize the child
          * @returns {PropSchema}
          */
-        function child(modelSchema) {
+        function object(modelSchema) {
             modelSchema = getDefaultModelSchema(modelSchema)
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
             return {
@@ -644,7 +644,7 @@
         }
 
         /**
-         * Ref can be used to (de)serialize references that points to other models.
+         * `reference` can be used to (de)serialize references that points to other models.
          *
          * The first parameter should be either a ModelSchema that has an `identifier()` property (see identifier)
          * or a string that represents which attribute in the target object represents the identifier of the object.
@@ -668,7 +668,7 @@
          * })
          *
          * createModelSchema(Post, {
-         *   author: ref(User, findUserById)
+         *   author: reference(User, findUserById)
          *   message: primitive()
          * })
          *
@@ -695,7 +695,7 @@
          * @param {function} lookup function
          * @returns {PropSchema}
          */
-        function ref(target, lookupFn) {
+        function reference(target, lookupFn) {
             invariant(typeof target !== "string" || lookupFn, "if the reference target is specified by attribute name, a lookup function is required")
             invariant(!lookupFn || typeof lookupFn === "function", "second argument should be a lookup function")
             var childIdentifierAttribute
@@ -856,8 +856,10 @@
             alias: alias,
             list: list,
             map: map,
-            child: child,
-            ref: ref
+            object: object,
+            child: object, // deprecate
+            reference: reference,
+            ref: reference // deprecate
         }
     }
 

@@ -37,12 +37,12 @@ export function getDefaultModelSchema<T>(clazz: Clazz<T>): ModelSchema<T>;
 
 export function setDefaultModelSchema<T>(clazz: Clazz<T>, modelschema: ModelSchema<T>);
 
-export function serialize<T>(modelschema: ModelSchema<T>, instance: T): any;
+export function serialize<T>(modelschema: ClazzOrModelSchema<T>, instance: T): any;
 export function serialize<T>(instance: T): any;
 
 export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, json: any, callback?: (err: any, result: T) => void, customArgs?: any): T;
 
-export function update<T>(modelschema: ModelSchema<T>, instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any);
+export function update<T>(modelschema: ClazzOrModelSchema<T>, instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any);
 export function update<T>(instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any);
 
 export function primitive(): PropSchema;
@@ -53,12 +53,15 @@ export function date(): PropSchema;
 
 export function alias(jsonName: string, propSchema: PropSchema): PropSchema;
 
-export function child(modelschema: ModelSchema<any>): PropSchema;
+export function child(modelschema: ClazzOrModelSchema<any>): PropSchema;
+export function object(modelschema: ClazzOrModelSchema<any>): PropSchema;
 
 export type RefLookupFunction = (id: string, callback: (err, result) => void) => void;
 
-export function ref(modelschema: ModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
-export function ref(identiierAttr: string, lookupFn: RefLookupFunction): PropSchema;
+export function ref(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
+export function ref(identifierAttr: string, lookupFn: RefLookupFunction): PropSchema;
+export function reference(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
+export function reference(identifierAttr: string, lookupFn: RefLookupFunction): PropSchema;
 
 export function list(propSchema: PropSchema): PropSchema;
 
