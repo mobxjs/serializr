@@ -65,6 +65,50 @@ test("it should support 'false' and 'true' propSchemas", t => {
     t.end()
 })
 
+test("it should respect `*` prop schemas", t => {
+    var s = _.createSimpleSchema({ "*" : true })
+    t.deepEqual(_.serialize(s, { a: 42, b: 17 }), { a: 42, b: 17 })
+    t.deepEqual(_.deserialize(s, { a: 42, b: 17 }), { a: 42, b: 17 })
+
+    t.throws(() => _.serialize(s, { a: new Date() }), /encountered non primitive value while serializing/)
+    t.throws(() => _.serialize(s, { a: {} }), /encountered non primitive value while serializing/)
+
+    t.throws(() => _.deserialize(s, { a: new Date() }), /encountered non primitive value while deserializing/)
+    t.throws(() => _.deserialize(s, { a: {} }), /encountered non primitive value while deserializing/)
+
+    var s2 = _.createSimpleSchema({
+        "*" : true,
+        a: _.date()
+    })
+    t.doesNotThrow(() => _.serialize(s2, { a: new Date() }))
+    t.throws(() => _.serialize(s2, { c: {} }), /encountered non primitive value while serializing/)
+
+    t.doesNotThrow(() => _.deserialize(s2, { a: new Date().getTime() }), /bla/)
+    t.throws(() => _.deserialize(s2, { c: {} }), /encountered non primitive value while deserializing/)
+
+    // don't assign aliased attrs
+    var s3 = _.createSimpleSchema({
+        a: _.alias("b", true),
+        "*" : true,
+    })
+    t.deepEqual(_.deserialize(s3, { b: 4, a: 5}), { a: 4 })
+
+
+    t.end()
+})
+
+test("it should respect custom schemas", t => {
+    var s = _.createSimpleSchema({
+        a: _.custom(
+            function(v) { return v + 2 },
+            function(v) { return v - 2 }
+        )
+    })
+    t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 })
+    t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 })
+    t.end()
+})
+
 test("it should respect extends", t => {
     var superSchema = _.createSimpleSchema({
         x: primitive()

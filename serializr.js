@@ -50,14 +50,10 @@
             })
         }
 
-        function extend(target) {
-            for (var i = 1; i < arguments.length; i++) {
-                var source =  arguments[i]
-                if (source && typeof source === "object") for (var key in source)
-                    if (source.hasOwnProperty(key))
-                        target[key] = source[key]
-            }
-            return target
+        function isPrimitive(value) {
+            if (value === null)
+                return true
+            return typeof value !== "object" && typeof value !== "function"
         }
 
 /*
@@ -116,6 +112,7 @@
         function createModelSchema(clazz, props, factory) {
             invariant(clazz !== Object, "one cannot simply put define a model schema for Object")
             invariant(typeof clazz === "function", "expected constructor function")
+            // TODO: find extends model schema!
             var model = {
                 factory: factory || function() {
                     return new clazz()
@@ -219,11 +216,11 @@
         }
 
         function isAliasedPropSchema(propSchema) {
-            return !!propSchema.jsonname
+            return typeof thing === "object" && !!propSchema.jsonname
         }
 
         function isIdentifierPropSchema(propSchema) {
-            return propSchema.identifier === true
+            return  typeof thing === "object" && propSchema.identifier === true
         }
 
         function getIdentifierProp(modelSchema) {
@@ -231,7 +228,7 @@
             // optimizatoin: cache this lookup
             while (modelSchema) {
                 for (var propName in modelSchema.props)
-                    if (modelSchema.props[propName].identifier === true)
+                    if (typeof modelSchema.props[propName] === "object" && modelSchema.props[propName].identifier === true)
                         return propName
                 modelSchema = modelSchema.extends
             }
@@ -290,6 +287,11 @@
                 res = {}
             Object.keys(schema.props).forEach(function (key) {
                 var propDef = schema.props[key]
+                if (key === "*") {
+                    invariant(propDef === true, "prop schema '*' can onle be used with 'true'")
+                    serializeStarProps(schema, obj, res)
+                    return
+                }
                 if (propDef === true)
                     propDef = _defaultPrimitiveProp
                 if (propDef === false)
@@ -298,6 +300,14 @@
                 res[propDef.jsonname || key] = jsonValue
             })
             return res
+        }
+
+        function serializeStarProps(schema, obj, target) {
+            for (var key in obj) if (obj.hasOwnProperty(key)) if (!(key in schema.props)) {
+                var value = obj[key]
+                invariant(isPrimitive(value), "encountered non primitive value while serializing '*' properties in property '" + key + "': " + value)
+                target[key] = value
+            }
         }
 
 /*
@@ -356,6 +366,11 @@
                 deserializePropsWithSchema(context, schema.extends, json, target)
             Object.keys(schema.props).forEach(function (propName) {
                 var propDef = schema.props[propName]
+                if (propName === "*") {
+                    invariant(propDef === true, "prop schema '*' can onle be used with 'true'")
+                    deserializeStarProps(schema, target, json)
+                    return
+                }
                 if (propDef === true)
                     propDef = _defaultPrimitiveProp
                 if (propDef === false)
@@ -375,6 +390,21 @@
                     target[propName] // initial value
                 )
             })
+        }
+
+        function schemaHasAlias(schema, name) {
+            for (var key in schema.props)
+                if (typeof schema.props[key] === "object" && schema.props[key].jsonname === name)
+                    return true
+            return false
+        }
+
+        function deserializeStarProps(schema, obj, json) {
+            for (var key in json) if (!(key in schema.props) && !schemaHasAlias(schema, key)) {
+                var value = json[key]
+                invariant(isPrimitive(value), "encountered non primitive value while deserializing '*' properties in property '" + key + "': " + value)
+                obj[key] = value
+            }
         }
 
         function Context(parentContext, modelSchema, json, onReadyCb, customArgs) {
@@ -524,11 +554,11 @@
         function primitive() {
             return {
                 serializer: function (value) {
-                    invariant(value === null || (typeof value !== "object" && typeof value !== "function"), "this value is not primitive: " + value)
+                    invariant(isPrimitive(value), "this value is not primitive: " + value)
                     return value
                 },
                 deserializer: function (jsonValue, done) {
-                    if ((typeof jsonValue === "object" && jsonValue !== null) || typeof jsonValue === "function")
+                    if (!isPrimitive(jsonValue))
                         return void done("[serializr] this value is not primitive: " + jsonValue)
                     return void done(null, jsonValue)
                 }
@@ -593,7 +623,7 @@
          */
         function alias(name, propSchema) {
             invariant(name && typeof name === "string", "expected prop name as first argument")
-            propSchema = propSchema || _defaultPrimitiveProp
+            propSchema = (!propSchema || propSchema === true)  ? _defaultPrimitiveProp : propSchema
             invariant(isPropSchema(propSchema), "expected prop schema as second argument")
             invariant(!isAliasedPropSchema(propSchema), "provided prop is already aliased")
             return {
@@ -604,6 +634,33 @@
             }
         }
 
+        /**
+         * Can be used to create simple custom propSchema.
+         *
+         * @example
+         * var schema = _.createSimpleSchema({
+         *   a: _.custom(
+         *     function(v) { return v + 2 },
+         *     function(v) { return v - 2 }
+         *   )
+         * })
+         * t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 })
+         * t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 })
+         *
+         * @param {function} serializer function that takes a model value and turns it into a json value
+         * @param {function} deserializer function that takes a json value and turns it into a model value
+         * @returns {propSchema}
+         */
+        function custom(serializer, deserializer) {
+            invariant(typeof serializer === "function", "first argument should be function")
+            invariant(typeof deserializer === "function", "second argument should be function")
+            return {
+                serializer: serializer,
+                deserializer: function (jsonValue, done) {
+                    done(null, deserializer(jsonValue))
+                }
+            }
+        }
 
         /**
          * `object` indicates that this property contains an object that needs to be (de)serialized
@@ -863,7 +920,8 @@
             object: object,
             child: object, // deprecate
             reference: reference,
-            ref: reference // deprecate
+            ref: reference, // deprecate
+            custom: custom
         }
     }
 
