@@ -115,6 +115,40 @@ test("complex async schema", t => {
     t.end()
 })
 
+test("it should handle not yet defined modelschema's for classes", t => {
+    function Message() {
+
+    }
+    _.createModelSchema(Message, {
+        child: _.list(_.object(Comment)), // model for Comment not defined yet!
+        ref: _.reference(Comment)
+    })
+
+    function Comment() {
+
+    }
+    _.createModelSchema(Comment, {
+        id: _.identifier(),
+        "*": true
+    })
+
+    var json = {
+        ref: 1,
+        child: [
+            { id: 2, title: "foo" },
+            { id: 1, title: "bar "}
+        ]
+    }
+    var m = _.deserialize(Message, json)
+
+    t.equal(m.child.length, 2)
+    t.ok(m.child[1] === m.ref)
+
+    t.deepEqual(_.serialize(m), json)
+
+    t.end()
+})
+
 test("test context and factories", t => {
     function Message() {
         this.title = "test"

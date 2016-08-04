@@ -1,4 +1,4 @@
-import {serializable, primitive, serialize, deserialize} from "../../";
+import {serializable, primitive, serialize, deserialize, list, object, reference, identifier} from "../../";
 import {observable, autorun} from "mobx";
 
 const test = require("tape");
@@ -63,6 +63,38 @@ test("[babel] it should handle prototypes", t => {
         a: "hoi", a2: "oeps",
         b: "boe", b2: "oef"
     });
+
+    t.end();
+});
+
+
+test.skip("[ts] it should handle not yet defined modelschema's for classes", t => {
+    // classes are declared as var, not as function, so aren't hoisted :'(
+    class Message {
+        @serializable(list(object(Comment)))
+        child = [];
+
+        @serializable(reference(Comment))
+        ref = null;
+    }
+    class Comment {
+        @serializable(identifier()) id = 0;
+        @serializable(true) title;
+    }
+
+    const json = {
+        ref: 1,
+        child: [
+            { id: 2, title: "foo" },
+            { id: 1, title: "bar "}
+        ]
+    };
+    const m = deserialize(Message, json);
+
+    t.equal(m.child.length, 2);
+    t.ok(m.child[1] === m.ref);
+
+    t.deepEqual(serialize(m), json);
 
     t.end();
 });

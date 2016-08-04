@@ -736,15 +736,18 @@
          * @returns {PropSchema}
          */
         function object(modelSchema) {
-            modelSchema = getDefaultModelSchema(modelSchema)
-            invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
+            invariant(typeof modelSchema === "object" || typeof modelSchema === "function", "No modelschema provided. If you are importing it from another file be aware of circular dependencies.")
             return {
                 serializer: function (item) {
+                    modelSchema = getDefaultModelSchema(modelSchema)
+                    invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
                     if (item === null || item === undefined)
                         return item
                     return serialize(modelSchema, item)
                 },
                 deserializer: function (childJson, done, context) {
+                    modelSchema = getDefaultModelSchema(modelSchema)
+                    invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
                     if (childJson === null || childJson === undefined)
                         return void done(null, childJson)
                     return void deserializeObjectWithSchema(context, modelSchema, childJson, done)
@@ -805,24 +808,32 @@
          * @returns {PropSchema}
          */
         function reference(target, lookupFn) {
-            invariant(typeof target !== "string" || lookupFn, "if the reference target is specified by attribute name, a lookup function is required")
-            invariant(!lookupFn || typeof lookupFn === "function", "second argument should be a lookup function")
+            invariant(!!target, "No modelschema provided. If you are importing it from another file be aware of circular dependencies.")
+            var initialized = false;
             var childIdentifierAttribute
-            if (typeof target === "string")
-                childIdentifierAttribute = target
-            else {
-                var modelSchema = getDefaultModelSchema(target)
-                invariant(isModelSchema(modelSchema), "expected model schema or string as first argument for 'ref', got " + modelSchema)
-                lookupFn = lookupFn || createDefaultRefLookup(modelSchema)
-                childIdentifierAttribute = getIdentifierProp(modelSchema)
-                invariant(!!childIdentifierAttribute, "provided model schema doesn't define an identifier() property and cannot be used by 'ref'.")
+            function initialize() {
+                initialized = true
+                invariant(typeof target !== "string" || lookupFn, "if the reference target is specified by attribute name, a lookup function is required")
+                invariant(!lookupFn || typeof lookupFn === "function", "second argument should be a lookup function")
+                if (typeof target === "string")
+                    childIdentifierAttribute = target
+                else {
+                    var modelSchema = getDefaultModelSchema(target)
+                    invariant(isModelSchema(modelSchema), "expected model schema or string as first argument for 'ref', got " + modelSchema)
+                    lookupFn = lookupFn || createDefaultRefLookup(modelSchema)
+                    childIdentifierAttribute = getIdentifierProp(modelSchema)
+                    invariant(!!childIdentifierAttribute, "provided model schema doesn't define an identifier() property and cannot be used by 'ref'.")
+                }
             }
             return {
                 serializer: function (item) {
+                    if (!initialized)
+                        initialize()
                     return item ? item[childIdentifierAttribute] : null
                 },
                 deserializer: function(identifierValue, done, context) {
-                    // TODO: refs should always be deserialized at the end of the root context!
+                    if (!initialized)
+                        initialize()
                     if (identifierValue === null || identifierValue === undefined)
                         done(null, identifierValue)
                     else
