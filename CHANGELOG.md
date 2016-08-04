@@ -1,10 +1,16 @@
 
 # 1.1
 
+_Which should have been called 1.0...:-)_
+
 * the `lookupFunction` of `ref` is now optional, if it is not provided, serializr will try to resolve the reference within the current document. Types are respected while resolving
 * `ref` has been renamed to `reference`
 * `child` has been renamed to `object`
-
+* `false` is now also an acceptable value for propSchema's
+* the prop schema `"*": true` now has the special meaning that all enumerable, primitive fields will be serialized. Will throw on non-primitive fields
+* circular dependency on default schema's for classes are now better handled
+* introduced `custom(serializer, deserializer)`
+* `identifier` now supports an optional callback that can be used to register new instances in some store
 
 # 1.0
 

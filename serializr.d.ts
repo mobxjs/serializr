@@ -47,7 +47,7 @@ export function update<T>(instance:T, json: any, callback?: (err: any, result: T
 
 export function primitive(): PropSchema;
 
-export function identifier(): PropSchema;
+export function identifier(registerFn?: (id: any, value: any, context: Context) => void): PropSchema;
 
 export function date(): PropSchema;
 

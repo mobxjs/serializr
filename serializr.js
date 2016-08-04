@@ -122,7 +122,7 @@
             // find super model
             if (clazz.prototype.constructor !== Object) {
                 var s = getDefaultModelSchema(clazz.prototype.constructor)
-                if (s)// && s.targetClass !== clazz)
+                if (s && s.targetClass !== clazz)
                     model.extends = s
             }
             setDefaultModelSchema(clazz, model)
@@ -173,7 +173,7 @@
             var info = getDefaultModelSchema(target)
             if (!info || !target.constructor.hasOwnProperty("serializeInfo"))
                 info = createModelSchema(target.constructor, {})
-            if (info && info.targetClass !== target)
+            if (info && info.targetClass !== target.constructor)
                 // fixes typescript issue that tends to copy fields from super constructor to sub constructor in extends
                 info = createModelSchema(target.constructor, {})
             info.props[propName] = propSchema
@@ -581,17 +581,53 @@
          * Similar to primitive, but this field will be marked as the identifier for the given Model type.
          * This is used by for example `ref()` to serialize the reference
          *
-         * @returns
+         * Identifier accepts an optional `registerFn` with the signature:
+         * `(id, target, context) => void`
+         * that can be used to register this object in some store. note that not all fields of this object might have been deserialized yet
+         *
+         * @example
+         * var todos = {};
+         *
+         * var s = _.createSimpleSchema({
+         *     id: _.identifier((id, object) => todos[id] = object),
+         *     title: true
+         * })
+         *
+         * _.deserialize(s, {
+         *     id: 1, title: "test0"
+         * })
+         * _.deserialize(s, [
+         *     { id: 2, title: "test2" },
+         *     { id: 1, title: "test1" }
+         * ])
+         *
+         * t.deepEqual(todos, {
+         *     1: { id: 1, title: "test1" },
+         *     2: { id: 2, title: "test2" }
+         * })
+         *
+         * @param {function} registerFn optional function to register this object during creation.
+         *
+         * @returns {PropSchema}
          */
-        function identifier() {
+        function identifier(registerFn) {
+            invariant(!registerFn || typeof registerFn === "function", "First argument should be ommitted or function")
             return {
                 identifier: true,
                 serializer: _defaultPrimitiveProp.serializer,
                 deserializer: function (jsonValue, done, context) {
-                    _defaultPrimitiveProp.deserializer(jsonValue, done)
-                    context.rootContext.resolve(context.modelSchema, jsonValue, context.target)
+                    _defaultPrimitiveProp.deserializer(jsonValue, function(err, id) {
+                        defaultRegisterFunction(id, context.target, context)
+                        if (registerFn)
+                            registerFn(id, context.target, context)
+                        done(err, id)
+                    })
                 }
             }
+        }
+
+        function defaultRegisterFunction(id, value, context) {
+            context.rootContext.resolve(context.modelSchema, id, context.target)
         }
 
         /**

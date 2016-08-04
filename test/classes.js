@@ -433,3 +433,26 @@ test("it should handle refs to subtypes", t => {
 
     t.end()
 })
+
+test("identifier can register themselves", t => {
+    var todos = {};
+
+    var s = _.createSimpleSchema({
+        id: _.identifier((id, object) => todos[id] = object),
+        title: true
+    })
+
+    _.deserialize(s, {
+        id: 1, title: "test0"
+    })
+    _.deserialize(s, [
+        { id: 2, title: "test2" },
+        { id: 1, title: "test1" }
+    ])
+
+    t.deepEqual(todos, {
+        1: { id: 1, title: "test1" },
+        2: { id: 2, title: "test2" }
+    })
+    t.end()
+})
