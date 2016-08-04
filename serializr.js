@@ -112,12 +112,18 @@
         function createModelSchema(clazz, props, factory) {
             invariant(clazz !== Object, "one cannot simply put define a model schema for Object")
             invariant(typeof clazz === "function", "expected constructor function")
-            // TODO: find extends model schema!
             var model = {
+                targetClass: clazz,
                 factory: factory || function() {
                     return new clazz()
                 },
                 props: props
+            }
+            // find super model
+            if (clazz.prototype.constructor !== Object) {
+                var s = getDefaultModelSchema(clazz.prototype.constructor)
+                if (s)// && s.targetClass !== clazz)
+                    model.extends = s
             }
             setDefaultModelSchema(clazz, model)
             return model
@@ -165,7 +171,10 @@
             invariant(arguments.length >= 2, "too few arguments. Please use @serializable as property decorator")
             invariant(typeof propName === "string", "incorrect usage of @serializable decorator")
             var info = getDefaultModelSchema(target)
-            if (!info)
+            if (!info || !target.constructor.hasOwnProperty("serializeInfo"))
+                info = createModelSchema(target.constructor, {})
+            if (info && info.targetClass !== target)
+                // fixes typescript issue that tends to copy fields from super constructor to sub constructor in extends
                 info = createModelSchema(target.constructor, {})
             info.props[propName] = propSchema
             // MWE: why won't babel work without?
@@ -216,11 +225,11 @@
         }
 
         function isAliasedPropSchema(propSchema) {
-            return typeof thing === "object" && !!propSchema.jsonname
+            return typeof propSchema === "object" && !!propSchema.jsonname
         }
 
         function isIdentifierPropSchema(propSchema) {
-            return  typeof thing === "object" && propSchema.identifier === true
+            return  typeof propSchema === "object" && propSchema.identifier === true
         }
 
         function getIdentifierProp(modelSchema) {
@@ -283,8 +292,10 @@
             var res
             if (schema.extends)
                 res = serializeWithSchema(schema.extends, obj)
-            else
+            else {
+// TODO, make invariant?:  invariant(!obj.constructor.prototype.constructor.serializeInfo, "object has a serializable supertype, but modelschema did not provide extends clause")
                 res = {}
+            }
             Object.keys(schema.props).forEach(function (key) {
                 var propDef = schema.props[key]
                 if (key === "*") {
@@ -354,6 +365,7 @@
             var target = schema.factory(context)
             // todo async invariant
             invariant(!!target, "No object returned from factory")
+// TODO: make invariant?            invariant(schema.extends || !target.constructor.prototype.constructor.serializeInfo, "object has a serializable supertype, but modelschema did not provide extends clause")
             context.target = target
             var lock = context.createCallback(GUARDED_NOOP)
             deserializePropsWithSchema(context, schema, json, target)

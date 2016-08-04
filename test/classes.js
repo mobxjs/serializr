@@ -372,7 +372,7 @@ test("it should hand to handle colliding references", t => {
     t.end()
 })
 
-test("it should hand to handle subtypes", t => {
+test("it should handle refs to subtypes", t => {
     function Store() {
         this.boxes = []
         this.arrows = []

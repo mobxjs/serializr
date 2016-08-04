@@ -44,3 +44,26 @@ test("should work in typescript", t => {
 
     t.end();
 });
+
+test("[ts] it should handle prototypes", t => {
+    class A {
+        @serializable a = "hoi";
+        @serializable a2 = "oeps";
+    }
+
+    class B extends A {
+        @serializable b = "boe";
+        @serializable b2 = "oef"
+    }
+
+    t.deepEqual(serialize(new A()), {
+        a: "hoi", a2: "oeps"
+    });
+
+    t.deepEqual(serialize(new B()), {
+        a: "hoi", a2: "oeps",
+        b: "boe", b2: "oef"
+    });
+
+    t.end();
+});
