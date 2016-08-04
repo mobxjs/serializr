@@ -1,6 +1,6 @@
 {
   "name": "serializr",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Serialize and deserialize complex object graphs to JSON",
   "main": "serializr.js",
   "typings": "serializr.d.ts",
@@ -10,7 +10,9 @@
     "prepublish": "npm run small-build && npm run build-docs",
     "small-build": "uglifyjs -m sort,toplevel -c --screw-ie8 --preamble '/** serializr - (c) Michel Weststrate 2016 - MIT Licensed */' --source-map serializr.min.js.map -o serializr.min.js serializr.js",
     "build-docs": "documentation readme serializr.js --github --section API",
-    "build-test": "tsc -p test/typescript && babel test/babel/babel.js -o test/babel/babel-compiled.js",
+    "build-test": "npm run build-test-babel && npm run build-test-ts",
+    "build-test-ts": "tsc -p test/typescript",
+    "build-test-babel": "babel test/babel/babel.js -o test/babel/babel-compiled.js",
     "coverage": "npm run build-test && istanbul cover tape test/*.js"
   },
   "keywords": [

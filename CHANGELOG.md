@@ -8,9 +8,9 @@ _Which should have been called 1.0...:-)_
 * `child` has been renamed to `object`
 * `false` is now also an acceptable value for propSchema's
 * the prop schema `"*": true` now has the special meaning that all enumerable, primitive fields will be serialized. Will throw on non-primitive fields
-* circular dependency on default schema's for classes are now better handled
 * introduced `custom(serializer, deserializer)`
 * `identifier` now supports an optional callback that can be used to register new instances in some store
+* circular dependency on default schema's for classes are now a bit better handled (but remain a fundamental JS problem, especially for classes)
 
 # 1.0
 

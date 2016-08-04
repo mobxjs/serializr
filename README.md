@@ -17,10 +17,10 @@ Features:
 -   (De)serialize nested objects, maps and arrays
 -   Resolve references asynchronously (during deserialization)
 -   Supports inheritance
--   Works on any ES3+ environment.
+-   Works on any ES5 environment (if ES3 is needed file a feature request)
 -   Convenience decorators for ESNext / Typescript
--   Ships with typescript / flow(?) typings
--   Works well with MobX out of the box (but not limited too, the serialization mechanism is generic and MobX is not a dependency)
+-   Ships with typescript / flow typings
+-   Generic solution that works well with for example MobX out of the box
 
 Non-features:
 
@@ -173,6 +173,8 @@ Propschemas are composable. See the API section below for the details, but these
 -   `map(propSchema)`: Serializes an Map or string key based collection
 -   `object(modelSchema)`: Serializes an child model element
 -   `reference(modelSchema, lookupFunction?)`: Serializes a reference to another model element
+-   `custom(serializeFunction, deserializeFunction)`: Create your own property serializer by providing two functions, one that converts modelValue to jsonValue, and one that does the inverse
+-   There is a special prop schema: `"*": true` that serializes all enumerable, non mentioned values as primitive
 
 It is possible to define your own prop schemas. You can define your own propSchema by creating a function that returns an object with the following signature:
 
@@ -205,7 +207,7 @@ When deserializing a model elememt / property, the following fields are availabl
 
 ## createSimpleSchema
 
-[serializr.js:83-90](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L83-L90 "Source code on GitHub")
+[serializr.js:79-86](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L79-L86 "Source code on GitHub")
 
 Creates a model schema that (de)serializes from / to plain javascript objects.
 It's factory method is: `() => ({})`
@@ -230,7 +232,7 @@ Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 ## createModelSchema
 
-[serializr.js:116-127](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L116-L127 "Source code on GitHub")
+[serializr.js:112-130](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L112-L130 "Source code on GitHub")
 
 Creates a model schema that (de)serializes an object created by a constructor function (class).
 The created model schema is associated by the targeted type as default model schema, see setDefaultModelSchema.
@@ -263,7 +265,7 @@ Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 ## serializable
 
-[serializr.js:155-165](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L155-L165 "Source code on GitHub")
+[serializr.js:158-168](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L158-L168 "Source code on GitHub")
 
 Decorator that defines a new property mapping on the default model schema for the class
 it is used in.
@@ -284,7 +286,7 @@ Returns **PropertyDescriptor**
 
 ## getDefaultModelSchema
 
-[serializr.js:186-195](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L186-L195 "Source code on GitHub")
+[serializr.js:192-201](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L192-L201 "Source code on GitHub")
 
 Returns the standard model schema associated with a class / constructor function
 
@@ -297,7 +299,7 @@ Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 ## setDefaultModelSchema
 
-[serializr.js:208-211](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L208-L211 "Source code on GitHub")
+[serializr.js:214-217](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L214-L217 "Source code on GitHub")
 
 Sets the default model schema for class / constructor function.
 Everywhere where a model schema is required as argument, this class / constructor function
@@ -315,7 +317,7 @@ Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 ## serialize
 
-[serializr.js:263-281](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L263-L281 "Source code on GitHub")
+[serializr.js:269-287](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L269-L287 "Source code on GitHub")
 
 Serializes an object (graph) into json using the provided model schema.
 The model schema can be omitted if the object type has a default model schema associated with it.
@@ -330,7 +332,7 @@ Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 ## deserialize
 
-[serializr.js:318-336](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L318-L336 "Source code on GitHub")
+[serializr.js:341-359](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L341-L359 "Source code on GitHub")
 
 Deserializes an json structor into an object graph.
 This process might be asynchronous (for example if there are references with an asynchronous
@@ -347,7 +349,7 @@ might be incomplete until the callback has fired as well (which might happen imm
 
 ## update
 
-[serializr.js:479-498](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L479-L498 "Source code on GitHub")
+[serializr.js:525-544](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L525-L544 "Source code on GitHub")
 
 Similar to deserialize, but updates an existing object instance.
 Properties will always updated entirely, but properties not present in the json will be kept as is.
@@ -363,7 +365,7 @@ Further this method behaves similar to deserialize.
 
 ## primitive
 
-[serializr.js:520-532](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L520-L532 "Source code on GitHub")
+[serializr.js:566-578](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L566-L578 "Source code on GitHub")
 
 Indicates that this field contains a primitive value (or Date) which should be serialized literally to json.
 
@@ -382,20 +384,54 @@ Returns **PropSchema**
 
 ## identifier
 
-[serializr.js:540-549](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L540-L549 "Source code on GitHub")
+[serializr.js:613-627](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L613-L627 "Source code on GitHub")
 
 Similar to primitive, but this field will be marked as the identifier for the given Model type.
 This is used by for example `ref()` to serialize the reference
 
+Identifier accepts an optional `registerFn` with the signature:
+`(id, target, context) => void`
+that can be used to register this object in some store. note that not all fields of this object might have been deserialized yet
+
+**Parameters**
+
+-   `registerFn` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** optional function to register this object during creation.
+
+**Examples**
+
+```javascript
+var todos = {};
+
+var s = _.createSimpleSchema({
+    id: _.identifier((id, object) => todos[id] = object),
+    title: true
+})
+
+_.deserialize(s, {
+    id: 1, title: "test0"
+})
+_.deserialize(s, [
+    { id: 2, title: "test2" },
+    { id: 1, title: "test1" }
+])
+
+t.deepEqual(todos, {
+    1: { id: 1, title: "test1" },
+    2: { id: 2, title: "test2" }
+})
+```
+
+Returns **PropSchema**
+
 ## date
 
-[serializr.js:556-571](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L556-L571 "Source code on GitHub")
+[serializr.js:638-653](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L638-L653 "Source code on GitHub")
 
 Similar to primitive, serializes instances of Date objects
 
 ## alias
 
-[serializr.js:590-601](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L590-L601 "Source code on GitHub")
+[serializr.js:672-683](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L672-L683 "Source code on GitHub")
 
 Alias indicates that this model property should be named differently in the generated json.
 Alias should be the outermost propschema.
@@ -419,9 +455,35 @@ console.dir(serialize(new Todo("test")))
 
 Returns **PropSchema**
 
+## custom
+
+[serializr.js:702-711](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L702-L711 "Source code on GitHub")
+
+Can be used to create simple custom propSchema.
+
+**Parameters**
+
+-   `serializer` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function that takes a model value and turns it into a json value
+-   `deserializer` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function that takes a json value and turns it into a model value
+
+**Examples**
+
+```javascript
+var schema = _.createSimpleSchema({
+  a: _.custom(
+    function(v) { return v + 2 },
+    function(v) { return v - 2 }
+  )
+})
+t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 })
+t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 })
+```
+
+Returns **propSchema**
+
 ## object
 
-[serializr.js:629-644](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L629-L644 "Source code on GitHub")
+[serializr.js:738-756](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L738-L756 "Source code on GitHub")
 
 `object` indicates that this property contains an object that needs to be (de)serialized
 using it's own model schema.
@@ -455,7 +517,7 @@ Returns **PropSchema**
 
 ## reference
 
-[serializr.js:698-723](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L698-L723 "Source code on GitHub")
+[serializr.js:810-843](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L810-L843 "Source code on GitHub")
 
 `reference` can be used to (de)serialize references that points to other models.
 
@@ -518,7 +580,7 @@ Returns **PropSchema**
 
 ## list
 
-[serializr.js:755-776](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L755-L776 "Source code on GitHub")
+[serializr.js:875-896](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L875-L896 "Source code on GitHub")
 
 List indicates that this property contains a list of things.
 Accepts a sub model schema to serialize the contents
@@ -550,7 +612,7 @@ Returns **PropSchema**
 
 ## map
 
-[serializr.js:790-839](https://github.com/mobxjs/serializr/blob/69d94bd8e372993029575eec555d261ebec96a88/serializr.js#L790-L839 "Source code on GitHub")
+[serializr.js:910-959](https://github.com/mobxjs/serializr/blob/18bcc160add62e4b70271cfaa4b1e83bd9c24aa1/serializr.js#L910-L959 "Source code on GitHub")
 
 Similar to list, but map represents a string keyed dynamic collection.
 This can be both plain objects (default) or ES6 Map like structures.
@@ -767,9 +829,7 @@ function deserializeState = (store, json) {
 
 # Future ideas
 
--   [ ] Resolve schema lazily from type
--   [ ] Introduce `"*": true` prop to (de)serialize all enumerable, unmentioned props (throw on non primitive props)
--   [ ] Support `prop: false` as prop schema
 -   [ ] If MobX, optimize by leveraging createTransformer and transactions
 -   [ ] Support async serialization (future)
 -   [ ] Support ImmutableJS out of the box
+-   [ ] Make `"*": true` respect extends clauses
