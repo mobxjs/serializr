@@ -34,7 +34,8 @@
   "files": [
     "serializr.js",
     "serializr.min.js",
-    "serializr.min.js.map"
+    "serializr.min.js.map",
+    "serializr.d.ts"
   ],
   "devDependencies": {
     "babel-cli": "^6.11.4",
