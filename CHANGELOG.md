@@ -1,3 +1,6 @@
+# 1.1.1
+
+* Fixed package.json: d.ts files are now exported as well (#7)
 
 # 1.1
 
