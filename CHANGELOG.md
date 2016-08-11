@@ -1,3 +1,11 @@
+# 1.1.4
+
+* Avoid implicit any in typings (by @bnaya)
+
+# 1.1.2 / 1.1.3
+
+* Fixed UMD build issues
+
 # 1.1.1
 
 * Fixed package.json: d.ts files are now exported as well (#7)
