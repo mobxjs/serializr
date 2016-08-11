@@ -10,8 +10,8 @@ export interface Context {
 export type Factory<T> = (context: Context) => T
 
 export interface PropSchema {
-    serializer(sourcePropertyValue: any);
-    deserializer(jsonValue: any, callback: (err, targetPropertyValue: any) => void, context: Context, currentPropertyValue: any);
+    serializer(sourcePropertyValue: any): any;
+    deserializer(jsonValue: any, callback: (err: any, targetPropertyValue: any) => void, context: Context, currentPropertyValue: any): any;
 }
 
 export type Props = {
@@ -31,19 +31,19 @@ export function createSimpleSchema<T extends Object>(props: Props): ModelSchema<
 export function createModelSchema<T extends Object>(clazz: Clazz<T>, props: Props, factory?: Factory<T>): ModelSchema<T>;
 
 export function serializable(propSchema: PropSchema | boolean): (target: Object, key: string, baseDescriptor?: PropertyDescriptor) => void;
-export function serializable(target: Object, key: string, baseDescriptor?: PropertyDescriptor);
+export function serializable(target: Object, key: string, baseDescriptor?: PropertyDescriptor): void;
 
 export function getDefaultModelSchema<T>(clazz: Clazz<T>): ModelSchema<T>;
 
-export function setDefaultModelSchema<T>(clazz: Clazz<T>, modelschema: ModelSchema<T>);
+export function setDefaultModelSchema<T>(clazz: Clazz<T>, modelschema: ModelSchema<T>): void;
 
 export function serialize<T>(modelschema: ClazzOrModelSchema<T>, instance: T): any;
 export function serialize<T>(instance: T): any;
 
 export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, json: any, callback?: (err: any, result: T) => void, customArgs?: any): T;
 
-export function update<T>(modelschema: ClazzOrModelSchema<T>, instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any);
-export function update<T>(instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any);
+export function update<T>(modelschema: ClazzOrModelSchema<T>, instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any): void;
+export function update<T>(instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any): void;
 
 export function primitive(): PropSchema;
 
@@ -56,7 +56,7 @@ export function alias(jsonName: string, propSchema: PropSchema): PropSchema;
 export function child(modelschema: ClazzOrModelSchema<any>): PropSchema;
 export function object(modelschema: ClazzOrModelSchema<any>): PropSchema;
 
-export type RefLookupFunction = (id: string, callback: (err, result) => void) => void;
+export type RefLookupFunction = (id: string, callback: (err: any, result: any) => void) => void;
 
 export function ref(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
 export function ref(identifierAttr: string, lookupFn: RefLookupFunction): PropSchema;
