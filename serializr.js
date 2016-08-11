@@ -1,4 +1,4 @@
-(function() {
+(function(g) {
     "use strict"
 
     function mrFactory() {
@@ -988,8 +988,8 @@
     if (typeof exports === "object") {
         module.exports = mrFactory()
     } else if (typeof define === "function" && define.amd) {
-        define("serializer", [], mrFactory)
+        define("serializr", [], mrFactory)
     } else {
-        this.serializer = mrFactory()
+        g.serializr = mrFactory()
     }
-})()
+})(function() { return this }())
