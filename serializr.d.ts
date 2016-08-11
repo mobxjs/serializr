@@ -11,7 +11,7 @@ export type Factory<T> = (context: Context) => T
 
 export interface PropSchema {
     serializer(sourcePropertyValue: any): any;
-    deserializer(jsonValue: any, callback: (err: any, targetPropertyValue: any) => void, context: Context, currentPropertyValue: any): any;
+    deserializer(jsonValue: any, callback: (err: any, targetPropertyValue: any) => void, context: Context, currentPropertyValue: any): void;
 }
 
 export type Props = {
