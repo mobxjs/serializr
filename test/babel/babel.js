@@ -98,3 +98,38 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
 
     t.end();
 });
+
+test("issue 10", t => {
+    class Route {
+        @serializable(identifier()) id = '';
+        @serializable(primitive()) pattern = '';
+
+        constructor(id = '', pattern = '') {
+            this.id = id;
+            this.pattern = pattern;
+        }
+    }
+
+    class Router {
+        @serializable(list(object(Route))) routes = [];
+
+        constructor(routes = []) {
+            this.routes = routes;
+        }
+    }
+
+    class Store {
+        @serializable(object(Router)) router = new Router();
+
+        addRoute() {
+            this.router.routes.push(new Route('home', '/'));
+        }
+    }
+
+    const store = new Store();
+    store.addRoute(); // WHEN THIS LINE IS REMOVED THEN THERE IS NO ERROR THROWN
+    const serial = serialize(store);
+    const store2 = deserialize(Store, serial);
+    t.equal(store2.router.routes.length, 1);
+    t.end();
+})

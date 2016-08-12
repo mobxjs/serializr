@@ -1,3 +1,7 @@
+# 1.1.5
+
+* Fixed issue when deserializing deeply nested objects, see #10
+
 # 1.1.4
 
 * Avoid implicit any in typings (by @bnaya)

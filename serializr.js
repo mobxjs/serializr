@@ -435,7 +435,7 @@
                 this.pendingRefs = {} // uuid: [{ modelSchema, uuid, cb }]
                 this.resolvedRefs = {} // uuid: [{ modelSchema, value }]
             } else {
-                this.rootContext = parentContext
+                this.rootContext = parentContext.rootContext
                 this.args = parentContext.args
             }
         }
