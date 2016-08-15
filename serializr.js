@@ -166,31 +166,31 @@
                 return serializableDecorator(primitive(), arg1, arg2, arg3)
             }
         }
-
+        
 				// Ugly way to get the parameter names since they aren't easily retrievable via reflection
-				const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg;
-				const ARGUMENT_NAMES = /([^\s,]+)/g;
-				function getParamNames(func) {
-					var fnStr = func.toString().replace(STRIP_COMMENTS, '');
-					var result = fnStr.slice(fnStr.indexOf('(')+1, fnStr.indexOf(')')).match(ARGUMENT_NAMES);
-					if(result === null)
-						result = [];
-					return result;
-				}
+        var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg
+        var ARGUMENT_NAMES = /([^\s,]+)/g
+        function getParamNames(func) {
+            var fnStr = func.toString().replace(STRIP_COMMENTS, "")
+            var result = fnStr.slice(fnStr.indexOf("(")+1, fnStr.indexOf(")")).match(ARGUMENT_NAMES)
+            if(result === null)
+                result = []
+            return result
+        }
 
         function serializableDecorator(propSchema, target, propName, descriptor) {
             invariant(arguments.length >= 2, "too few arguments. Please use @serializable as property decorator")
-						// Fix for @serializable used in class constructor params (typescript)
-						if (propName === undefined && typeof target === 'function'
-							&& target.prototype
-							&& descriptor !== undefined && typeof descriptor === 'number') {
-							var paramNames = getParamNames(target);
-							if (paramNames.length >= descriptor) {
-								propName = paramNames[descriptor];
-								descriptor = undefined;
-								target = target.prototype;
-							}
-						}
+            // Fix for @serializable used in class constructor params (typescript)
+            if (propName === undefined && typeof target === "function"
+                && target.prototype
+                && descriptor !== undefined && typeof descriptor === "number") {
+                var paramNames = getParamNames(target)
+                if (paramNames.length >= descriptor) {
+                    propName = paramNames[descriptor]
+                    descriptor = undefined
+                    target = target.prototype
+                }
+            }
             invariant(typeof propName === "string", "incorrect usage of @serializable decorator")
             var info = getDefaultModelSchema(target)
             if (!info || !target.constructor.hasOwnProperty("serializeInfo"))
@@ -831,7 +831,7 @@
          */
         function reference(target, lookupFn) {
             invariant(!!target, "No modelschema provided. If you are importing it from another file be aware of circular dependencies.")
-            var initialized = false;
+            var initialized = false
             var childIdentifierAttribute
             function initialize() {
                 initialized = true
