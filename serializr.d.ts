@@ -23,7 +23,7 @@ export interface ModelSchema<T> {
     props: Props
 }
 
-export type Clazz<T> = new() => T;
+export type Clazz<T> = new(...args: any[]) => T;
 export type ClazzOrModelSchema<T> = ModelSchema<T> | Clazz<T>;
 
 export function createSimpleSchema<T extends Object>(props: Props): ModelSchema<T>;
