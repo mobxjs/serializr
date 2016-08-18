@@ -1,3 +1,7 @@
+# 1.1.6
+
+* Fixed issue where custom arguments passed to `update` where not correctly handled, see #12, by @robclouth
+
 # 1.1.5
 
 * Fixed issue when deserializing deeply nested objects, see #10
