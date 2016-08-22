@@ -576,7 +576,7 @@
                 modelSchema = getDefaultModelSchema(target)
                 json = arguments[1]
                 callback = arguments[2]
-                customArgs = arguments[2]
+                customArgs = arguments[3]
             }
             invariant(isModelSchema(modelSchema), "update failed to determine schema")
             invariant(typeof target === "object" && target && !Array.isArray(target), "update needs an object")
