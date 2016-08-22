@@ -1,4 +1,4 @@
-import {serializable, list, object, identifier, reference, primitive, serialize, deserialize} from "../../";
+import {serializable, alias, list, object, identifier, reference, primitive, serialize, deserialize} from "../../";
 import {observable, autorun} from "mobx";
 
 declare var require;
@@ -47,20 +47,25 @@ test("should work in typescript", t => {
 
 test("typescript class with constructor params", t => {
    class Rectangle {
-			constructor(@serializable(identifier()) public id: string, @serializable public width: number, @serializable public height: number) { }
+      @serializable
+      public someNumber: number;
 
-			public getArea(): number {
-				return this.width * this.height;
-			}
-		}
+      constructor(@serializable(alias("identifier", identifier())) public id: string, @serializable(alias("width", true)) public width: number, @serializable(alias("height", true)) public height: number) { }
+
+      public getArea(): number {
+        return this.width * this.height;
+      }
+    }
 
     const a = new Rectangle("A", 10, 20);
-		
-		let json = serialize(a);
+    a.someNumber = 123;
+    
+    let json = serialize(a);
     const b = deserialize(Rectangle, json);
     t.equal(a.id, b.id);
     t.equal(a.width, b.width);
     t.equal(a.height, b.height);
+    t.equal(a.someNumber, b.someNumber);
     t.equal(b.getArea(), 200);
 
     t.end();

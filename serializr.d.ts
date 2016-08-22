@@ -51,7 +51,7 @@ export function identifier(registerFn?: (id: any, value: any, context: Context) 
 
 export function date(): PropSchema;
 
-export function alias(jsonName: string, propSchema: PropSchema): PropSchema;
+export function alias(jsonName: string, propSchema?: PropSchema | boolean): PropSchema;
 
 export function child(modelschema: ClazzOrModelSchema<any>): PropSchema;
 export function object(modelschema: ClazzOrModelSchema<any>): PropSchema;
