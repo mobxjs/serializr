@@ -110,6 +110,8 @@ class Message {
     @serializable(list(object(Message)))
     comments = [];
 }
+
+And then call `serialize` without the first argument. 
 ```
 
 ## Enabling decorators (optional)
@@ -141,7 +143,7 @@ What are those model schemas?
 The driving concept behind (de)serialization is a ModelSchema.
 It describes how model object instances can be (de)serialize to json.
 
-A model schema simple looks like this:
+A simple model schema looks like this:
 
 ```javascript
 const todoSchema = {
@@ -154,22 +156,22 @@ const todoSchema = {
 ```
 
 The `factory` tells how to construct new instances during deserialization.
-The optional `extends` property denotes that this model schema inherits it's props from another model schema.
-The props section describe how individual model properties are to be (de)serialized. Their names match the model field names.
+The optional `extends` property denotes that this model schema inherits its props from another model schema.
+The props section describes how individual model properties are to be (de)serialized. Their names match the model field names.
 The combination `fieldname: true` is simply a shorthand for `fieldname: primitive()`
 
 For convenience, model schemas can be stored on the constructor function of a class.
-This allows you to pass in a class reference everywhere where a model schema is required.
+This allows you to pass in a class reference wherever a model schema is required.
 See the examples below.
 
 ## PropSchema
 
 Prop schemas contain the strategy on how individual fields should be serialized.
 It denotes whether a field is a primitive, list, whether it needs to be aliased, refers to other model objects etc.
-Propschemas are composable. See the API section below for the details, but these are the built in property schemas:
+Propschemas are composable. See the API section below for the details, but these are the built-in property schemas:
 
 -   `primitive()`: Serialize a field as primitive value
--   `identifier()`: Serialize a field as primitive value, use it as identifier when serializing references (see `ref`)
+-   `identifier()`: Serialize a field as primitive value, use it as identifier when serializing references (see `reference`)
 -   `date()`: Serializes dates (as epoch number)
 -   `alias(name, propSchema)`: Serializes a field under a different name
 -   `list(propSchema)`: Serializes an array based collection
@@ -188,11 +190,11 @@ It is possible to define your own prop schemas. You can define your own propSche
 }
 ```
 
-For inspiration, take a look at the source code of the existing ones on how they work, it is pretty straight forward.
+For inspiration, take a look at the source code of the existing ones on how they work, it is pretty straightforward.
 
 ## Deserialization context
 
-The context object is an advanced feature and can be used to obtain additional context related information about the deserialization process.
+The context object is an advanced feature and can be used to obtain additional context-related information about the deserialization process.
 `context` is available as:
 
 1.  first argument of factory functions
@@ -213,7 +215,7 @@ When deserializing a model elememt / property, the following fields are availabl
 [serializr.js:79-86](https://github.com/mobxjs/serializr/blob/b2816013b5db08c83b814ceb437ad35e4592ab8f/serializr.js#L79-L86 "Source code on GitHub")
 
 Creates a model schema that (de)serializes from / to plain javascript objects.
-It's factory method is: `() => ({})`
+Its factory method is: `() => ({})`
 
 **Parameters**
 
@@ -239,13 +241,13 @@ Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 Creates a model schema that (de)serializes an object created by a constructor function (class).
 The created model schema is associated by the targeted type as default model schema, see setDefaultModelSchema.
-It's factory method is `() => new clazz()` (unless overriden, see third arg).
+Its factory method is `() => new clazz()` (unless overriden, see third arg).
 
 **Parameters**
 
--   `clazz` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** clazz or constructor function
+-   `clazz` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** class or constructor function
 -   `props` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** property mapping
--   `factory` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** optional custom factory. Receives context as first arg
+-   `factory` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** optional custom factory. Receives context as first arg.
 
 **Examples**
 
@@ -305,8 +307,8 @@ Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 [serializr.js:214-217](https://github.com/mobxjs/serializr/blob/b2816013b5db08c83b814ceb437ad35e4592ab8f/serializr.js#L214-L217 "Source code on GitHub")
 
 Sets the default model schema for class / constructor function.
-Everywhere where a model schema is required as argument, this class / constructor function
-can be passed in as well (for example when using `child` or `ref`.
+Wherever a model schema is required as argument, this class / constructor function
+can be passed in as well (for example when using `object` or `reference`.
 
 When passing an instance of this class to `serialize`, it is not required to pass the model schema
 as first argument anymore, because the default schema will be inferred from the instance type.
@@ -337,10 +339,10 @@ Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Refer
 
 [serializr.js:341-359](https://github.com/mobxjs/serializr/blob/b2816013b5db08c83b814ceb437ad35e4592ab8f/serializr.js#L341-L359 "Source code on GitHub")
 
-Deserializes an json structor into an object graph.
+Deserializes a json structor into an object graph.
 This process might be asynchronous (for example if there are references with an asynchronous
 lookup function). The function returns an object (or array of objects), but the returned object
-might be incomplete until the callback has fired as well (which might happen immediately)
+might be incomplete until the callback has fired as well (which might happen immediately). 
 
 **Parameters**
 
@@ -390,11 +392,11 @@ Returns **PropSchema**
 [serializr.js:613-627](https://github.com/mobxjs/serializr/blob/b2816013b5db08c83b814ceb437ad35e4592ab8f/serializr.js#L613-L627 "Source code on GitHub")
 
 Similar to primitive, but this field will be marked as the identifier for the given Model type.
-This is used by for example `ref()` to serialize the reference
+This is used by for example `reference()` to serialize the reference
 
 Identifier accepts an optional `registerFn` with the signature:
 `(id, target, context) => void`
-that can be used to register this object in some store. note that not all fields of this object might have been deserialized yet
+that can be used to register this object in some store. note that not all fields of this object might have been deserialized yet. 
 
 **Parameters**
 
@@ -489,9 +491,9 @@ Returns **propSchema**
 [serializr.js:738-756](https://github.com/mobxjs/serializr/blob/b2816013b5db08c83b814ceb437ad35e4592ab8f/serializr.js#L738-L756 "Source code on GitHub")
 
 `object` indicates that this property contains an object that needs to be (de)serialized
-using it's own model schema.
+using its own model schema.
 
-N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
+N.B. mind issues with circular dependencies when importing model schemas from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
 
 **Parameters**
 
@@ -522,13 +524,13 @@ Returns **PropSchema**
 
 [serializr.js:810-843](https://github.com/mobxjs/serializr/blob/b2816013b5db08c83b814ceb437ad35e4592ab8f/serializr.js#L810-L843 "Source code on GitHub")
 
-`reference` can be used to (de)serialize references that points to other models.
+`reference` can be used to (de)serialize references that point to other models.
 
 The first parameter should be either a ModelSchema that has an `identifier()` property (see identifier)
 or a string that represents which attribute in the target object represents the identifier of the object.
 
 The second parameter is a lookup function that is invoked during deserialization to resolve an identifier to
-an object. It's signature should be as follows:
+an object. Its signature should be as follows:
 
 `lookupFunction(identifier, callback, context)` where:
 
