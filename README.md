@@ -9,7 +9,7 @@ _Serialize and deserialize complex object graphs to JSON_
 # Introduction
 
 Serializr is a utility library that helps converting json structures into complex object graphs and the other way around.
-For a quick overview, read the [introduction blog post](https://medium.com/@mweststrate/introducing-serializr-serializing-and-deserializing-object-graphs-with-ease-8833c3fcea02#.ha9s8hkjk)
+For a quick overview, read the [introduction blog post](https://medium.com/@mweststrate/introducing-serializr-serializing-and-deserializing-object-graphs-with-ease-8833c3fcea02#.ha9s8hkjk).
 
 Features:
 
@@ -110,9 +110,8 @@ class Message {
     @serializable(list(object(Message)))
     comments = [];
 }
-
-And then call `serialize` without the first argument. 
 ```
+And then use `serialize` without the first argument.
 
 ## Enabling decorators (optional)
 
@@ -174,7 +173,7 @@ Propschemas are composable. See the API section below for the details, but these
 -   `identifier()`: Serialize a field as primitive value, use it as identifier when serializing references (see `reference`)
 -   `date()`: Serializes dates (as epoch number)
 -   `alias(name, propSchema)`: Serializes a field under a different name
--   `list(propSchema)`: Serializes an array based collection
+-   `list(propSchema)`: Serializes an array-based collection
 -   `map(propSchema)`: Serializes an Map or string key based collection
 -   `object(modelSchema)`: Serializes an child model element
 -   `reference(modelSchema, lookupFunction?)`: Serializes a reference to another model element
@@ -198,10 +197,10 @@ The context object is an advanced feature and can be used to obtain additional c
 `context` is available as:
 
 1.  first argument of factory functions
-2.  third argument of the lookup callback of `ref` prop schema's (see below)
+2.  third argument of the lookup callback of `reference` prop schema (see below)
 3.  third argument of the `deserializer` of a custom propSchema
 
-When deserializing a model elememt / property, the following fields are available on the context object:
+When deserializing a model element / property, the following fields are available on the context object:
 
 -   `json`: Returns the complete current json object that is being deserialized
 -   `target`: The object currently being deserialized. This is the object that is returned from the factory function.
@@ -392,7 +391,7 @@ Returns **PropSchema**
 [serializr.js:613-627](https://github.com/mobxjs/serializr/blob/b2816013b5db08c83b814ceb437ad35e4592ab8f/serializr.js#L613-L627 "Source code on GitHub")
 
 Similar to primitive, but this field will be marked as the identifier for the given Model type.
-This is used by for example `reference()` to serialize the reference
+This is used by for example `reference()` to serialize the reference.
 
 Identifier accepts an optional `registerFn` with the signature:
 `(id, target, context) => void`
@@ -535,12 +534,12 @@ an object. Its signature should be as follows:
 `lookupFunction(identifier, callback, context)` where:
 
 1.  `identifier` is the identifier being resolved
-2.  `callback` is a node style calblack function to be invoked with the found object (as second arg) or an error (first arg)
+2.  `callback` is a node style callback function to be invoked with the found object (as second arg) or an error (first arg)
 3.  `context` see context.
 
-The lookupFunction is optional. If it is not provided, it will try to find an object of the expected type and required identifier within the same JSON document
+The lookupFunction is optional. If it is not provided, serializr will try to find an object of the expected type and required identifier within the same JSON document.
 
-N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
+N.B. mind issues with circular dependencies when importing model schemas from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
 
 **Parameters**
 
@@ -588,7 +587,7 @@ Returns **PropSchema**
 [serializr.js:875-896](https://github.com/mobxjs/serializr/blob/b2816013b5db08c83b814ceb437ad35e4592ab8f/serializr.js#L875-L896 "Source code on GitHub")
 
 List indicates that this property contains a list of things.
-Accepts a sub model schema to serialize the contents
+Accepts a sub model schema to serialize the contents.
 
 **Parameters**
 
@@ -619,9 +618,8 @@ Returns **PropSchema**
 
 [serializr.js:910-959](https://github.com/mobxjs/serializr/blob/b2816013b5db08c83b814ceb437ad35e4592ab8f/serializr.js#L910-L959 "Source code on GitHub")
 
-Similar to list, but map represents a string keyed dynamic collection.
-This can be both plain objects (default) or ES6 Map like structures.
-This will be inferred from the initial value of the targetted attribute.
+Similar to list, but map represents a string-keyed dynamic collection.
+This can be used for both plain objects (default) or ES6 Map-like structures.
 
 **Parameters**
 
@@ -781,7 +779,7 @@ export default class Box {
 
 // Store.js:
 import {observable, transaction} from 'mobx';
-import {createSimpleSchema, ref, identifier, child, list, serialize, deserialize, update} from 'serializr';
+import {createSimpleSchema, identifier, object, list, serialize, deserialize, update} from 'serializr';
 import Box from './box';
 
 // The store that holds our domain: boxes and arrows
@@ -803,7 +801,7 @@ const storeModel = createSimpleSchema({
     boxes: list(object(Box)),
     arrows: list(object(arrowModel)),
     // context.target is the current store being deserialized
-    selection: ref(Box)
+    selection: reference(Box)
 })
 
 // example data
