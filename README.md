@@ -600,15 +600,17 @@ createModelSchema(SubTask, {
   title: true
 })
 createModelSchema(Todo, {
-  title: true
-  subTask: list(child(SubTask))
+  title: true,
+  subTask: list(object(SubTask)),
+  assignedTo: list(primitive()),
 })
 
 const todo = deserialize(Todo, {
   title: "Task",
   subTask: [{
     title: "Sub task 1"
-  }]
+  }],
+  assignedTo: [1, 2, 4]
 })
 ```
 
