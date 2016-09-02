@@ -166,16 +166,60 @@
                 return serializableDecorator(primitive(), arg1, arg2, arg3)
             }
         }
+        
+        // Ugly way to get the parameter names since they aren't easily retrievable via reflection
+        var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg
+        var ARGUMENT_NAMES = /([^\s,]+)/g
+        function getParamNames(func) {
+            var fnStr = func.toString().replace(STRIP_COMMENTS, "")
+            var result = fnStr.slice(fnStr.indexOf("(")+1, fnStr.indexOf(")")).match(ARGUMENT_NAMES)
+            if(result === null)
+                result = []
+            return result
+        }
 
         function serializableDecorator(propSchema, target, propName, descriptor) {
             invariant(arguments.length >= 2, "too few arguments. Please use @serializable as property decorator")
+            // Fix for @serializable used in class constructor params (typescript)
+            var factory
+            if (propName === undefined && typeof target === "function"
+                && target.prototype
+                && descriptor !== undefined && typeof descriptor === "number") {
+                invariant(isPropSchema(propSchema), "Constructor params must use alias(name)")
+                invariant(propSchema.jsonname, "Constructor params must use alias(name)")
+                var paramNames = getParamNames(target)
+                if (paramNames.length >= descriptor) {
+                    propName = paramNames[descriptor];
+                    propSchema.paramNumber = descriptor
+                    descriptor = undefined
+                    target = target.prototype
+                    // Create a factory so the constructor is called properly
+                    factory = function(context) {
+                        function F(args) {
+                            return target.constructor.apply(this, args)
+                        }
+                        F.prototype = target.constructor.prototype
+                        var params = []
+                        for (var i = 0; i < target.constructor.length; i++) {
+                          Object.keys(context.modelSchema.props).forEach(function (key) {
+                            var prop = context.modelSchema.props[key];
+                            if (prop.paramNumber === i) {
+                              params[i] = context.json[prop.jsonname];
+                            }
+                          });
+                        }
+                        return new F(params)
+                    }
+                }
+            }
             invariant(typeof propName === "string", "incorrect usage of @serializable decorator")
             var info = getDefaultModelSchema(target)
+            
             if (!info || !target.constructor.hasOwnProperty("serializeInfo"))
-                info = createModelSchema(target.constructor, {})
+                info = createModelSchema(target.constructor, {}, factory)
             if (info && info.targetClass !== target.constructor)
                 // fixes typescript issue that tends to copy fields from super constructor to sub constructor in extends
-                info = createModelSchema(target.constructor, {})
+                info = createModelSchema(target.constructor, {}, factory)
             info.props[propName] = propSchema
             // MWE: why won't babel work without?
             if (descriptor && !descriptor.get && !descriptor.set)
@@ -809,7 +853,7 @@
          */
         function reference(target, lookupFn) {
             invariant(!!target, "No modelschema provided. If you are importing it from another file be aware of circular dependencies.")
-            var initialized = false;
+            var initialized = false
             var childIdentifierAttribute
             function initialize() {
                 initialized = true

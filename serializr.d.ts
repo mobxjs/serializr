@@ -23,7 +23,7 @@ export interface ModelSchema<T> {
     props: Props
 }
 
-export type Clazz<T> = new() => T;
+export type Clazz<T> = new(...args: any[]) => T;
 export type ClazzOrModelSchema<T> = ModelSchema<T> | Clazz<T>;
 
 export function createSimpleSchema<T extends Object>(props: Props): ModelSchema<T>;
@@ -51,7 +51,7 @@ export function identifier(registerFn?: (id: any, value: any, context: Context) 
 
 export function date(): PropSchema;
 
-export function alias(jsonName: string, propSchema: PropSchema): PropSchema;
+export function alias(jsonName: string, propSchema?: PropSchema | boolean): PropSchema;
 
 export function child(modelschema: ClazzOrModelSchema<any>): PropSchema;
 export function object(modelschema: ClazzOrModelSchema<any>): PropSchema;
