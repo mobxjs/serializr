@@ -277,7 +277,7 @@
 
         function getIdentifierProp(modelSchema) {
             invariant(isModelSchema(modelSchema))
-            // optimizatoin: cache this lookup
+            // optimization: cache this lookup
             while (modelSchema) {
                 for (var propName in modelSchema.props)
                     if (typeof modelSchema.props[propName] === "object" && modelSchema.props[propName].identifier === true)
