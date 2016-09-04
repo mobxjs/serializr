@@ -59,49 +59,53 @@
 /*
  * ## Managing model schemas
  */
-        /*
-            JSDOC type defintions for usage w/o typescript.
-            
-            * @typedef {Object} PropSchema
-            * @property {serializerFunction} serializer
-            * @property {deserializerFunction} deserializer
-            * @property {boolean} identifier
-            *
-            * @typedef {Object} PropertyDescriptor
-            * @param {*} value
-            * @param {boolean} writeable
-            * @param {Function|undefined} get
-            * @param {Function|undefined} set
-            * @param {boolean} configurable
-            * @param {boolean} enumerable
-            *
-            * @callback serializerFunction
-            * @param {*} sourcePropertyValue
-            * @returns any - serialized object
-            *
-            *
-            * @callback deserializerFunction
-            * @param {*} jsonValue
-            * @param {cpsCallback} callback
-            * @param {Context} context
-            * @param {*} currentPropertyValue
-            * @returns void
-            *
-            * @callback RegisterFunction
-            * @param {*} id
-            * @param {object} target
-            * @param {Context} context
-            *
-            * @callback cpsCallback
-            * @param {*} result
-            * @param {*} error
-            * @returns void
-            *
-            * @callback RefLookupFunction
-            * @param {string} id
-            * @param {cpsCallback} callback
-            * @returns void
-             */
+        /**
+         * JSDOC type defintions for usage w/o typescript.
+         * @typedef {object} PropSchema
+         * @property {serializerFunction} serializer
+         * @property {deserializerFunction} deserializer
+         * @property {boolean} identifier
+         *
+         * @typedef {object} PropertyDescriptor
+         * @param {*} value
+         * @param {boolean} writeable
+         * @param {Function|undefined} get
+         * @param {Function|undefined} set
+         * @param {boolean} configurable
+         * @param {boolean} enumerable
+         *
+         * @callback serializerFunction
+         * @param {*} sourcePropertyValue
+         * @returns any - serialized object
+         *
+         *
+         * @callback deserializerFunction
+         * @param {*} jsonValue
+         * @param {cpsCallback} callback
+         * @param {Context} context
+         * @param {*} currentPropertyValue
+         * @returns void
+         *
+         * @callback RegisterFunction
+         * @param {*} id
+         * @param {object} target
+         * @param {Context} context
+         *
+         * @callback cpsCallback
+         * @param {*} result
+         * @param {*} error
+         * @returns void
+         *
+         * @callback RefLookupFunction
+         * @param {string} id
+         * @param {cpsCallback} callback
+         * @returns void
+         *
+         * @typedef {object} ModelSchema
+         * @param factory
+         * @param props
+         * @param targetClass
+         */
         
         /**
          * Creates a model schema that (de)serializes from / to plain javascript objects.
@@ -111,7 +115,7 @@
          * var todoSchema = createSimpleSchema({
          *   title: true,
          *   done: true
-         * };
+         * });
          *
          * var json = serialize(todoSchema, { title: "Test", done: false })
          * var todo = deserialize(todoSchema, json)
@@ -147,7 +151,7 @@
          * var json = serialize(new Todo("Test", false))
          * var todo = deserialize(Todo, json)
          *
-         * @param {function} clazz clazz or constructor function
+         * @param {constructor|class} clazz class or constructor function
          * @param {object} props property mapping
          * @param {function} factory optional custom factory. Receives context as first arg
          * @returns {object} model schema
@@ -273,8 +277,8 @@
         /**
          * Returns the standard model schema associated with a class / constructor function
          *
-         * @param {function} clazz class or constructor function
-         * @returns {object} model schema
+         * @param {object} thing
+         * @returns {ModelSchema} model schema
          */
         function getDefaultModelSchema(thing) {
             if (!thing)
@@ -295,8 +299,9 @@
          * When passing an instance of this class to `serialize`, it is not required to pass the model schema
          * as first argument anymore, because the default schema will be inferred from the instance type.
          *
-         * @param {function} clazz class or constructor function
-         * @returns {object} model schema
+         * @param {constructor|class} clazz class or constructor function
+         * @param {ModelSchema} modelSchema - a model schema
+         * @returns {ModelSchema} model schema
          */
         function setDefaultModelSchema(clazz, modelSchema) {
             invariant(isModelSchema(modelSchema))
@@ -418,12 +423,12 @@
          * lookup function). The function returns an object (or array of objects), but the returned object
          * might be incomplete until the callback has fired as well (which might happen immediately)
          *
-         * @param {object or array} modelschema to use for deserialization
+         * @param {object|array} schema to use for deserialization
          * @param {json} json data to deserialize
          * @param {function} callback node style callback that is invoked once the deserializaiton has finished.
          * First argument is the optional error, second argument is the deserialized object (same as the return value)
-         * @param {any} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
-         * @returns {object or array} deserialized object, possibly incomplete.
+         * @param {*} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
+         * @returns {object|array} deserialized object, possibly incomplete.
          */
         function deserialize(schema, json, callback, customArgs) {
             invariant(arguments.length >= 2, "deserialize expects at least 2 arguments")
@@ -607,7 +612,7 @@
          * @param {object} target target instance to update
          * @param {object} json the json to deserialize
          * @param {function} callback the callback to invoke once deserialization has completed.
-         * @param {any} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
+         * @param {*} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
          */
         function update(modelSchema, target, json, callback, customArgs) {
             var inferModelSchema =
@@ -648,7 +653,7 @@
          * console.dir(serialize(new Todo("test")))
          * // outputs: { title : "test" }
          *
-         * @returns {PropSchema}
+         * @returns {ModelSchema}
          */
         function primitive() {
             return {
@@ -665,6 +670,8 @@
         }
 
         /**
+         *
+         *
          * Similar to primitive, but this field will be marked as the identifier for the given Model type.
          * This is used by for example `reference()` to serialize the reference
          *
@@ -693,6 +700,7 @@
          *     1: { id: 1, title: "test1" },
          *     2: { id: 2, title: "test2" }
          * })
+         *
          *
          * @param {RegisterFunction} registerFn optional function to register this object during creation.
          *
@@ -753,7 +761,7 @@
          * console.dir(serialize(new Todo("test")))
          * // { task : "test" }
          *
-         * @param {string} alias name of the json field to be used for this property
+         * @param {string} name name of the json field to be used for this property
          * @param {PropSchema} propSchema propSchema to (de)serialize the contents of this field
          * @returns {PropSchema}
          */
@@ -824,7 +832,7 @@
          *   }
          * });
          *
-         * @param {modelSchema} modelSchema to be used to (de)serialize the object
+         * @param {ModelSchema} modelSchema to be used to (de)serialize the object
          * @returns {PropSchema}
          */
         function object(modelSchema) {
@@ -1006,7 +1014,7 @@
          * This can be both plain objects (default) or ES6 Map like structures.
          * This will be inferred from the initial value of the targetted attribute.
          *
-         * @param {any} propSchema
+         * @param {*} propSchema
          * @returns
          */
         function map(propSchema) {
