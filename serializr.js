@@ -59,7 +59,50 @@
 /*
  * ## Managing model schemas
  */
-
+        /*
+            JSDOC type defintions for usage w/o typescript.
+            
+            * @typedef {Object} PropSchema
+            * @property {serializerFunction} serializer
+            * @property {deserializerFunction} deserializer
+            * @property {boolean} identifier
+            *
+            * @typedef {Object} PropertyDescriptor
+            * @param {*} value
+            * @param {boolean} writeable
+            * @param {Function|undefined} get
+            * @param {Function|undefined} set
+            * @param {boolean} configurable
+            * @param {boolean} enumerable
+            *
+            * @callback serializerFunction
+            * @param {*} sourcePropertyValue
+            * @returns any - serialized object
+            *
+            *
+            * @callback deserializerFunction
+            * @param {*} jsonValue
+            * @param {cpsCallback} callback
+            * @param {Context} context
+            * @param {*} currentPropertyValue
+            * @returns void
+            *
+            * @callback RegisterFunction
+            * @param {*} id
+            * @param {object} target
+            * @param {Context} context
+            *
+            * @callback cpsCallback
+            * @param {*} result
+            * @param {*} error
+            * @returns void
+            *
+            * @callback RefLookupFunction
+            * @param {string} id
+            * @param {cpsCallback} callback
+            * @returns void
+             */
+        
         /**
          * Creates a model schema that (de)serializes from / to plain javascript objects.
          * It's factory method is: `() => ({})`
