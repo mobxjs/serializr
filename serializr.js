@@ -693,7 +693,7 @@
          *     2: { id: 2, title: "test2" }
          * })
          *
-         * @param {function} registerFn optional function to register this object during creation.
+         * @param {RegisterFunction} registerFn optional function to register this object during creation.
          *
          * @returns {PropSchema}
          */
@@ -784,7 +784,7 @@
          *
          * @param {function} serializer function that takes a model value and turns it into a json value
          * @param {function} deserializer function that takes a json value and turns it into a model value
-         * @returns {propSchema}
+         * @returns {PropSchema}
          */
         function custom(serializer, deserializer) {
             invariant(typeof serializer === "function", "first argument should be function")
@@ -891,7 +891,7 @@
          * )
          *
          * @param target: ModelSchema or string
-         * @param {function} lookup function
+         * @param {RefLookupFunction} lookupFn function
          * @returns {PropSchema}
          */
         function reference(target, lookupFn) {
