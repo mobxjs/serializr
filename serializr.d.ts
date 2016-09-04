@@ -57,6 +57,7 @@ export function child(modelschema: ClazzOrModelSchema<any>): PropSchema;
 export function object(modelschema: ClazzOrModelSchema<any>): PropSchema;
 
 export type RefLookupFunction = (id: string, callback: (err: any, result: any) => void) => void;
+export type RegisterFunction = (id: any, object: any, context: Context) => void;
 
 export function ref(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
 export function ref(identifierAttr: string, lookupFn: RefLookupFunction): PropSchema;
