@@ -88,9 +88,10 @@ With decorators (TypeScript or ESNext) building model schemas is even more trivi
 
 ```javascript
 import {
-    createModelSchema, primitive, reference, list, object, identifier, serialize, deserialize,
+    createModelSchema, primitive, reference, list, object, identifier, serialize, deserialize, getDefaultModelSchema,
     serializable
 } from "serializr";
+
 
 class User {
     @serializable(identifier())
@@ -104,11 +105,50 @@ class Message {
     @serializable
     message = "Test";
 
-    @serializable(reference(User, findUserById))
+    @serializable(object(User))
     author = null;
 
+    // Self referencing decorators work in Babel 5.x and Typescript. See below for more.
     @serializable(list(object(Message)))
     comments = [];
+}
+
+// You can now deserialize and serialize!
+const message = deserialize(Message, {
+    message : "Hello world",
+    author  : {uuid: 1, displayName: "Alice"},
+    comments: [
+        {
+            message: "Welcome!",
+            author : {uuid: 1, displayName: "Bob"}
+        }
+    ]
+});
+
+
+console.dir(message, {colors: true, depth: 10});
+const json = serialize(message);
+```
+
+
+**Decorator: Caveats**
+
+
+Babel 6.x does not allow decorators to self-reference during their creation, so the above code would not work for the Message class. Instead write:
+
+```javascript
+class Message {
+    @serializable
+    message = "Test";
+
+    @serializable(object(User))
+    author = null;
+    
+    comments = [];
+    
+    constructor(){
+        getDefaultModelSchema(Message).props["comments"] = list(object(Message));
+    }
 }
 ```
 
@@ -118,11 +158,19 @@ class Message {
 
 Enable the compiler option `experimentalDecorators` in `tsconfig.json` or pass it as flag `--experimentalDecorators` to the compiler.
 
-**Babel:**
+**Babel 5.x**
+
+```json
+ {
+   "stage": 1
+ }
+```
+
+**Babel 6.x:**
 
 Install support for decorators: `npm i --save-dev babel-plugin-transform-decorators-legacy`. And enable it in your `.babelrc` file:
 
-```javascript
+```json
 {
     "presets": ["es2015", "stage-1"],
     "plugins": ["transform-decorators-legacy"]
@@ -130,6 +178,7 @@ Install support for decorators: `npm i --save-dev babel-plugin-transform-decorat
 ```
 
 Probably you have more plugins and presets in your `.babelrc` already, note that the order is important and `transform-decorators-legacy` should come as first.
+
 
 # Concepts
 
