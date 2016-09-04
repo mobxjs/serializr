@@ -38,48 +38,65 @@ From CDN: <https://npmcdn.com/serializr> which declares the global `serializr` o
 
 ```javascript
 import {
-    createModelSchema, primitive, reference, list, object, identifier, serialize, deserialize
+  createModelSchema, primitive, reference, list, object, identifier, serialize, deserialize
 } from "serializr";
 
 // Example model classes
 class User {
-    uuid = Math.random();
+    uuid        = Math.random();
     displayName = "John Doe";
 }
 
 class Message {
-    message = "Test";
-    author = null;
+    message  = "Test";
+    author   = null;
     comments = [];
 }
 
-findUserById(uuid, callback) {
+function fetchUserSomewhere(uuid) {
+    // Lets pretend to actually fetch a user; but not.
+    // In a real app this might be a database query
+    const user       = new User();
+    user.uuid        = uuid;
+    user.displayName = `John Doe ${uuid}`;
+    return user;
+}
+
+function findUserById(uuid, callback, context) {
+    // This is a lookup function
+    // identifier is the identifier being resolved
+    // callback is a node style calblack function to be invoked with the found object (as second arg) or an error (first arg)
+    // context is an object detailing the execution context of the serializer now
     callback(null, fetchUserSomewhere(uuid))
 }
 
 // Create model schemas
 createModelSchema(Message, {
-    message: primitive(),
-    author: reference(User, findUserById),
+    message : primitive(),
+    author  : reference(User, findUserById),
     comments: list(object(Message))
-})
+});
 
 createModelSchema(User, {
-    uuid: identifier(),
+    uuid       : identifier(),
     displayName: primitive()
-})
+});
 
 // can now deserialize and serialize!
 const message = deserialize(Message, {
-    message: "Hello world",
-    author: 17,
-    comments: [{
-        message: "Welcome!",
-        author: 23
-    }]
-})
+    message : "Hello world",
+    author  : 17,
+    comments: [
+        {
+            message: "Welcome!",
+            author : 23
+        }
+    ]
+});
 
-const json = serialize(message)
+const json = serialize(message);
+
+console.dir(message, {colors: true, depth: 10});
 ```
 
 ## Using decorators (optional)
