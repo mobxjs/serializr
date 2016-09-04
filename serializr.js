@@ -105,7 +105,7 @@
         
         /**
          * Creates a model schema that (de)serializes from / to plain javascript objects.
-         * It's factory method is: `() => ({})`
+         * Its factory method is: `() => ({})`
          *
          * @example
          * var todoSchema = createSimpleSchema({
@@ -131,7 +131,7 @@
         /**
          * Creates a model schema that (de)serializes an object created by a constructor function (class).
          * The created model schema is associated by the targeted type as default model schema, see setDefaultModelSchema.
-         * It's factory method is `() => new clazz()` (unless overriden, see third arg).
+         * Its factory method is `() => new clazz()` (unless overriden, see third arg).
          *
          * @example
          * function Todo(title, done) {
@@ -290,7 +290,7 @@
         /**
          * Sets the default model schema for class / constructor function.
          * Everywhere where a model schema is required as argument, this class / constructor function
-         * can be passed in as well (for example when using `child` or `ref`.
+         * can be passed in as well (for example when using `object` or `ref`.
          *
          * When passing an instance of this class to `serialize`, it is not required to pass the model schema
          * as first argument anymore, because the default schema will be inferred from the instance type.
@@ -413,7 +413,7 @@
  */
 
         /**
-         * Deserializes an json structor into an object graph.
+         * Deserializes a json structor into an object graph.
          * This process might be asynchronous (for example if there are references with an asynchronous
          * lookup function). The function returns an object (or array of objects), but the returned object
          * might be incomplete until the callback has fired as well (which might happen immediately)
@@ -666,11 +666,12 @@
 
         /**
          * Similar to primitive, but this field will be marked as the identifier for the given Model type.
-         * This is used by for example `ref()` to serialize the reference
+         * This is used by for example `reference()` to serialize the reference
          *
          * Identifier accepts an optional `registerFn` with the signature:
          * `(id, target, context) => void`
-         * that can be used to register this object in some store. note that not all fields of this object might have been deserialized yet
+         * that can be used to register this object in some store. note that not all fields of this object might
+         * have been deserialized yet.
          *
          * @example
          * var todos = {};
@@ -799,7 +800,7 @@
 
         /**
          * `object` indicates that this property contains an object that needs to be (de)serialized
-         * using it's own model schema.
+         * using its own model schema.
          *
          * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
          *
@@ -823,7 +824,7 @@
          *   }
          * });
          *
-         * @param {modelSchema} modelSchema to be used to (de)serialize the child
+         * @param {modelSchema} modelSchema to be used to (de)serialize the object
          * @returns {PropSchema}
          */
         function object(modelSchema) {
@@ -847,13 +848,13 @@
         }
 
         /**
-         * `reference` can be used to (de)serialize references that points to other models.
+         * `reference` can be used to (de)serialize references that point to other models.
          *
          * The first parameter should be either a ModelSchema that has an `identifier()` property (see identifier)
          * or a string that represents which attribute in the target object represents the identifier of the object.
          *
          * The second parameter is a lookup function that is invoked during deserialization to resolve an identifier to
-         * an object. It's signature should be as follows:
+         * an object. Its signature should be as follows:
          *
          * `lookupFunction(identifier, callback, context)` where:
          * 1. `identifier` is the identifier being resolved
@@ -862,7 +863,7 @@
          *
          * The lookupFunction is optional. If it is not provided, it will try to find an object of the expected type and required identifier within the same JSON document
          *
-         * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
+         * N.B. mind issues with circular dependencies when importing model schemas from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
          *
          * @example
          *
@@ -959,7 +960,7 @@
          * })
          * createModelSchema(Todo, {
          *   title: true,
-         *   subTask: list(child(SubTask))
+         *   subTask: list(object(SubTask))
          * })
          *
          * const todo = deserialize(Todo, {
