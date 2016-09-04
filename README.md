@@ -43,7 +43,7 @@ import {
 
 // Example model classes
 class User {
-    uuid        = Math.random();
+    uuid        = Math.floor(Math.random()*10000);
     displayName = "John Doe";
 }
 
@@ -830,25 +830,42 @@ const user = deserialize(
 ## 7. Putting it together: MobX store with plain objects, classes and internal references
 
 ```javascript
-// Box.js:
+
+// models.js:
 import {observable, computed} from 'mobx';
-import {randomUuid} from '../utils';
 import {serializable, identifier} from 'serializr';
 
-export default class Box {
-    @serializable(identifier()) id;
-    @observable @serializable name = 'Box' + this.id;
+function randomId() {
+    return Math.floor(Math.random()*100000);
+}
+
+export class Box {
+    @serializable(identifier()) id = randomId();
     @serializable @observable x = 0;
     @serializable @observable y = 0;
-    @computed get width() {
-        return this.name.length * 15;
+    @serializable @observable location = 0;
+    
+    constructor(location, x, y){
+        this.location = location;
+        this.x = x;
+        this.y = y;
+    }
+    
+    @serializable @computed get area() {
+        return this.x * this.y;
     }
 }
 
-// Store.js:
+export class Arrow{
+    @serializable(identifier()) id = randomId();
+    @serializable(reference(Box)) from;
+    @serializable(reference(Box)) to;
+}
+
+// store.js:
 import {observable, transaction} from 'mobx';
-import {createSimpleSchema, ref, identifier, child, list, serialize, deserialize, update} from 'serializr';
-import Box from './box';
+import {createSimpleSchema, identifier, list, serialize, deserialize, update} from 'serializr';
+import {Box, Arrow} from './models';
 
 // The store that holds our domain: boxes and arrows
 const store = observable({
@@ -857,29 +874,23 @@ const store = observable({
     selection: null
 });
 
-// Model of an arrow
-const arrowModel = createSimpleSchema({
-    id: identifier(),
-    from: reference(Box)
-    to: reference(Box)
-})
-
 // Model of the store itself
 const storeModel = createSimpleSchema({
     boxes: list(object(Box)),
-    arrows: list(object(arrowModel)),
-    // context.target is the current store being deserialized
-    selection: ref(Box)
-})
+    arrows: list(object(Arrow)),
+    selection: reference(Box)
+});
 
-// example data
+// Example Data
+// You can push data in as a class
 store.boxes.push(
     new Box('Rotterdam', 100, 100),
     new Box('Vienna', 650, 300)
 );
 
+// Or it can be an raw javascript object with the right properties
 store.arrows.push({
-    id: randomUuid(),
+    id: randomId(),
     from: store.boxes[0],
     to: store.boxes[1]
 });
@@ -889,11 +900,14 @@ function serializeState(store) {
     return serialize(storeModel, store);
 }
 
-function deserializeState = (store, json) {
+function deserializeState(store, json) {
     transaction(() => {
         update(storeModel, store, json);
     })
 }
+
+// Print ... out for debugging
+console.dir(serializeState(store), {depth: 10, colors: true});
 ```
 
 * * *
