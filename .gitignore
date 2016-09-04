@@ -2,6 +2,7 @@ node_modules
 lib/
 old
 .vscode
+.idea
 serializr.min.js*
 coverage
 *.log
