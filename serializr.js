@@ -804,20 +804,24 @@
          * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
          *
          * @example
+         *
+         * class SubTask{}
+         * class Todo{}
+         *
          * createModelSchema(SubTask, {
          *   title: true
-         * })
+         * });
          * createModelSchema(Todo, {
-         *   title: true
+         *   title: true,
          *   subTask: object(SubTask)
-         * })
+         * });
          *
          * const todo = deserialize(Todo, {
          *   title: "Task",
          *   subTask: {
          *     title: "Sub task"
          *   }
-         * })
+         * });
          *
          * @param {modelSchema} modelSchema to be used to (de)serialize the child
          * @returns {PropSchema}
@@ -861,13 +865,18 @@
          * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
          *
          * @example
+         *
+         *
+         * class User{}
+         * class Post{}
+         *
          * createModelSchema(User, {
          *   uuid: identifier(),
          *   displayname: primitive()
          * })
          *
          * createModelSchema(Post, {
-         *   author: reference(User, findUserById)
+         *   author: reference(User, findUserById),
          *   message: primitive()
          * })
          *
@@ -940,11 +949,16 @@
          * Accepts a sub model schema to serialize the contents
          *
          * @example
+         *
+         * class SubTask{}
+         * class Task{}
+         * class Todo{}
+         *
          * createModelSchema(SubTask, {
          *   title: true
          * })
          * createModelSchema(Todo, {
-         *   title: true
+         *   title: true,
          *   subTask: list(child(SubTask))
          * })
          *
