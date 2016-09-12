@@ -32,7 +32,7 @@ Non-features:
 
 From npm: `npm install serializr --save`
 
-From CDN: <https://npmcdn.com/serializr> which declares the global `serializr` object.
+From CDN: <https://unpkg.com/serializr> which declares the global `serializr` object.
 
 # Quick example:
 
