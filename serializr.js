@@ -59,16 +59,63 @@
 /*
  * ## Managing model schemas
  */
-
+        /**
+         * JSDOC type defintions for usage w/o typescript.
+         * @typedef {object} PropSchema
+         * @property {serializerFunction} serializer
+         * @property {deserializerFunction} deserializer
+         * @property {boolean} identifier
+         *
+         * @typedef {object} PropertyDescriptor
+         * @param {*} value
+         * @param {boolean} writeable
+         * @param {Function|undefined} get
+         * @param {Function|undefined} set
+         * @param {boolean} configurable
+         * @param {boolean} enumerable
+         *
+         * @callback serializerFunction
+         * @param {*} sourcePropertyValue
+         * @returns any - serialized object
+         *
+         *
+         * @callback deserializerFunction
+         * @param {*} jsonValue
+         * @param {cpsCallback} callback
+         * @param {Context} context
+         * @param {*} currentPropertyValue
+         * @returns void
+         *
+         * @callback RegisterFunction
+         * @param {*} id
+         * @param {object} target
+         * @param {Context} context
+         *
+         * @callback cpsCallback
+         * @param {*} result
+         * @param {*} error
+         * @returns void
+         *
+         * @callback RefLookupFunction
+         * @param {string} id
+         * @param {cpsCallback} callback
+         * @returns void
+         *
+         * @typedef {object} ModelSchema
+         * @param factory
+         * @param props
+         * @param targetClass
+         */
+        
         /**
          * Creates a model schema that (de)serializes from / to plain javascript objects.
-         * It's factory method is: `() => ({})`
+         * Its factory method is: `() => ({})`
          *
          * @example
          * var todoSchema = createSimpleSchema({
          *   title: true,
          *   done: true
-         * };
+         * });
          *
          * var json = serialize(todoSchema, { title: "Test", done: false })
          * var todo = deserialize(todoSchema, json)
@@ -88,7 +135,7 @@
         /**
          * Creates a model schema that (de)serializes an object created by a constructor function (class).
          * The created model schema is associated by the targeted type as default model schema, see setDefaultModelSchema.
-         * It's factory method is `() => new clazz()` (unless overriden, see third arg).
+         * Its factory method is `() => new clazz()` (unless overriden, see third arg).
          *
          * @example
          * function Todo(title, done) {
@@ -104,7 +151,7 @@
          * var json = serialize(new Todo("Test", false))
          * var todo = deserialize(Todo, json)
          *
-         * @param {function} clazz clazz or constructor function
+         * @param {constructor|class} clazz class or constructor function
          * @param {object} props property mapping
          * @param {function} factory optional custom factory. Receives context as first arg
          * @returns {object} model schema
@@ -230,8 +277,8 @@
         /**
          * Returns the standard model schema associated with a class / constructor function
          *
-         * @param {function} clazz class or constructor function
-         * @returns {object} model schema
+         * @param {object} thing
+         * @returns {ModelSchema} model schema
          */
         function getDefaultModelSchema(thing) {
             if (!thing)
@@ -247,13 +294,14 @@
         /**
          * Sets the default model schema for class / constructor function.
          * Everywhere where a model schema is required as argument, this class / constructor function
-         * can be passed in as well (for example when using `child` or `ref`.
+         * can be passed in as well (for example when using `object` or `ref`.
          *
          * When passing an instance of this class to `serialize`, it is not required to pass the model schema
          * as first argument anymore, because the default schema will be inferred from the instance type.
          *
-         * @param {function} clazz class or constructor function
-         * @returns {object} model schema
+         * @param {constructor|class} clazz class or constructor function
+         * @param {ModelSchema} modelSchema - a model schema
+         * @returns {ModelSchema} model schema
          */
         function setDefaultModelSchema(clazz, modelSchema) {
             invariant(isModelSchema(modelSchema))
@@ -278,7 +326,7 @@
 
         function getIdentifierProp(modelSchema) {
             invariant(isModelSchema(modelSchema))
-            // optimizatoin: cache this lookup
+            // optimization: cache this lookup
             while (modelSchema) {
                 for (var propName in modelSchema.props)
                     if (typeof modelSchema.props[propName] === "object" && modelSchema.props[propName].identifier === true)
@@ -370,17 +418,17 @@
  */
 
         /**
-         * Deserializes an json structor into an object graph.
+         * Deserializes a json structor into an object graph.
          * This process might be asynchronous (for example if there are references with an asynchronous
          * lookup function). The function returns an object (or array of objects), but the returned object
          * might be incomplete until the callback has fired as well (which might happen immediately)
          *
-         * @param {object or array} modelschema to use for deserialization
+         * @param {object|array} schema to use for deserialization
          * @param {json} json data to deserialize
          * @param {function} callback node style callback that is invoked once the deserializaiton has finished.
          * First argument is the optional error, second argument is the deserialized object (same as the return value)
-         * @param {any} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
-         * @returns {object or array} deserialized object, possibly incomplete.
+         * @param {*} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
+         * @returns {object|array} deserialized object, possibly incomplete.
          */
         function deserialize(schema, json, callback, customArgs) {
             invariant(arguments.length >= 2, "deserialize expects at least 2 arguments")
@@ -564,7 +612,7 @@
          * @param {object} target target instance to update
          * @param {object} json the json to deserialize
          * @param {function} callback the callback to invoke once deserialization has completed.
-         * @param {any} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
+         * @param {*} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
          */
         function update(modelSchema, target, json, callback, customArgs) {
             var inferModelSchema =
@@ -605,7 +653,7 @@
          * console.dir(serialize(new Todo("test")))
          * // outputs: { title : "test" }
          *
-         * @returns {PropSchema}
+         * @returns {ModelSchema}
          */
         function primitive() {
             return {
@@ -622,12 +670,15 @@
         }
 
         /**
+         *
+         *
          * Similar to primitive, but this field will be marked as the identifier for the given Model type.
-         * This is used by for example `ref()` to serialize the reference
+         * This is used by for example `reference()` to serialize the reference
          *
          * Identifier accepts an optional `registerFn` with the signature:
          * `(id, target, context) => void`
-         * that can be used to register this object in some store. note that not all fields of this object might have been deserialized yet
+         * that can be used to register this object in some store. note that not all fields of this object might
+         * have been deserialized yet.
          *
          * @example
          * var todos = {};
@@ -650,7 +701,8 @@
          *     2: { id: 2, title: "test2" }
          * })
          *
-         * @param {function} registerFn optional function to register this object during creation.
+         *
+         * @param {RegisterFunction} registerFn optional function to register this object during creation.
          *
          * @returns {PropSchema}
          */
@@ -709,7 +761,7 @@
          * console.dir(serialize(new Todo("test")))
          * // { task : "test" }
          *
-         * @param {string} alias name of the json field to be used for this property
+         * @param {string} name name of the json field to be used for this property
          * @param {PropSchema} propSchema propSchema to (de)serialize the contents of this field
          * @returns {PropSchema}
          */
@@ -741,7 +793,7 @@
          *
          * @param {function} serializer function that takes a model value and turns it into a json value
          * @param {function} deserializer function that takes a json value and turns it into a model value
-         * @returns {propSchema}
+         * @returns {PropSchema}
          */
         function custom(serializer, deserializer) {
             invariant(typeof serializer === "function", "first argument should be function")
@@ -756,27 +808,31 @@
 
         /**
          * `object` indicates that this property contains an object that needs to be (de)serialized
-         * using it's own model schema.
+         * using its own model schema.
          *
          * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
          *
          * @example
+         *
+         * class SubTask{}
+         * class Todo{}
+         *
          * createModelSchema(SubTask, {
          *   title: true
-         * })
+         * });
          * createModelSchema(Todo, {
-         *   title: true
+         *   title: true,
          *   subTask: object(SubTask)
-         * })
+         * });
          *
          * const todo = deserialize(Todo, {
          *   title: "Task",
          *   subTask: {
          *     title: "Sub task"
          *   }
-         * })
+         * });
          *
-         * @param {modelSchema} modelSchema to be used to (de)serialize the child
+         * @param {ModelSchema} modelSchema to be used to (de)serialize the object
          * @returns {PropSchema}
          */
         function object(modelSchema) {
@@ -800,13 +856,13 @@
         }
 
         /**
-         * `reference` can be used to (de)serialize references that points to other models.
+         * `reference` can be used to (de)serialize references that point to other models.
          *
          * The first parameter should be either a ModelSchema that has an `identifier()` property (see identifier)
          * or a string that represents which attribute in the target object represents the identifier of the object.
          *
          * The second parameter is a lookup function that is invoked during deserialization to resolve an identifier to
-         * an object. It's signature should be as follows:
+         * an object. Its signature should be as follows:
          *
          * `lookupFunction(identifier, callback, context)` where:
          * 1. `identifier` is the identifier being resolved
@@ -815,16 +871,21 @@
          *
          * The lookupFunction is optional. If it is not provided, it will try to find an object of the expected type and required identifier within the same JSON document
          *
-         * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
+         * N.B. mind issues with circular dependencies when importing model schemas from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
          *
          * @example
+         *
+         *
+         * class User{}
+         * class Post{}
+         *
          * createModelSchema(User, {
          *   uuid: identifier(),
          *   displayname: primitive()
          * })
          *
          * createModelSchema(Post, {
-         *   author: reference(User, findUserById)
+         *   author: reference(User, findUserById),
          *   message: primitive()
          * })
          *
@@ -848,7 +909,7 @@
          * )
          *
          * @param target: ModelSchema or string
-         * @param {function} lookup function
+         * @param {RefLookupFunction} lookupFn function
          * @returns {PropSchema}
          */
         function reference(target, lookupFn) {
@@ -897,12 +958,17 @@
          * Accepts a sub model schema to serialize the contents
          *
          * @example
+         *
+         * class SubTask{}
+         * class Task{}
+         * class Todo{}
+         *
          * createModelSchema(SubTask, {
          *   title: true
          * })
          * createModelSchema(Todo, {
-         *   title: true
-         *   subTask: list(child(SubTask))
+         *   title: true,
+         *   subTask: list(object(SubTask))
          * })
          *
          * const todo = deserialize(Todo, {
@@ -948,7 +1014,7 @@
          * This can be both plain objects (default) or ES6 Map like structures.
          * This will be inferred from the initial value of the targetted attribute.
          *
-         * @param {any} propSchema
+         * @param {*} propSchema
          * @returns
          */
         function map(propSchema) {
