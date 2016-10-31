@@ -1074,7 +1074,7 @@
         return {
             createModelSchema: createModelSchema,
             createSimpleSchema: createSimpleSchema,
-            setDefaultModelSchema: getDefaultModelSchema,
+            setDefaultModelSchema: setDefaultModelSchema,
             getDefaultModelSchema: getDefaultModelSchema,
             serializable: serializable,
             serialize: serialize,
