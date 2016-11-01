@@ -1,3 +1,7 @@
+# 1.1.8
+
+* Fixed #21 wrong export of `setDefaultModelSchema` export, by @vonovak
+
 # 1.1.7
 
 * Added support for serializable constructor arguments (TypeScript only), by @bfsmith, see [#11](https://github.com/mobxjs/serializr/pull/11)
