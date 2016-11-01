@@ -180,6 +180,9 @@
          * Decorator that defines a new property mapping on the default model schema for the class
          * it is used in.
          *
+         * When using typescript, the decorator can also be used on fields declared as constructor arguments (using the `private` / `protected` / `public` keywords).
+         * The default factory will then invoke the constructor with the correct arguments as well.
+         *
          * @example
          * class Todo {
          *   @serializable(primitive())
@@ -213,7 +216,7 @@
                 return serializableDecorator(primitive(), arg1, arg2, arg3)
             }
         }
-        
+
         // Ugly way to get the parameter names since they aren't easily retrievable via reflection
         var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg
         var ARGUMENT_NAMES = /([^\s,]+)/g
@@ -261,7 +264,7 @@
             }
             invariant(typeof propName === "string", "incorrect usage of @serializable decorator")
             var info = getDefaultModelSchema(target)
-            
+
             if (!info || !target.constructor.hasOwnProperty("serializeInfo"))
                 info = createModelSchema(target.constructor, {}, factory)
             if (info && info.targetClass !== target.constructor)

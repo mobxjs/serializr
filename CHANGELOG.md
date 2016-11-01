@@ -1,3 +1,7 @@
+# 1.1.7
+
+* Added support for serializable constructor arguments (TypeScript only), by @bfsmith, see [#11](https://github.com/mobxjs/serializr/pull/11)
+
 # 1.1.6
 
 * Fixed issue where custom arguments passed to `update` where not correctly handled, see #12, by @robclouth
