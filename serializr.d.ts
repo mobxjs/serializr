@@ -40,6 +40,7 @@ export function setDefaultModelSchema<T>(clazz: Clazz<T>, modelschema: ModelSche
 export function serialize<T>(modelschema: ClazzOrModelSchema<T>, instance: T): any;
 export function serialize<T>(instance: T): any;
 
+export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, jsonArray: any[], callback?: (err: any, result: T[]) => void, customArgs?: any): T[];
 export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, json: any, callback?: (err: any, result: T) => void, customArgs?: any): T;
 
 export function update<T>(modelschema: ClazzOrModelSchema<T>, instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any): void;
