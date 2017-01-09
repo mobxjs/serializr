@@ -46,9 +46,9 @@
     "documentation": "^4.0.0-beta9",
     "eslint": "^2.12.0",
     "istanbul": "^0.4.4",
-    "mobx": "^2.4.1",
+    "mobx": "^2.4.1 || ^3.0.0",
     "tape": "^4.5.1",
-    "typescript": "^1.8.10",
+    "typescript": "^2.1.4",
     "uglify-js": "^2.6.4"
   }
 }
