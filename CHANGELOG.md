@@ -1,3 +1,7 @@
+# 1.1.9
+
+* Fixed typings of deserialize for arrays. by @Podlas29
+
 # 1.1.8
 
 * Fixed #21 wrong export of `setDefaultModelSchema` export, by @vonovak
