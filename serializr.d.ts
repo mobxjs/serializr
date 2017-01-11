@@ -56,6 +56,7 @@ export function alias(jsonName: string, propSchema?: PropSchema | boolean): Prop
 
 export function child(modelschema: ClazzOrModelSchema<any>): PropSchema;
 export function object(modelschema: ClazzOrModelSchema<any>): PropSchema;
+export function dynamicObject(modelschemas: ClazzOrModelSchema<any>[]): PropSchema;
 
 export type RefLookupFunction = (id: string, callback: (err: any, result: any) => void) => void;
 export type RegisterFunction = (id: any, object: any, context: Context) => void;

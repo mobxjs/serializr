@@ -482,6 +482,8 @@
                     propDef = _defaultPrimitiveProp
                 if (propDef === false)
                     return
+                if (propDef.dontDeserialize)
+                    return
                 var jsonAttr = propDef.jsonname || propName
                 if (!(jsonAttr in json))
                     return
@@ -656,7 +658,7 @@
          * console.dir(serialize(new Todo("test")))
          * // outputs: { title : "test" }
          *
-         * @returns {ModelSchema}
+         * @returns {PropSchema}
          */
         function primitive() {
             return {
@@ -853,6 +855,86 @@
                     invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
                     if (childJson === null || childJson === undefined)
                         return void done(null, childJson)
+                    return void deserializeObjectWithSchema(context, modelSchema, childJson, done)
+                }
+            }
+        }
+        
+        /**
+         * `dynamicObject` indicates that this property contains an object that needs to be (de)serialized using one of the given model schemas.
+         * The exact model schema will be picked during serializiation and saved into the Json.
+         * 
+         * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
+         * 
+         * @example
+         *
+         * class Player{}
+         * class Sword {
+         *   function use() {
+         *     console.log("Sword swings");
+         *   }
+         * }
+         * class Bow {
+         *   function use() {
+         *     console.log("Bow fires");
+         *   }
+         * }
+         *
+         * createModelSchema(Player, {
+         *   primaryWeapon: dynamicObject([Sword, Bow])
+         *   secundaryWeapon: dynamicObject([Sword, Bow])
+         * });
+         *
+         * const player = deserialize(Todo, {
+         *   primaryWeapon: new Sword(),
+         *   secundaryWeapon: new Bow()
+         * });
+         *
+         * @param {ModelSchema[]} modelSchemas array of all possible ModelSchemas that can apply to the object, to be used to (de)serialize the object
+         * @returns {PropSchema}
+         */
+        function dynamicObject(modelSchemas) {
+            var typePropName = "serializr_dynamicObjectType"
+            var typesMap = []
+            modelSchemas.forEach(function(modelSchema) {
+                invariant(typeof modelSchema === "object" || typeof modelSchema === "function", "No modelschema provided. If you are importing it from another file be aware of circular dependencies. ModelSchema: " + modelSchema)
+                modelSchema = getDefaultModelSchema(modelSchema)
+                typesMap[modelSchema.targetClass.name] = modelSchema
+            }, this)
+            
+            return {
+                serializer: function (item) {
+                    if (item === null || item === undefined)
+                        return item
+                    
+                    var modelSchema = getDefaultModelSchema(item)
+                    invariant(isModelSchema(modelSchema), "Unable to detect modelschema for item, item: " + item)
+                    
+                    // Store the name of the type of the object
+                    item[typePropName] = modelSchema.targetClass.name
+                    // Create a custom propSchema that makes sure the dynamicObjectType field is serialized, but not deserialized (don't want it to end up in the deserialized object)
+                    var propSchema = {
+                        serializer: function(value) { return value },
+                        deserializer: function(jsonValue, done) { done(null, null) },
+                        dontDeserialize: true // Signal the deserializer that this property should be skipped 
+                    }
+                    // Add propschema to the object
+                    serializableDecorator(
+                        propSchema,
+                        item,
+                        typePropName)
+                    
+                    return serialize(modelSchema, item)
+                },
+                deserializer: function (childJson, done, context) {
+                    if (childJson === null || childJson === undefined)
+                        return void done(null, childJson)
+                        
+                    var childType = childJson[typePropName]
+                    invariant(typeof childType === "string", "Json object does not contain type information, can not extract ModelSchema. ChildJson: " + childJson)
+                    var modelSchema = getDefaultModelSchema(typesMap[childType])
+                    invariant(isModelSchema(modelSchema), "Could not find ModelSchema for derived type, type: " + childType)
+                    
                     return void deserializeObjectWithSchema(context, modelSchema, childJson, done)
                 }
             }
@@ -1090,6 +1172,7 @@
             list: list,
             map: map,
             object: object,
+            dynamicObject: dynamicObject,
             child: object, // deprecate
             reference: reference,
             ref: reference, // deprecate
