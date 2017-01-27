@@ -584,6 +584,8 @@ Can be used to create simple custom propSchema.
 -   `serializer` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function that takes a model value and turns it into a json value
 -   `deserializer` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function that takes a json value and turns it into a model value
 
+If either the `serializer` or `deserializer` return `undefined` or do not return a value will be skipped.  Serializers that want to blank a property should explicitly return null.
+
 **Examples**
 
 ```javascript
