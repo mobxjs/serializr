@@ -109,6 +109,28 @@ test("it should respect custom schemas", t => {
     t.end()
 })
 
+test("it should not set values for custom serializers/deserializer that return undefined", t => {
+    var s = _.createSimpleSchema({
+        a: _.custom(
+            function(v) { return v },
+            function(v) { return undefined }
+        )
+    })
+    t.deepEqual(_.serialize(s, { a: 4 }), { a: 4 })
+    t.deepEqual(_.deserialize(s, { a: 4 }), { })
+
+    s = _.createSimpleSchema({
+        a: _.custom(
+            function(v) { return undefined },
+            function(v) { return null }
+        )
+    })
+    t.deepEqual(_.serialize(s, { a: 4 }), { })
+    t.deepEqual(_.deserialize(s, { a: 4 }), { a: null })
+
+    t.end()
+})
+
 test("it should respect extends", t => {
     var superSchema = _.createSimpleSchema({
         x: primitive()

@@ -403,6 +403,9 @@
                 if (propDef === false)
                     return
                 var jsonValue = propDef.serializer(obj[key])
+                if (jsonValue === undefined){
+                    return
+                }
                 res[propDef.jsonname || key] = jsonValue
             })
             return res
@@ -491,7 +494,9 @@
                     // this allows props to complete after completing the object itself
                     // enabling reference resolving and such
                     context.rootContext.createCallback(function (value) {
-                        target[propName] = value
+                        if (value !== undefined){
+                            target[propName] = value
+                        }
                     }),
                     context,
                     target[propName] // initial value
