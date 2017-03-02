@@ -852,7 +852,8 @@ const todoJson = serialize(todos)
 ```javascript
 const someTodoStoreById = {}
 
-getDefaultModelSchema(Todo).factory = (context, json) => {
+getDefaultModelSchema(Todo).factory = (context) => {
+  const json = context.json;
   if (someTodoStoreById[json.id])
     return someTodoStoreById[json.id] // reuse instance
   return someTodoStoreById[json.id] = new Todo()
