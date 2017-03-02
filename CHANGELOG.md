@@ -1,3 +1,7 @@
+# 1.1.10
+
+* Schema was not correctly picked up for classes passed as first arg to deserialize. Fixed. See #36
+
 # 1.1.9
 
 * Fixed typings of deserialize for arrays. by @Podlas29
