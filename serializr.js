@@ -106,7 +106,7 @@
          * @param props
          * @param targetClass
          */
-        
+
         /**
          * Creates a model schema that (de)serializes from / to plain javascript objects.
          * Its factory method is: `() => ({})`
@@ -628,6 +628,8 @@
                 json = arguments[1]
                 callback = arguments[2]
                 customArgs = arguments[3]
+            } else {
+                modelSchema = getDefaultModelSchema(modelSchema)
             }
             invariant(isModelSchema(modelSchema), "update failed to determine schema")
             invariant(typeof target === "object" && target && !Array.isArray(target), "update needs an object")
