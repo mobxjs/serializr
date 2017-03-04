@@ -584,7 +584,7 @@ Can be used to create simple custom propSchema.
 -   `serializer` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function that takes a model value and turns it into a json value
 -   `deserializer` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function that takes a json value and turns it into a model value
 
-If either the `serializer` or `deserializer` return `undefined` or do not return a value will be skipped.  Serializers that want to blank a property should explicitly return null.
+The `serializer` or `deserializer` functions may return `SKIP` to indicate that the property should not be used.  This can be usefull for objects who's state affects whether they should be saved or updated.
 
 **Examples**
 
@@ -594,9 +594,13 @@ var schema = _.createSimpleSchema({
     function(v) { return v + 2 },
     function(v) { return v - 2 }
   )
+  b: _.custom(_.custom(
+    function(v) { return v },
+    function(v) { return v === 'INVALID' ? _.SKIP : v }
+  )
 })
-t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 })
-t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 })
+t.deepEqual(_.serialize(s, { a: 4, b: 'INVALID' }), { a: 6, b: 'INVALID' })
+t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 }) // no "b" is included because it's 'INVALID'
 ```
 
 Returns **PropSchema** 
