@@ -109,24 +109,26 @@ test("it should respect custom schemas", t => {
     t.end()
 })
 
-test("it should not set values for custom serializers/deserializer that return undefined", t => {
+test("it should not set values for custom serializers/deserializer that return SKIP", t => {
+    t.equal(typeof _.SKIP, 'symbol')
     var s = _.createSimpleSchema({
         a: _.custom(
             function(v) { return v },
-            function(v) { return undefined }
+            function(v) { return _.SKIP }
         )
     })
+
     t.deepEqual(_.serialize(s, { a: 4 }), { a: 4 })
     t.deepEqual(_.deserialize(s, { a: 4 }), { })
 
     s = _.createSimpleSchema({
         a: _.custom(
-            function(v) { return undefined },
-            function(v) { return null }
+            function(v) { return _.SKIP },
+            function(v) { return undefined }
         )
     })
     t.deepEqual(_.serialize(s, { a: 4 }), { })
-    t.deepEqual(_.deserialize(s, { a: 4 }), { a: null })
+    t.deepEqual(_.deserialize(s, { a: 4 }), { a: undefined })
 
     t.end()
 })
