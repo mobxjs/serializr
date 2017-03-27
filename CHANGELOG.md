@@ -1,3 +1,7 @@
+# 1.1.11
+
+* Introduced `serializr.SKIP`, the can be used to skip certain properties during deserialization when using `custom` serializers. #32 by @nathanstitt
+
 # 1.1.10
 
 * Schema was not correctly picked up for classes passed as first arg to deserialize. Fixed. See #36
