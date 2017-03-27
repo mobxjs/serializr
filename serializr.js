@@ -1,9 +1,9 @@
 (function(g) {
     "use strict"
-    
+
     function mrFactory() {
         // Indicate properties should be skipped
-        var SKIP = Symbol('SKIP')
+        var SKIP = typeof Symbol !== "undefined" ? Symbol("SKIP") : { SKIP: true }
 /*
  * Generic utility functions
  */
