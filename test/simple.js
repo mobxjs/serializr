@@ -70,21 +70,20 @@ test("it should respect `*` prop schemas", t => {
     t.deepEqual(_.serialize(s, { a: 42, b: 17 }), { a: 42, b: 17 })
     t.deepEqual(_.deserialize(s, { a: 42, b: 17 }), { a: 42, b: 17 })
 
-    t.throws(() => _.serialize(s, { a: new Date() }), /encountered non primitive value while serializing/)
-    t.throws(() => _.serialize(s, { a: {} }), /encountered non primitive value while serializing/)
+    t.deepEqual(_.serialize(s, { a: new Date(), d: 2 }), { d: 2 })
+    t.deepEqual(_.serialize(s, { a: {}, d: 2 }), { d: 2})
 
     t.throws(() => _.deserialize(s, { a: new Date() }), /encountered non primitive value while deserializing/)
     t.throws(() => _.deserialize(s, { a: {} }), /encountered non primitive value while deserializing/)
-
     var s2 = _.createSimpleSchema({
         "*" : true,
         a: _.date()
     })
-    t.doesNotThrow(() => _.serialize(s2, { a: new Date() }))
-    t.throws(() => _.serialize(s2, { c: {} }), /encountered non primitive value while serializing/)
+    t.doesNotThrow(() => _.serialize(s2, { a: new Date(), d: 2 }))
+    t.deepEqual(_.serialize(s2, { c: {}, d: 2 }), { a: undefined, d: 2 })
 
     t.doesNotThrow(() => _.deserialize(s2, { a: new Date().getTime() }), /bla/)
-    t.throws(() => _.deserialize(s2, { c: {} }), /encountered non primitive value while deserializing/)
+    t.throws(() => _.deserialize(s2, { c: {}, d: 2 }), /encountered non primitive value while deserializing/)
 
     // don't assign aliased attrs
     var s3 = _.createSimpleSchema({
