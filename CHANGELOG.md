@@ -2,6 +2,8 @@
 
 * Introduced `serializr.SKIP`, the can be used to skip certain properties during deserialization when using `custom` serializers. #32 by @nathanstitt
 * Fixed #27: Skip non primitive primitive properties instead of throwing for `*` decorator
+* Introduced `@serializeAll` decorator, see #27
+
 
 # 1.1.10
 

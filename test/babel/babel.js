@@ -1,4 +1,4 @@
-import {serializable, primitive, serialize, deserialize, list, object, reference, identifier} from "../../";
+import {serializable, primitive, serialize, deserialize, list, object, reference, identifier, serializeAll} from "../../";
 import {observable, autorun} from "mobx";
 
 const test = require("tape");
@@ -132,4 +132,26 @@ test("issue 10", t => {
     const store2 = deserialize(Store, serial);
     t.equal(store2.router.routes.length, 1);
     t.end();
+})
+
+
+test("@serializeAll (babel)", t => {
+    @serializeAll
+    class Store {
+        a = 3
+        b
+    }
+
+    const store = new Store
+    store.c = 5
+    store.d = {}
+
+    t.deepEqual(serialize(store), { a: 3, c: 5})
+
+    const store2 = deserialize(Store, { a: 2, b: 3, c: 4})
+    t.equal(store2.a, 2)
+    t.equal(store2.b, 3)
+    t.equal(store2.c, 4)
+
+    t.end()
 })
