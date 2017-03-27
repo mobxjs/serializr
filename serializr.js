@@ -416,8 +416,9 @@
         function serializeStarProps(schema, obj, target) {
             for (var key in obj) if (obj.hasOwnProperty(key)) if (!(key in schema.props)) {
                 var value = obj[key]
-                invariant(isPrimitive(value), "encountered non primitive value while serializing '*' properties in property '" + key + "': " + value)
-                target[key] = value
+                // when serializing only serialize primitive props. Assumes other props (without schema) are local state that doesn't need serialization
+                if (isPrimitive(value))
+                    target[key] = value
             }
         }
 
@@ -516,6 +517,7 @@
         function deserializeStarProps(schema, obj, json) {
             for (var key in json) if (!(key in schema.props) && !schemaHasAlias(schema, key)) {
                 var value = json[key]
+                // when deserializing we don't want to silently ignore 'unparseable data' to avoid confusing bugs
                 invariant(isPrimitive(value), "encountered non primitive value while deserializing '*' properties in property '" + key + "': " + value)
                 obj[key] = value
             }
