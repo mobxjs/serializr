@@ -280,6 +280,34 @@
         }
 
         /**
+         * The `serializeAll` decorator can be used on a class to signal that all primitive properties should be serialized automatically.
+         *
+         * @example
+         * \@serializeAll
+         * class Store {
+         *     a = 3
+         *     b
+         * }
+         *
+         * const store = new Store
+         * store.c = 5
+         * store.d = {}
+         * t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5})
+         */
+        function serializeAll(target) {
+            invariant(arguments.length === 1 && typeof target === "function", "@serializeAll can only be used as class decorator")
+
+            var info = getDefaultModelSchema(target)
+            if (!info || !target.hasOwnProperty("serializeInfo")) {
+                info = createModelSchema(target, {})
+                setDefaultModelSchema(target, info)
+            }
+
+            getDefaultModelSchema(target).props["*"] = true
+            return target
+        }
+
+        /**
          * Returns the standard model schema associated with a class / constructor function
          *
          * @param {object} thing
@@ -1092,6 +1120,7 @@
             getDefaultModelSchema: getDefaultModelSchema,
             serializable: serializable,
             serialize: serialize,
+            serializeAll: serializeAll,
             deserialize: deserialize,
             update: update,
             primitive: primitive,

@@ -70,3 +70,7 @@ export function list(propSchema: PropSchema): PropSchema;
 export function map(propSchema: PropSchema): PropSchema;
 
 export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any) => any): PropSchema;
+
+export function serializeAll<T extends Function>(clazz: T): T
+
+export const SKIP: {}

@@ -1,4 +1,4 @@
-import {serializable, alias, list, object, identifier, reference, primitive, serialize, deserialize} from "../../";
+import {serializable, alias, list, object, identifier, reference, primitive, serialize, deserialize, serializeAll} from "../../";
 import {observable, autorun} from "mobx";
 
 declare var require;
@@ -59,7 +59,7 @@ test("typescript class with constructor params", t => {
 
     const a = new Rectangle("A", 10, 20);
     a.someNumber = 123;
-    
+
     let json = serialize(a);
     const b = deserialize(Rectangle, json);
     t.equal(a.id, b.id);
@@ -124,3 +124,24 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
 
     t.end();
 });
+
+test("@serializeAll (babel)", t => {
+    @serializeAll
+    class Store {
+        a = 3
+        b
+    }
+
+    const store = new Store();
+    (store as any).c = 5;
+    (store as any).d = {};
+
+    t.deepEqual(serialize(store), { a: 3, c: 5})
+
+    const store2 = deserialize(Store, { a: 2, b: 3, c: 4})
+    t.equal(store2.a, 2)
+    t.equal(store2.b, 3)
+    t.equal((store2 as any).c, 4)
+
+    t.end()
+})
