@@ -109,6 +109,43 @@ test("it should respect custom schemas", t => {
     t.end()
 })
 
+test("it should not set values for custom serializers/deserializer that return SKIP", t => {
+    t.equal(typeof _.SKIP, 'symbol')
+    var s = _.createSimpleSchema({
+        a: _.custom(
+            function(v) { return v },
+            function(v) { return _.SKIP }
+        )
+    })
+
+    t.deepEqual(_.serialize(s, { a: 4 }), { a: 4 })
+    t.deepEqual(_.deserialize(s, { a: 4 }), { })
+
+    s = _.createSimpleSchema({
+        a: _.custom(
+            function(v) { return _.SKIP },
+            function(v) { return undefined }
+        )
+    })
+    t.deepEqual(_.serialize(s, { a: 4 }), { })
+    t.deepEqual(_.deserialize(s, { a: 4 }), { a: undefined })
+
+    t.end()
+})
+
+test("it should pass key and object to custom schemas", t => {
+    var s = _.createSimpleSchema({
+        a: primitive(),
+        b: _.custom(
+            function(v, k, obj) { return k + String(v * obj.b) },
+            function(v) { return v }
+        )
+    })
+    t.deepEqual(_.serialize(s, { a: 2, b: 4 }), { a: 2, b: 'b16' })
+    t.deepEqual(_.deserialize(s, { a: 6, b: 2 }), { a: 6, b: 2 })
+    t.end()
+})
+
 test("it should respect extends", t => {
     var superSchema = _.createSimpleSchema({
         x: primitive()

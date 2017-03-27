@@ -1,7 +1,9 @@
 (function(g) {
     "use strict"
-
+    
     function mrFactory() {
+        // Indicate properties should be skipped
+        var SKIP = Symbol('SKIP')
 /*
  * Generic utility functions
  */
@@ -402,7 +404,10 @@
                     propDef = _defaultPrimitiveProp
                 if (propDef === false)
                     return
-                var jsonValue = propDef.serializer(obj[key])
+                var jsonValue = propDef.serializer(obj[key], key, obj)
+                if (jsonValue === SKIP){
+                    return
+                }
                 res[propDef.jsonname || key] = jsonValue
             })
             return res
@@ -491,7 +496,9 @@
                     // this allows props to complete after completing the object itself
                     // enabling reference resolving and such
                     context.rootContext.createCallback(function (value) {
-                        target[propName] = value
+                        if (value !== SKIP){
+                            target[propName] = value
+                        }
                     }),
                     context,
                     target[propName] // initial value
@@ -1095,7 +1102,8 @@
             child: object, // deprecate
             reference: reference,
             ref: reference, // deprecate
-            custom: custom
+            custom: custom,
+            SKIP: SKIP
         }
     }
 
