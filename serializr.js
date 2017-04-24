@@ -246,11 +246,7 @@
                     descriptor = undefined
                     target = target.prototype
                     // Create a factory so the constructor is called properly
-                    factory = function(context) {
-                        function F(args) {
-                            return target.constructor.apply(this, args)
-                        }
-                        F.prototype = target.constructor.prototype
+                     factory = function(context) {
                         var params = []
                         for (var i = 0; i < target.constructor.length; i++) {
                           Object.keys(context.modelSchema.props).forEach(function (key) {
@@ -260,7 +256,8 @@
                             }
                           });
                         }
-                        return new F(params)
+                        
+                        return new (Function.prototype.bind.apply(target.constructor, [null].concat(params)));
                     }
                 }
             }
