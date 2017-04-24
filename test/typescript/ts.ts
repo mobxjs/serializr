@@ -71,6 +71,22 @@ test("typescript class with constructor params", t => {
     t.end();
 });
 
+test("typescript class with only constructor params", t => {
+    class Rectangle {
+      constructor(@serializable(alias("identifier", identifier())) public id: string, @serializable(alias("width", true)) public width: number, @serializable(alias("height", true)) public height: number) { }
+    }
+
+    const a = new Rectangle("A", 10, 20);
+
+    let json = serialize(a);
+    const b = deserialize(Rectangle, json);
+    t.equal(a.id, b.id);
+    t.equal(a.width, b.width);
+    t.equal(a.height, b.height);
+
+    t.end();
+});
+
 test("[ts] it should handle prototypes", t => {
     class A {
         @serializable a = "hoi";
