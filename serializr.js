@@ -1023,7 +1023,7 @@
 
         function list(propSchema) {
             propSchema = propSchema || _defaultPrimitiveProp
-            invariant(isPropSchema(propSchema), "expected prop schema as second argument")
+            invariant(isPropSchema(propSchema), "expected prop schema as first argument")
             invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
             return {
                 serializer: function (ar) {
@@ -1058,7 +1058,7 @@
          */
         function map(propSchema) {
             propSchema = propSchema || _defaultPrimitiveProp
-            invariant(isPropSchema(propSchema), "expected prop schema as second argument")
+            invariant(isPropSchema(propSchema), "expected prop schema as first argument")
             invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
             return {
                 serializer: function (m) {
@@ -1119,6 +1119,9 @@
          * @returns
          */
         function mapAsArray(propSchema, keyPropertyName) {
+            propSchema = propSchema || _defaultPrimitiveProp
+            invariant(isPropSchema(propSchema), "expected prop schema as first argument")
+            invariant(!!keyPropertyName, "expected key property name as second argument")
             return {
                 serializer: function (m) {
                     var result = []
@@ -1172,6 +1175,7 @@
             alias: alias,
             list: list,
             map: map,
+            mapAsArray: mapAsArray,
             object: object,
             child: object, // deprecate
             reference: reference,
