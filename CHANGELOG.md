@@ -1,9 +1,14 @@
+# 1.1.12
+
+* Improved documentation examples, see #43 by @brikou
+* Fixed `class constructor cannot be invoked without 'new'` error, see #42 by @pinksquidhat
+* Introduced `mapAsArray`, to support maps that serialize to arrays with objects with identifiers. And vice versa. By @vonovak. See #22
+
 # 1.1.11
 
 * Introduced `serializr.SKIP`, the can be used to skip certain properties during deserialization when using `custom` serializers. #32 by @nathanstitt
 * Fixed #27: Skip non primitive primitive properties instead of throwing for `*` decorator
 * Introduced `@serializeAll` decorator, see #27
-
 
 # 1.1.10
 

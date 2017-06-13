@@ -6,6 +6,10 @@ _Serialize and deserialize complex object graphs to JSON_
 [![Coverage Status](https://coveralls.io/repos/github/mobxjs/serializr/badge.svg?branch=master)](https://coveralls.io/github/mobxjs/serializr?branch=master)
 [![Join the chat at https://gitter.im/mobxjs/serializr](https://badges.gitter.im/mobxjs/serializr.svg)](https://gitter.im/mobxjs/serializr?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+_Serializr is feature complete, and easily extendable. Since there are no active maintainers the project is frozen feature wise. Bug reports are welcome and will be addressed._
+
+Want to maintain a small open source project or having great ideas for this project? We are looking for maintainers, so [apply](https://github.com/mobxjs/serializr/issues/46)!
+
 # Introduction
 
 Serializr is a utility library that helps converting json structures into complex object graphs and the other way around.
@@ -295,33 +299,33 @@ JSDOC type defintions for usage w/o typescript.
 
 **Parameters**
 
--   `value` **Any** 
--   `targetClass`  
--   `get` **([Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function) \| [undefined](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined))** 
--   `set` **([Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function) \| [undefined](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined))** 
--   `configurable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
--   `enumerable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
--   `sourcePropertyValue` **Any** 
--   `jsonValue` **Any** 
--   `callback` **cpsCallback** 
--   `context` **Context** 
--   `writeable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
--   `id` **Any** 
--   `target` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
--   `context` **Context** 
--   `result` **Any** 
--   `error` **Any** 
--   `id` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `callback` **cpsCallback** 
--   `factory`  
--   `props`  
--   `currentPropertyValue` **Any** 
+-   `value` **Any**
+-   `targetClass`
+-   `get` **([Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function) \| [undefined](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined))**
+-   `set` **([Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function) \| [undefined](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined))**
+-   `configurable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
+-   `enumerable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
+-   `sourcePropertyValue` **Any**
+-   `jsonValue` **Any**
+-   `callback` **cpsCallback**
+-   `context` **Context**
+-   `writeable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
+-   `id` **Any**
+-   `target` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)**
+-   `context` **Context**
+-   `result` **Any**
+-   `error` **Any**
+-   `id` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)**
+-   `callback` **cpsCallback**
+-   `factory`
+-   `props`
+-   `currentPropertyValue` **Any**
 
 **Properties**
 
--   `serializer` **serializerFunction** 
--   `deserializer` **deserializerFunction** 
--   `identifier` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+-   `serializer` **serializerFunction**
+-   `deserializer` **deserializerFunction**
+-   `identifier` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
 
 Returns **Any** any - serialized object
 
@@ -401,9 +405,9 @@ The default factory will then invoke the constructor with the correct arguments 
 
 **Parameters**
 
--   `arg1`  
--   `arg2`  
--   `arg3`  
+-   `arg1`
+-   `arg2`
+-   `arg3`
 
 **Examples**
 
@@ -411,7 +415,7 @@ The default factory will then invoke the constructor with the correct arguments 
 class Todo {
 ```
 
-Returns **PropertyDescriptor** 
+Returns **PropertyDescriptor**
 
 ## serializeAll
 
@@ -421,7 +425,7 @@ The `serializeAll` decorator can be used on a class to signal that all primitive
 
 **Parameters**
 
--   `target`  
+-   `target`
 
 **Examples**
 
@@ -445,7 +449,7 @@ Returns the standard model schema associated with a class / constructor function
 
 **Parameters**
 
--   `thing` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** 
+-   `thing` **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)**
 
 Returns **[ModelSchema](#modelschema)** model schema
 
@@ -534,7 +538,7 @@ console.dir(serialize(new Todo('test')));
 // outputs: { title : "test" }
 ```
 
-Returns **[ModelSchema](#modelschema)** 
+Returns **[ModelSchema](#modelschema)**
 
 ## identifier
 
@@ -574,7 +578,7 @@ t.deepEqual(todos, {
 });
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## date
 
@@ -605,7 +609,7 @@ console.dir(serialize(new Todo('test')));
 // { task : "test" }
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## custom
 
@@ -635,7 +639,7 @@ t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 });
 t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 });
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## object
 
@@ -672,7 +676,7 @@ const todo = deserialize(Todo, {
 });
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## reference
 
@@ -737,7 +741,7 @@ deserialize(
 );
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## list
 
@@ -775,7 +779,7 @@ const todo = deserialize(Todo, {
 });
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## map
 
@@ -787,7 +791,7 @@ This will be inferred from the initial value of the targetted attribute.
 
 **Parameters**
 
--   `propSchema` **Any** 
+-   `propSchema` **Any**
 
 # Recipes and examples
 
@@ -951,6 +955,7 @@ function randomId() {
 }
 
 export class Box {
+<<<<<<< HEAD
     @serializable(identifier())
     id = randomId();
 
@@ -967,14 +972,26 @@ export class Box {
     location = 0;
 
     constructor(location, x, y) {
+=======
+    @serializable(identifier()) id = randomId();
+    @serializable @observable x = 0;
+    @serializable @observable y = 0;
+    @serializable @observable location = 0;
+
+    constructor(location, x, y){
+>>>>>>> Updated readme and changelog
         this.location = location;
         this.x = x;
         this.y = y;
     }
 
+<<<<<<< HEAD
     @serializable
     @computed
     get area() {
+=======
+    @serializable @computed get area() {
+>>>>>>> Updated readme and changelog
         return this.x * this.y;
     }
 }
