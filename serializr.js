@@ -115,12 +115,12 @@
          *
          * @example
          * var todoSchema = createSimpleSchema({
-         *   title: true,
-         *   done: true
+         *     title: true,
+         *     done: true,
          * });
          *
-         * var json = serialize(todoSchema, { title: "Test", done: false })
-         * var todo = deserialize(todoSchema, json)
+         * var json = serialize(todoSchema, { title: 'Test', done: false });
+         * var todo = deserialize(todoSchema, json);
          *
          * @param {object} props property mapping,
          * @returns {object} model schema
@@ -141,17 +141,17 @@
          *
          * @example
          * function Todo(title, done) {
-         *   this.title = title;
-         *   this.done = done;
+         *     this.title = title;
+         *     this.done = done;
          * }
-         *
+         * 
          * createModelSchema(Todo, {
-         *   title: true,
-         *   done: true
-         * })
-         *
-         * var json = serialize(new Todo("Test", false))
-         * var todo = deserialize(Todo, json)
+         *     title: true,
+         *     done: true,
+         * });
+         * 
+         * var json = serialize(new Todo('Test', false));
+         * var todo = deserialize(Todo, json);
          *
          * @param {constructor|class} clazz class or constructor function
          * @param {object} props property mapping
@@ -187,20 +187,19 @@
          *
          * @example
          * class Todo {
-         *   @serializable(primitive())
-         *   title;
-         *
-         *   @serializable // shorthand for primitves
-         *   done;
-         *
-         *   constructor(title, done) {
-         *     this.title = title;
-         *     this.done = done;
-         *   }
+         *     @serializable(primitive())
+         *     title; // shorthand for primitves
+         * 
+         *     @serializable done;
+         * 
+         *     constructor(title, done) {
+         *         this.title = title;
+         *         this.done = done;
+         *     }
          * }
-         *
-         * var json = serialize(new Todo("Test", false))
-         * var todo = deserialize(Todo, json)
+         * 
+         * var json = serialize(new Todo('Test', false));
+         * var todo = deserialize(Todo, json);
          *
          * @param arg1
          * @param arg2
@@ -280,16 +279,15 @@
          * The `serializeAll` decorator can be used on a class to signal that all primitive properties should be serialized automatically.
          *
          * @example
-         * \@serializeAll
-         * class Store {
-         *     a = 3
-         *     b
+         * @serializeAll class Store {
+         *     a = 3;
+         *     b;
          * }
-         *
-         * const store = new Store
-         * store.c = 5
-         * store.d = {}
-         * t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5})
+         * 
+         * const store = new Store();
+         * store.c = 5;
+         * store.d = {};
+         * t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5 });
          */
         function serializeAll(target) {
             invariant(arguments.length === 1 && typeof target === "function", "@serializeAll can only be used as class decorator")
@@ -686,10 +684,10 @@
          *
          * @example
          * createModelSchema(Todo, {
-         *   title: primitive()
-         * })
-         *
-         * console.dir(serialize(new Todo("test")))
+         *     title: primitive(),
+         * });
+         * 
+         * console.dir(serialize(new Todo('test')));
          * // outputs: { title : "test" }
          *
          * @returns {ModelSchema}
@@ -721,25 +719,22 @@
          *
          * @example
          * var todos = {};
-         *
+         * 
          * var s = _.createSimpleSchema({
-         *     id: _.identifier((id, object) => todos[id] = object),
-         *     title: true
-         * })
-         *
+         *     id: _.identifier((id, object) => (todos[id] = object)),
+         *     title: true,
+         * });
+         * 
          * _.deserialize(s, {
-         *     id: 1, title: "test0"
-         * })
-         * _.deserialize(s, [
-         *     { id: 2, title: "test2" },
-         *     { id: 1, title: "test1" }
-         * ])
-         *
+         *     id: 1,
+         *     title: 'test0',
+         * });
+         * _.deserialize(s, [{ id: 2, title: 'test2' }, { id: 1, title: 'test1' }]);
+         * 
          * t.deepEqual(todos, {
-         *     1: { id: 1, title: "test1" },
-         *     2: { id: 2, title: "test2" }
-         * })
-         *
+         *     1: { id: 1, title: 'test1' },
+         *     2: { id: 2, title: 'test2' },
+         * });
          *
          * @param {RegisterFunction} registerFn optional function to register this object during creation.
          *
@@ -794,10 +789,10 @@
          *
          * @example
          * createModelSchema(Todo, {
-         *   title: alias("task", primitive())
-         * })
-         *
-         * console.dir(serialize(new Todo("test")))
+         *     title: alias('task', primitive()),
+         * });
+         * 
+         * console.dir(serialize(new Todo('test')));
          * // { task : "test" }
          *
          * @param {string} name name of the json field to be used for this property
@@ -822,13 +817,17 @@
          *
          * @example
          * var schema = _.createSimpleSchema({
-         *   a: _.custom(
-         *     function(v) { return v + 2 },
-         *     function(v) { return v - 2 }
-         *   )
-         * })
-         * t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 })
-         * t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 })
+         *     a: _.custom(
+         *         function(v) {
+         *             return v + 2;
+         *         },
+         *         function(v) {
+         *             return v - 2;
+         *         }
+         *     ),
+         * });
+         * t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 });
+         * t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 });
          *
          * @param {function} serializer function that takes a model value and turns it into a json value
          * @param {function} deserializer function that takes a json value and turns it into a model value
@@ -852,23 +851,22 @@
          * N.B. mind issues with circular dependencies when importing model schema's from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
          *
          * @example
-         *
-         * class SubTask{}
-         * class Todo{}
-         *
+         * class SubTask {}
+         * class Todo {}
+         * 
          * createModelSchema(SubTask, {
-         *   title: true
+         *     title: true,
          * });
          * createModelSchema(Todo, {
-         *   title: true,
-         *   subTask: object(SubTask)
+         *     title: true,
+         *     subTask: object(SubTask),
          * });
-         *
+         * 
          * const todo = deserialize(Todo, {
-         *   title: "Task",
-         *   subTask: {
-         *     title: "Sub task"
-         *   }
+         *     title: 'Task',
+         *     subTask: {
+         *         title: 'Sub task',
+         *     },
          * });
          *
          * @param {ModelSchema} modelSchema to be used to (de)serialize the object
@@ -913,39 +911,37 @@
          * N.B. mind issues with circular dependencies when importing model schemas from other files! The module resolve algorithm might expose classes before `createModelSchema` is executed for the target class.
          *
          * @example
-         *
-         *
-         * class User{}
-         * class Post{}
-         *
+         * class User {}
+         * class Post {}
+         * 
          * createModelSchema(User, {
-         *   uuid: identifier(),
-         *   displayname: primitive()
-         * })
-         *
+         *     uuid: identifier(),
+         *     displayname: primitive(),
+         * });
+         * 
          * createModelSchema(Post, {
-         *   author: reference(User, findUserById),
-         *   message: primitive()
-         * })
-         *
+         *     author: reference(User, findUserById),
+         *     message: primitive(),
+         * });
+         * 
          * function findUserById(uuid, callback) {
-         *   fetch("http://host/user/" + uuid)
-         *     .then((userData) => {
-         *       deserialize(User, userData, callback)
-         *     })
-         *     .catch(callback)
+         *     fetch('http://host/user/' + uuid)
+         *         .then(userData => {
+         *             deserialize(User, userData, callback);
+         *         })
+         *         .catch(callback);
          * }
-         *
+         * 
          * deserialize(
-         *   Post,
-         *   {
-         *     message: "Hello World",
-         *     author: 234
-         *   },
-         *   (err, post) => {
-         *     console.log(post)
-         *   }
-         * )
+         *     Post,
+         *     {
+         *         message: 'Hello World',
+         *         author: 234,
+         *     },
+         *     (err, post) => {
+         *         console.log(post);
+         *     }
+         * );
          *
          * @param target: ModelSchema or string
          * @param {RefLookupFunction} lookupFn function
@@ -997,25 +993,26 @@
          * Accepts a sub model schema to serialize the contents
          *
          * @example
-         *
-         * class SubTask{}
-         * class Task{}
-         * class Todo{}
-         *
+         * class SubTask {}
+         * class Task {}
+         * class Todo {}
+         * 
          * createModelSchema(SubTask, {
-         *   title: true
-         * })
+         *     title: true,
+         * });
          * createModelSchema(Todo, {
-         *   title: true,
-         *   subTask: list(object(SubTask))
-         * })
-         *
+         *     title: true,
+         *     subTask: list(object(SubTask)),
+         * });
+         * 
          * const todo = deserialize(Todo, {
-         *   title: "Task",
-         *   subTask: [{
-         *     title: "Sub task 1"
-         *   }]
-         * })
+         *     title: 'Task',
+         *     subTask: [
+         *         {
+         *             title: 'Sub task 1',
+         *         },
+         *     ],
+         * });
          *
          * @param {PropSchema} propSchema to be used to (de)serialize the contents of the array
          * @returns {PropSchema}

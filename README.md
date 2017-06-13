@@ -38,26 +38,33 @@ From CDN: <https://unpkg.com/serializr> which declares the global `serializr` ob
 
 ```javascript
 import {
-  createModelSchema, primitive, reference, list, object, identifier, serialize, deserialize
-} from "serializr";
+    createModelSchema,
+    primitive,
+    reference,
+    list,
+    object,
+    identifier,
+    serialize,
+    deserialize,
+} from 'serializr';
 
 // Example model classes
 class User {
-    uuid        = Math.floor(Math.random()*10000);
-    displayName = "John Doe";
+    uuid = Math.floor(Math.random() * 10000);
+    displayName = 'John Doe';
 }
 
 class Message {
-    message  = "Test";
-    author   = null;
+    message = 'Test';
+    author = null;
     comments = [];
 }
 
 function fetchUserSomewhere(uuid) {
     // Lets pretend to actually fetch a user; but not.
     // In a real app this might be a database query
-    const user       = new User();
-    user.uuid        = uuid;
+    const user = new User();
+    user.uuid = uuid;
     user.displayName = `John Doe ${uuid}`;
     return user;
 }
@@ -67,36 +74,36 @@ function findUserById(uuid, callback, context) {
     // identifier is the identifier being resolved
     // callback is a node style calblack function to be invoked with the found object (as second arg) or an error (first arg)
     // context is an object detailing the execution context of the serializer now
-    callback(null, fetchUserSomewhere(uuid))
+    callback(null, fetchUserSomewhere(uuid));
 }
 
 // Create model schemas
 createModelSchema(Message, {
-    message : primitive(),
-    author  : reference(User, findUserById),
-    comments: list(object(Message))
+    message: primitive(),
+    author: reference(User, findUserById),
+    comments: list(object(Message)),
 });
 
 createModelSchema(User, {
-    uuid       : identifier(),
-    displayName: primitive()
+    uuid: identifier(),
+    displayName: primitive(),
 });
 
 // can now deserialize and serialize!
 const message = deserialize(Message, {
-    message : "Hello world",
-    author  : 17,
+    message: 'Hello world',
+    author: 17,
     comments: [
         {
-            message: "Welcome!",
-            author : 23
-        }
-    ]
+            message: 'Welcome!',
+            author: 23,
+        },
+    ],
 });
 
 const json = serialize(message);
 
-console.dir(message, {colors: true, depth: 10});
+console.dir(message, { colors: true, depth: 10 });
 ```
 
 ## Using decorators (optional)
@@ -105,22 +112,27 @@ With decorators (TypeScript or ESNext) building model schemas is even more trivi
 
 ```javascript
 import {
-    createModelSchema, primitive, reference, list, object, identifier, serialize, deserialize, getDefaultModelSchema,
-    serializable
-} from "serializr";
-
+    createModelSchema,
+    primitive,
+    reference,
+    list,
+    object,
+    identifier,
+    serialize,
+    deserialize,
+    getDefaultModelSchema,
+    serializable,
+} from 'serializr';
 
 class User {
     @serializable(identifier())
     uuid = Math.random();
 
-    @serializable
-    displayName = "John Doe";
+    @serializable displayName = 'John Doe';
 }
 
 class Message {
-    @serializable
-    message = "Test";
+    @serializable message = 'Test';
 
     @serializable(object(User))
     author = null;
@@ -132,22 +144,21 @@ class Message {
 
 // You can now deserialize and serialize!
 const message = deserialize(Message, {
-    message : "Hello world",
-    author  : {uuid: 1, displayName: "Alice"},
+    message: 'Hello world',
+    author: { uuid: 1, displayName: 'Alice' },
     comments: [
         {
-            message: "Welcome!",
-            author : {uuid: 1, displayName: "Bob"}
-        }
-    ]
+            message: 'Welcome!',
+            author: { uuid: 1, displayName: 'Bob' },
+        },
+    ],
 });
 
-
-console.dir(message, {colors: true, depth: 10});
+console.dir(message, { colors: true, depth: 10 });
 
 // We can call serialize without the first argument here
 //because the schema can be inferred from the decorated classes
- 
+
 const json = serialize(message);
 ```
 
@@ -157,18 +168,19 @@ Babel 6.x does not allow decorators to self-reference during their creation, so 
 
 ```javascript
 class Message {
-    @serializable
-    message = "Test";
+    @serializable message = 'Test';
 
     @serializable(object(User))
     author = null;
-    
+
     comments = [];
-    
-    constructor(){
-        getDefaultModelSchema(Message).props["comments"] = list(object(Message));
+
+    constructor() {
+        getDefaultModelSchema(Message).props['comments'] = list(
+            object(Message)
+        );
     }
-} 
+}
 ```
 
 ## Enabling decorators (optional)
@@ -212,12 +224,12 @@ A simple model schema looks like this:
 
 ```javascript
 const todoSchema = {
-    factory: (context) => new Todo(),
+    factory: context => new Todo(),
     extends: ModelSchema,
     props: {
-        modelfield: PropSchema
-    }
-}
+        modelfield: PropSchema,
+    },
+};
 ```
 
 The `factory` tells how to construct new instances during deserialization.
@@ -334,12 +346,12 @@ Its factory method is: `() => ({})`
 
 ```javascript
 var todoSchema = createSimpleSchema({
-  title: true,
-  done: true
+    title: true,
+    done: true,
 });
 
-var json = serialize(todoSchema, { title: "Test", done: false })
-var todo = deserialize(todoSchema, json)
+var json = serialize(todoSchema, { title: 'Test', done: false });
+var todo = deserialize(todoSchema, json);
 ```
 
 Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** model schema
@@ -362,17 +374,17 @@ Its factory method is `() => new clazz()` (unless overriden, see third arg).
 
 ```javascript
 function Todo(title, done) {
-  this.title = title;
-  this.done = done;
+    this.title = title;
+    this.done = done;
 }
 
 createModelSchema(Todo, {
-  title: true,
-  done: true
-})
+    title: true,
+    done: true,
+});
 
-var json = serialize(new Todo("Test", false))
-var todo = deserialize(Todo, json)
+var json = serialize(new Todo('Test', false));
+var todo = deserialize(Todo, json);
 ```
 
 Returns **[object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object)** model schema
@@ -414,16 +426,15 @@ The `serializeAll` decorator can be used on a class to signal that all primitive
 **Examples**
 
 ```javascript
-\@serializeAll
-class Store {
-    a = 3
-    b
+@serializeAll class Store {
+    a = 3;
+    b;
 }
 
-const store = new Store
-store.c = 5
-store.d = {}
-t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5})
+const store = new Store();
+store.c = 5;
+store.d = {};
+t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5 });
 ```
 
 ## getDefaultModelSchema
@@ -516,10 +527,10 @@ Indicates that this field contains a primitive value (or Date) which should be s
 
 ```javascript
 createModelSchema(Todo, {
-  title: primitive()
-})
+    title: primitive(),
+});
 
-console.dir(serialize(new Todo("test")))
+console.dir(serialize(new Todo('test')));
 // outputs: { title : "test" }
 ```
 
@@ -547,22 +558,20 @@ have been deserialized yet.
 var todos = {};
 
 var s = _.createSimpleSchema({
-    id: _.identifier((id, object) => todos[id] = object),
-    title: true
-})
+    id: _.identifier((id, object) => (todos[id] = object)),
+    title: true,
+});
 
 _.deserialize(s, {
-    id: 1, title: "test0"
-})
-_.deserialize(s, [
-    { id: 2, title: "test2" },
-    { id: 1, title: "test1" }
-])
+    id: 1,
+    title: 'test0',
+});
+_.deserialize(s, [{ id: 2, title: 'test2' }, { id: 1, title: 'test1' }]);
 
 t.deepEqual(todos, {
-    1: { id: 1, title: "test1" },
-    2: { id: 2, title: "test2" }
-})
+    1: { id: 1, title: 'test1' },
+    2: { id: 2, title: 'test2' },
+});
 ```
 
 Returns **PropSchema** 
@@ -589,10 +598,10 @@ Alias should be the outermost propschema.
 
 ```javascript
 createModelSchema(Todo, {
-  title: alias("task", primitive())
-})
+    title: alias('task', primitive()),
+});
 
-console.dir(serialize(new Todo("test")))
+console.dir(serialize(new Todo('test')));
 // { task : "test" }
 ```
 
@@ -613,13 +622,17 @@ Can be used to create simple custom propSchema.
 
 ```javascript
 var schema = _.createSimpleSchema({
-  a: _.custom(
-    function(v) { return v + 2 },
-    function(v) { return v - 2 }
-  )
-})
-t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 })
-t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 })
+    a: _.custom(
+        function(v) {
+            return v + 2;
+        },
+        function(v) {
+            return v - 2;
+        }
+    ),
+});
+t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 });
+t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 });
 ```
 
 Returns **PropSchema** 
@@ -640,22 +653,22 @@ N.B. mind issues with circular dependencies when importing model schema's from o
 **Examples**
 
 ```javascript
-class SubTask{}
-class Todo{}
+class SubTask {}
+class Todo {}
 
 createModelSchema(SubTask, {
-  title: true
+    title: true,
 });
 createModelSchema(Todo, {
-  title: true,
-  subTask: object(SubTask)
+    title: true,
+    subTask: object(SubTask),
 });
 
 const todo = deserialize(Todo, {
-  title: "Task",
-  subTask: {
-    title: "Sub task"
-  }
+    title: 'Task',
+    subTask: {
+        title: 'Sub task',
+    },
 });
 ```
 
@@ -691,37 +704,37 @@ N.B. mind issues with circular dependencies when importing model schemas from ot
 **Examples**
 
 ```javascript
-class User{}
-class Post{}
+class User {}
+class Post {}
 
 createModelSchema(User, {
-  uuid: identifier(),
-  displayname: primitive()
-})
+    uuid: identifier(),
+    displayname: primitive(),
+});
 
 createModelSchema(Post, {
-  author: reference(User, findUserById),
-  message: primitive()
-})
+    author: reference(User, findUserById),
+    message: primitive(),
+});
 
 function findUserById(uuid, callback) {
-  fetch("http://host/user/" + uuid)
-    .then((userData) => {
-      deserialize(User, userData, callback)
-    })
-    .catch(callback)
+    fetch('http://host/user/' + uuid)
+        .then(userData => {
+            deserialize(User, userData, callback);
+        })
+        .catch(callback);
 }
 
 deserialize(
-  Post,
-  {
-    message: "Hello World",
-    author: 234
-  },
-  (err, post) => {
-    console.log(post)
-  }
-)
+    Post,
+    {
+        message: 'Hello World',
+        author: 234,
+    },
+    (err, post) => {
+        console.log(post);
+    }
+);
 ```
 
 Returns **PropSchema** 
@@ -740,24 +753,26 @@ Accepts a sub model schema to serialize the contents
 **Examples**
 
 ```javascript
-class SubTask{}
-class Task{}
-class Todo{}
+class SubTask {}
+class Task {}
+class Todo {}
 
 createModelSchema(SubTask, {
-  title: true
-})
+    title: true,
+});
 createModelSchema(Todo, {
-  title: true,
-  subTask: list(object(SubTask))
-})
+    title: true,
+    subTask: list(object(SubTask)),
+});
 
 const todo = deserialize(Todo, {
-  title: "Task",
-  subTask: [{
-    title: "Sub task 1"
-  }]
-})
+    title: 'Task',
+    subTask: [
+        {
+            title: 'Sub task 1',
+        },
+    ],
+});
 ```
 
 Returns **PropSchema** 
@@ -783,17 +798,20 @@ const todoSchema = {
     factory: () => {},
     props: {
         task: primitive(),
-        owner: reference("_userId", UserStore.findUserById) // attribute of the owner attribute of  a todo + lookup function
-        subTasks: alias("children", list(object(todoSchema)))
-    }
-}
+        owner: reference('_userId', UserStore.findUserById), // attribute of the owner attribute of  a todo + lookup function
+        subTasks: alias('children', list(object(todoSchema))),
+    },
+};
 
-const todo = deserialize(todoSchema,
-    { task: "grab coffee", owner: 17, children: [] },
-    (err, todo) => { console.log("finished loading todos") }
+const todo = deserialize(
+    todoSchema,
+    { task: 'grab coffee', owner: 17, children: [] },
+    (err, todo) => {
+        console.log('finished loading todos');
+    }
 );
 
-const todoJson = serialize(todoSchema, todo)
+const todoJson = serialize(todoSchema, todo);
 ```
 
 ## 2. Create schema and store it on constructor
@@ -804,41 +822,45 @@ function Todo(parentTodo) {
 }
 
 const todoSchema = {
-    factory: (context) => new Todo(context.parent),
+    factory: context => new Todo(context.parent),
     props: {
         task: primitive(),
-        owner: reference("_userId", UserStore.findUserById) // attribute of the owner attribute of  a todo + lookup function
-        subTasks: alias("children", list(object(todoSchema)))
-    }
-}
-setDefaultModelSchema(Todo, todoSchema)
+        owner: reference('_userId', UserStore.findUserById), // attribute of the owner attribute of  a todo + lookup function
+        subTasks: alias('children', list(object(todoSchema))),
+    },
+};
+setDefaultModelSchema(Todo, todoSchema);
 
-const todo = deserialize(Todo, // just pass the constructor name, schema will be picked up
-    { task: "grab coffee", owner: 17, children: [] },
-    (err, todos) => { console.log("finished loading todos") }
+const todo = deserialize(
+    Todo, // just pass the constructor name, schema will be picked up
+    { task: 'grab coffee', owner: 17, children: [] },
+    (err, todos) => {
+        console.log('finished loading todos');
+    }
 );
 
-const todoJson = serialize(todo) // no need to pass schema explicitly
+const todoJson = serialize(todo); // no need to pass schema explicitly
 ```
 
 ## 3. Create schema for simple argumentless constructors
 
 ```javascript
-function Todo() {
-
-}
+function Todo() {}
 
 // creates a default factory, () => new Todo(), stores the schema as default model schema
 createModelSchema(Todo, {
-    task: primitive()
-})
+    task: primitive(),
+});
 
-const todo = deserialize(Todo, // just pass the constructor name, schema will be picked up
-    { task: "grab coffee", owner: 17, children: [] },
-    (err, todos) => { console.log("finished loading todos") }
+const todo = deserialize(
+    Todo, // just pass the constructor name, schema will be picked up
+    { task: 'grab coffee', owner: 17, children: [] },
+    (err, todos) => {
+        console.log('finished loading todos');
+    }
 );
 
-const todoJson = serialize(todo) // no need to pass schema explicitly
+const todoJson = serialize(todo); // no need to pass schema explicitly
 ```
 
 ## 4. Create schema for simple argumentless constructors using decorators
@@ -846,36 +868,42 @@ const todoJson = serialize(todo) // no need to pass schema explicitly
 ```javascript
 class Todo {
     @serializable(primitive())
-    task = "Grab coffee";
+    task = 'Grab coffee';
 
-    @serializable(reference("_userId", UserStore.findUserById))
+    @serializable(reference('_userId', UserStore.findUserById))
     owner = null;
 
-    @serializable(alias("children", list(object(todoSchema)))
+    @serializable(alias('children', list(object(todoSchema))))
     subTasks = [];
 }
 
 // note that (de)serialize also accepts lists
-const todos = deserialize(Todo,
-    [{
-        task: "grab coffee", owner: 17, children: []
-    }],
-    (err, todos) => { console.log("finished loading todos") }
+const todos = deserialize(
+    Todo,
+    [
+        {
+            task: 'grab coffee',
+            owner: 17,
+            children: [],
+        },
+    ],
+    (err, todos) => {
+        console.log('finished loading todos');
+    }
 );
 
-const todoJson = serialize(todos)
+const todoJson = serialize(todos);
 ```
 
 ## 5. use custom factory methods to reuse model object instances
 
 ```javascript
-const someTodoStoreById = {}
+const someTodoStoreById = {};
 
-getDefaultModelSchema(Todo).factory = (context) => {
-  const json = context.json;
-  if (someTodoStoreById[json.id])
-    return someTodoStoreById[json.id] // reuse instance
-  return someTodoStoreById[json.id] = new Todo()
+getDefaultModelSchema(Todo).factory = context => {
+    const json = context.json;
+    if (someTodoStoreById[json.id]) return someTodoStoreById[json.id]; // reuse instance
+    return (someTodoStoreById[json.id] = new Todo());
 };
 ```
 
@@ -893,87 +921,110 @@ class User {
 
 // create model schema with custom factory
 createModelSchema(User, { username: true }, context => {
-    return new User(context.args.someStore)
-})
+    return new User(context.args.someStore);
+});
 
 // don't want singletons!
-const someStore = new SomeStore()
+const someStore = new SomeStore();
 // provide somestore through context of the deserialization process
 const user = deserialize(
     User,
     someJson,
-    (err, user) => { console.log("done") },
+    (err, user) => {
+        console.log('done');
+    },
     {
-        someStore: someStore
+        someStore: someStore,
     }
-)
+);
 ```
 
 ## 7. Putting it together: MobX store with plain objects, classes and internal references
 
 ```javascript
 // models.js:
-import {observable, computed} from 'mobx';
-import {serializable, identifier} from 'serializr';
+import { observable, computed } from 'mobx';
+import { serializable, identifier } from 'serializr';
 
 function randomId() {
-    return Math.floor(Math.random()*100000);
+    return Math.floor(Math.random() * 100000);
 }
 
 export class Box {
-    @serializable(identifier()) id = randomId();
-    @serializable @observable x = 0;
-    @serializable @observable y = 0;
-    @serializable @observable location = 0;
-    
-    constructor(location, x, y){
+    @serializable(identifier())
+    id = randomId();
+
+    @serializable
+    @observable
+    x = 0;
+
+    @serializable
+    @observable
+    y = 0;
+
+    @serializable
+    @observable
+    location = 0;
+
+    constructor(location, x, y) {
         this.location = location;
         this.x = x;
         this.y = y;
     }
-    
-    @serializable @computed get area() {
+
+    @serializable
+    @computed
+    get area() {
         return this.x * this.y;
     }
 }
 
-export class Arrow{
-    @serializable(identifier()) id = randomId();
-    @serializable(reference(Box)) from;
-    @serializable(reference(Box)) to;
+export class Arrow {
+    @serializable(identifier())
+    id = randomId();
+
+    @serializable(reference(Box))
+    from;
+
+    @serializable(reference(Box))
+    to;
 }
 
 // store.js:
-import {observable, transaction} from 'mobx';
-import {createSimpleSchema, identifier, list, serialize, deserialize, update} from 'serializr';
-import {Box, Arrow} from './models';
+import { observable, transaction } from 'mobx';
+import {
+    createSimpleSchema,
+    identifier,
+    list,
+    serialize,
+    deserialize,
+    update,
+} from 'serializr';
+import { Box, Arrow } from './models';
 
 // The store that holds our domain: boxes and arrows
 const store = observable({
     boxes: [],
     arrows: [],
-    selection: null
+    selection: null,
 });
 
 // Model of the store itself
 const storeModel = createSimpleSchema({
     boxes: list(object(Box)),
     arrows: list(object(Arrow)),
-    selection: reference(Box)
+    selection: reference(Box),
 });
 
 // Example Data
 // You can push data in as a class
-store.boxes.push(
-    new Box('Rotterdam', 100, 100),
-    new Box('Vienna', 650, 300)
-);
+store.boxes.push(new Box('Rotterdam', 100, 100), new Box('Vienna', 650, 300));
 
 // Or it can be an raw javascript object with the right properties
 store.arrows.push({
     id: randomId(),
     from: store.boxes[0],
-    to: store.boxes[1]
+    to: store.boxes[1],
 });
 
 // (de) serialize functions
@@ -984,11 +1035,11 @@ function serializeState(store) {
 function deserializeState(store, json) {
     transaction(() => {
         update(storeModel, store, json);
-    })
+    });
 }
 
 // Print ... out for debugging
-console.dir(serializeState(store), {depth: 10, colors: true});
+console.dir(serializeState(store), { depth: 10, colors: true });
 ```
 
 * * *
