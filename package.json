@@ -1,6 +1,6 @@
 {
   "name": "serializr",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "description": "Serialize and deserialize complex object graphs to JSON",
   "main": "serializr.js",
   "typings": "serializr.d.ts",
