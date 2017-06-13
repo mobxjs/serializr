@@ -1,7 +1,7 @@
 {
     "version": "1.7.5",
     "compilerOptions": {
-        "target": "es5",
+        "target": "es2015",
         "sourceMap": false,
         "module": "commonjs",
         "removeComments": false,
