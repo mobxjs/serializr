@@ -96,16 +96,17 @@ test("[ts] it should handle prototypes", t => {
 
 test.skip("[ts] it should handle not yet defined modelschema's for classes", t => {
     // classes are declared as var, not as function, so aren't hoisted :'(
+    class Comment {
+        @serializable(identifier()) id = 0;
+        @serializable(true) title;
+    }
+
     class Message {
         @serializable(list(object(Comment)))
         child = [];
 
         @serializable(reference(Comment))
         ref = null;
-    }
-    class Comment {
-        @serializable(identifier()) id = 0;
-        @serializable(true) title;
     }
 
     const json = {
