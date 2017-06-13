@@ -298,6 +298,41 @@ test("it should support ES6 maps", t => {
     t.end()
 })
 
+test("it should support mapAsArray", t => {
+    var factory = function() {
+        return {
+            x: new Map()
+        }
+    }
+    var idAndNameSchema = _.createSimpleSchema({
+      id: true,
+      name: true
+    });
+    var schema = {
+        factory: factory,
+        props: {
+            x: _.mapAsArray(_.object(idAndNameSchema), 'id')
+        }
+    }
+
+    var source = factory()
+    source.x.set(1, {id: 1, name: 'Darth Vader'})
+    source.x.set(2, {id: 2, name: 'Leia'})
+    var json = {x: [{id: 1, name: 'Darth Vader'}, {id: 2, name: 'Leia'}]}
+
+    t.deepEqual(serialize(schema, source), json)
+    t.deepEqual(deserialize(schema, json), source)
+
+    //recycle objects if possible
+    var m = source.x
+    update(schema, source, { x: [{id: 3, name: 'Luke'}] })
+    t.deepEqual(serialize(schema, source), { x: [{id: 3, name: 'Luke'}] })
+    t.ok(source.x === m)
+    t.ok(source.x instanceof Map)
+
+    t.end()
+})
+
 test("it should support dates", t => {
     var s = _.createSimpleSchema({
         d1: _.date(),
