@@ -964,7 +964,7 @@ export class Box {
     @serializable @observable y = 0;
     @serializable @observable location = 0;
 
-    constructor(location, x, y){
+    constructor(location, x, y) {
         this.location = location;
         this.x = x;
         this.y = y;
@@ -976,14 +976,11 @@ export class Box {
 }
 
 export class Arrow {
-    @serializable(identifier())
-    id = randomId();
+    @serializable(identifier()) id = randomId();
 
-    @serializable(reference(Box))
-    from;
+    @serializable(reference(Box)) from;
 
-    @serializable(reference(Box))
-    to;
+    @serializable(reference(Box)) to;
 }
 
 // store.js:
