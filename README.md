@@ -977,9 +977,7 @@ export class Box {
 
 export class Arrow {
     @serializable(identifier()) id = randomId();
-
     @serializable(reference(Box)) from;
-
     @serializable(reference(Box)) to;
 }
 
