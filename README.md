@@ -959,56 +959,26 @@ function randomId() {
 }
 
 export class Box {
-<<<<<<< HEAD
-    @serializable(identifier())
-    id = randomId();
-
-    @serializable
-    @observable
-    x = 0;
-
-    @serializable
-    @observable
-    y = 0;
-
-    @serializable
-    @observable
-    location = 0;
-
-    constructor(location, x, y) {
-=======
     @serializable(identifier()) id = randomId();
     @serializable @observable x = 0;
     @serializable @observable y = 0;
     @serializable @observable location = 0;
 
-    constructor(location, x, y){
->>>>>>> Updated readme and changelog
+    constructor(location, x, y) {
         this.location = location;
         this.x = x;
         this.y = y;
     }
 
-<<<<<<< HEAD
-    @serializable
-    @computed
-    get area() {
-=======
     @serializable @computed get area() {
->>>>>>> Updated readme and changelog
         return this.x * this.y;
     }
 }
 
 export class Arrow {
-    @serializable(identifier())
-    id = randomId();
-
-    @serializable(reference(Box))
-    from;
-
-    @serializable(reference(Box))
-    to;
+    @serializable(identifier()) id = randomId();
+    @serializable(reference(Box)) from;
+    @serializable(reference(Box)) to;
 }
 
 // store.js:
