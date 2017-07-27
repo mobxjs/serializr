@@ -838,8 +838,8 @@
             invariant(typeof deserializer === "function", "second argument should be function")
             return {
                 serializer: serializer,
-                deserializer: function (jsonValue, done) {
-                    done(null, deserializer(jsonValue))
+                deserializer: function (jsonValue, done, context, oldValue) {
+                    done(null, deserializer(jsonValue, context, oldValue))
                 }
             }
         }

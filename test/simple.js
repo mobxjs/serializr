@@ -145,6 +145,19 @@ test("it should pass key and object to custom schemas", t => {
     t.end()
 })
 
+test("it should pass context to custom schemas", t => {
+    var s = _.createSimpleSchema({
+        a: primitive(),
+        b: _.custom(
+            function(v) { return v },
+            function(v, context) { return context.json.a }
+        )
+    })
+    t.deepEqual(_.serialize(s, { a: 4, b: 2 }), { a: 4, b: 2 })
+    t.deepEqual(_.deserialize(s, { a: 4, b: 2 }), { a: 4, b: 4 })
+    t.end()
+})
+
 test("it should respect extends", t => {
     var superSchema = _.createSimpleSchema({
         x: primitive()
