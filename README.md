@@ -303,33 +303,33 @@ Type: [object](#object)
 
 **Parameters**
 
--   `props`  
--   `value` **any** 
--   `writeable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
--   `get` **([Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function) \| [undefined](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined))** 
--   `set` **([Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function) \| [undefined](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined))** 
--   `configurable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
--   `enumerable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
--   `sourcePropertyValue` **any** 
--   `jsonValue` **any** 
--   `callback` **cpsCallback** 
--   `context` **Context** 
--   `currentPropertyValue` **any** 
--   `id` **any** 
--   `target` **[object](#object)** 
--   `context` **Context** 
--   `result` **any** 
--   `error` **any** 
--   `id` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)** 
--   `callback` **cpsCallback** 
--   `factory`  
--   `targetClass`  
+-   `props`
+-   `value` **any**
+-   `writeable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
+-   `get` **([Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function) \| [undefined](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined))**
+-   `set` **([Function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function) \| [undefined](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/undefined))**
+-   `configurable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
+-   `enumerable` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
+-   `sourcePropertyValue` **any**
+-   `jsonValue` **any**
+-   `callback` **cpsCallback**
+-   `context` **Context**
+-   `currentPropertyValue` **any**
+-   `id` **any**
+-   `target` **[object](#object)**
+-   `context` **Context**
+-   `result` **any**
+-   `error` **any**
+-   `id` **[string](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)**
+-   `callback` **cpsCallback**
+-   `factory`
+-   `targetClass`
 
 **Properties**
 
--   `serializer` **serializerFunction** 
--   `deserializer` **deserializerFunction** 
--   `identifier` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** 
+-   `serializer` **serializerFunction**
+-   `deserializer` **deserializerFunction**
+-   `identifier` **[boolean](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Boolean)**
 
 Returns **any** any - serialized object
 
@@ -409,9 +409,9 @@ The default factory will then invoke the constructor with the correct arguments 
 
 **Parameters**
 
--   `arg1`  
--   `arg2`  
--   `arg3`  
+-   `arg1`
+-   `arg2`
+-   `arg3`
 
 **Examples**
 
@@ -419,7 +419,7 @@ The default factory will then invoke the constructor with the correct arguments 
 class Todo {
 ```
 
-Returns **PropertyDescriptor** 
+Returns **PropertyDescriptor**
 
 ## serializeAll
 
@@ -429,7 +429,7 @@ The `serializeAll` decorator can be used on a class to signal that all primitive
 
 **Parameters**
 
--   `target`  
+-   `target`
 
 ## getDefaultModelSchema
 
@@ -439,7 +439,7 @@ Returns the standard model schema associated with a class / constructor function
 
 **Parameters**
 
--   `thing` **[object](#object)** 
+-   `thing` **[object](#object)**
 
 Returns **[ModelSchema](#modelschema)** model schema
 
@@ -511,7 +511,7 @@ Further this method behaves similar to deserialize.
 -   `callback` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** the callback to invoke once deserialization has completed.
 -   `customArgs` **any** custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
 
-## 
+##
 
 [serializr.js:679-679](https://github.com/mobxjs/serializr/blob/5969581a88c3e52f7639f42b95d279d44704fea8/serializr.js#L679-L679 "Source code on GitHub")
 
@@ -528,7 +528,7 @@ console.dir(serialize(new Todo('test')));
 // outputs: { title : "test" }
 ```
 
-Returns **[ModelSchema](#modelschema)** 
+Returns **[ModelSchema](#modelschema)**
 
 ## identifier
 
@@ -568,7 +568,7 @@ t.deepEqual(todos, {
 });
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## date
 
@@ -599,18 +599,42 @@ console.dir(serialize(new Todo('test')));
 // { task : "test" }
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## custom
 
 [serializr.js:836-845](https://github.com/mobxjs/serializr/blob/5969581a88c3e52f7639f42b95d279d44704fea8/serializr.js#L836-L845 "Source code on GitHub")
 
-Can be used to create simple custom propSchema.
+Can be used to create simple custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
+
+The `custom` function takes two functions, the `serializer` function and the `deserializer` function.
+
+The `serializer function has the signature:
+`(value, key, obj) => void`
+
+<!-- When serializing the object  -->
+
+```javascript
+{a: 1}
+```
+
+The serializer function will be called with `serializer(1, 'a', {a: 1})`.
+
+The `deserializer function has the signature:
+`(value, context) => void`
+
+When deserializing the object
+
+```javascript
+{b: 2}
+```
+
+The deserializer function will be called with `deserializer(2, contextObj)` ([contextObj reference](https://github.com/mobxjs/serializr#deserialization-context)).
 
 **Parameters**
 
 -   `serializer` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function that takes a model value and turns it into a json value
--   `deserializer` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function that takes a json value and turns it into a model value
+-   `deserializer` **[function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function)** function that takes a json value and turns it into a model value. Deserializer also takes context argument, which allows you to deserialize based on the context of other parameters.
 
 **Examples**
 
@@ -629,7 +653,7 @@ t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 });
 t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 });
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## object
 
@@ -666,7 +690,7 @@ const todo = deserialize(Todo, {
 });
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## reference
 
@@ -730,7 +754,7 @@ deserialize(
 );
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## list
 
@@ -768,7 +792,7 @@ const todo = deserialize(Todo, {
 });
 ```
 
-Returns **PropSchema** 
+Returns **PropSchema**
 
 ## map
 
@@ -780,7 +804,7 @@ This will be inferred from the initial value of the targetted attribute.
 
 **Parameters**
 
--   `propSchema` **any** 
+-   `propSchema` **any**
 
 ## mapAsArray
 
@@ -795,7 +819,7 @@ For ES6 maps this has the benefit of being allowed to have non-string keys in th
 **Parameters**
 
 -   `propSchema` **any** , {string} keyPropertyName - the property of stored objects used as key in the map
--   `keyPropertyName`  
+-   `keyPropertyName`
 
 # Recipes and examples
 
