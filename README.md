@@ -812,7 +812,7 @@ For ES6 maps this has the benefit of being allowed to have non-string keys in th
 
 ## SKIP
 
-In the event that a property needs to be deserialized, but not serialized you can use the SKIP symbol exported from the serializer to omit the property. This has to be used with the custom serializer.
+In the event that a property needs to be deserialized, but not serialized, you can use the SKIP symbol to omit the property. This has to be used with the custom serializer.
 
 **Parameters**
 
