@@ -607,29 +607,17 @@ Returns **PropSchema**
 
 Can be used to create simple custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
 
-The `custom` function takes two functions, the `serializer` function and the `deserializer` function.
+The `custom` function takes two parameters, the `serializer` function and the `deserializer` function.
 
-The `serializer function has the signature:
+The `serializer` function has the signature:
 `(value, key, obj) => void`
 
-<!-- When serializing the object  -->
+When serializing the object `{a: 1}` the `serializer` function will be called with `serializer(1, 'a', {a: 1})`.
 
-```javascript
-{a: 1}
-```
-
-The serializer function will be called with `serializer(1, 'a', {a: 1})`.
-
-The `deserializer function has the signature:
+The `deserializer` function has the signature:
 `(value, context) => void`
 
-When deserializing the object
-
-```javascript
-{b: 2}
-```
-
-The deserializer function will be called with `deserializer(2, contextObj)` ([contextObj reference](https://github.com/mobxjs/serializr#deserialization-context)).
+When deserializing the object `{b: 2}` the `deserializer` function will be called with `deserializer(2, contextObj)` ([contextObj reference](https://github.com/mobxjs/serializr#deserialization-context)).
 
 **Parameters**
 
