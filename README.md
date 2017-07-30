@@ -809,6 +809,32 @@ For ES6 maps this has the benefit of being allowed to have non-string keys in th
 -   `propSchema` **any** , {string} keyPropertyName - the property of stored objects used as key in the map
 -   `keyPropertyName`
 
+
+## SKIP
+
+In the event that a property needs to be deserialized, but not serialized you can use the SKIP symbol exported from the serializer to omit the property. This has to be used with the custom serializer.
+
+**Parameters**
+
+None.
+
+**Examples**
+
+```javascript
+var schema = _.createSimpleSchema({
+    a: _.custom(
+        function(v) {
+            return _.SKIP
+        },
+        function(v) {
+            return v;
+        }
+    ),
+});
+t.deepEqual(_.serialize(s, { a: 4 }), { });
+t.deepEqual(_.deserialize(s, { a: 4 }), { a: 4 });
+```
+
 # Recipes and examples
 
 ## 1. Plain schema with plain objects
