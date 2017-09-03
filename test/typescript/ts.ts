@@ -50,7 +50,20 @@ test("typescript class with constructor params", t => {
       @serializable
       public someNumber: number;
 
-      constructor(@serializable(alias("identifier", identifier())) public id: string, @serializable(alias("width", true)) public width: number, @serializable(alias("height", true)) public height: number) { }
+      @serializable(alias("identifier", identifier()))
+      public id: string;
+
+      @serializable(alias("width", true))
+      public width: number
+
+      @serializable(alias("height", true))
+      public height: number
+
+      constructor(id: string, width: number, height: number) {
+          this.id = id;
+          this.width = width;
+          this.height = height;
+      }
 
       public getArea(): number {
         return this.width * this.height;
@@ -73,7 +86,20 @@ test("typescript class with constructor params", t => {
 
 test("typescript class with only constructor params", t => {
     class Rectangle {
-      constructor(@serializable(alias("identifier", identifier())) public id: string, @serializable(alias("width", true)) public width: number, @serializable(alias("height", true)) public height: number) { }
+        @serializable(alias("identifier", identifier()))
+        public id: string;
+
+        @serializable(alias("width", true))
+        public width: number
+
+        @serializable(alias("height", true))
+        public height: number
+
+        constructor(id: string, width: number, height: number) {
+            this.id = id;
+            this.width = width;
+            this.height = height;
+        }
     }
 
     const a = new Rectangle("A", 10, 20);
