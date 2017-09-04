@@ -2,9 +2,18 @@
     "env": {
         "browser": true,
         "amd": true,
-        "node": true
+        "node": true,
+        "es6": true
     },
-    "extends": "eslint:recommended",
+    "ecmaFeatures": {},
+    "parser": "babel-eslint",
+    "extends": [
+        "eslint:recommended",
+        "plugin:import/errors"
+    ],
+    "plugins": [
+        "import"
+    ],
     "rules": {
         "semi": ["error", "never"],
         "quotes": ["error", "double"],
