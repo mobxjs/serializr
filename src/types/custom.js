@@ -30,7 +30,7 @@ import { invariant } from "../utils/utils"
  * t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 });
  *
  * @param {function} serializer function that takes a model value and turns it into a json value
- * @param {function} deserializer function that takes a json value and turns it into a model value
+ * @param {function} deserializer function that takes a json value and turns it into a model value. It also takes context argument, which can allow you to deserialize based on the context of other parameters.
  * @returns {PropSchema}
  */
 export default function custom(serializer, deserializer) {
