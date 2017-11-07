@@ -1,25 +1,24 @@
-import { GUARDED_NOOP, once, invariant, isAssignableTo } from "../utils/utils"
+import { once, invariant, isAssignableTo } from "../utils/utils"
+import { BaseContext } from "./BaseContext";
 
 export default function Context(parentContext, modelSchema, json, onReadyCb, customArgs) {
-    this.parentContext = parentContext
-    this.isRoot = !parentContext
+    BaseContext.call(this, parentContext, onReadyCb);
+
     this.pendingCallbacks = 0
     this.pendingRefsCount = 0
-    this.onReadyCb = onReadyCb || GUARDED_NOOP
     this.json = json
     this.target = null
-    this.hasError = false
     this.modelSchema = modelSchema
     if (this.isRoot) {
-        this.rootContext = this
         this.args = customArgs
         this.pendingRefs = {} // uuid: [{ modelSchema, uuid, cb }]
         this.resolvedRefs = {} // uuid: [{ modelSchema, value }]
-    } else {
-        this.rootContext = parentContext.rootContext
+    } else if (parentContext) {
         this.args = parentContext.args
     }
 }
+
+Context.prototype = new BaseContext();
 
 Context.prototype.createCallback = function (fn) {
     this.pendingCallbacks++
@@ -27,23 +26,23 @@ Context.prototype.createCallback = function (fn) {
     return once(function(err, value) {
         if (err) {
             if (!this.hasError) {
-                this.hasError = true
-                this.onReadyCb(err)
+                this.setError(err);
+                this.finished();
             }
         } else if (!this.hasError) {
             fn(value)
             if (--this.pendingCallbacks === this.pendingRefsCount) {
-                if (this.pendingRefsCount > 0)
-                  // all pending callbacks are pending reference resolvers. not good.
-                    this.onReadyCb(new Error(
-                      "Unresolvable references in json: \"" +
-                      Object.keys(this.pendingRefs).filter(function (uuid) {
-                          return this.pendingRefs[uuid].length > 0
-                      }, this).join("\", \"") +
-                       "\""
-                  ))
-                else
-                  this.onReadyCb(null, this.target)
+                if (this.pendingRefsCount > 0) {
+                    // all pending callbacks are pending reference resolvers. not good.
+                    this.setError(new Error(
+                        "Unresolvable references in json: \"" +
+                        Object.keys(this.pendingRefs).filter(function (uuid) {
+                            return this.pendingRefs[uuid].length > 0
+                        }, this).join("\", \"") +
+                        "\""
+                    ));
+                }
+                this.finished(this.target);
             }
         }
     }.bind(this))
