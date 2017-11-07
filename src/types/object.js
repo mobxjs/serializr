@@ -34,7 +34,7 @@ import { deserializeObjectWithSchema } from "../core/deserialize"
 export default function object(modelSchema) {
     invariant(typeof modelSchema === "object" || typeof modelSchema === "function", "No modelschema provided. If you are importing it from another file be aware of circular dependencies.")
     return {
-        serializer: function (item) {
+        serializer: function (item, key, target) {
             modelSchema = getDefaultModelSchema(modelSchema)
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
             if (item === null || item === undefined)

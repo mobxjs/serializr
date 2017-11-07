@@ -17,11 +17,11 @@ export default function mapAsArray(propSchema, keyPropertyName) {
     invariant(isPropSchema(propSchema), "expected prop schema as first argument")
     invariant(!!keyPropertyName, "expected key property name as second argument")
     return {
-        serializer: function (m) {
+        serializer: function (m, k, target) {
             var result = []
             // eslint-disable-next-line no-unused-vars
             m.forEach(function (value, key) {
-                result.push(propSchema.serializer(value))
+                result.push(propSchema.serializer(value, key, m))
             })
             return result
         },
