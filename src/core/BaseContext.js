@@ -22,10 +22,12 @@ BaseContext.prototype.setError = function setError(newError) {
 };
 
 BaseContext.prototype.finished = function finished(data) {
+
     if (this.onFinishCallbacks && Array.isArray(this.onFinishCallbacks) && this.onFinishCallbacks.length > 0) {
+        var _this = this;
         this.onFinishCallbacks.forEach(function (listener) {
             if (typeof listener === "function") {
-                listener(this.error);
+                listener(_this.error);
             }
         })
     }
