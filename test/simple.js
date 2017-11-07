@@ -158,6 +158,23 @@ test("it should pass context to custom schemas", t => {
     t.end()
 })
 
+test("it should pass context to custom schemas and provide an internal callback with serialization", t => {
+    var callbackWasCalled = false;
+    var s = _.createSimpleSchema({
+        a: _.custom(
+            function(v, k, obj, context) {
+                context.rootContext.addCallback(function () {callbackWasCalled = true})
+                return v + 2
+            },
+            function(v) { return v - 2 }
+        )
+    })
+    t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 })
+    t.equal(callbackWasCalled, true, "internal serialization callback was not called")
+    t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 })
+    t.end()
+})
+
 test("it should respect extends", t => {
     var superSchema = _.createSimpleSchema({
         x: primitive()
