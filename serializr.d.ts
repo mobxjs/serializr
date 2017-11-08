@@ -82,7 +82,7 @@ export function map(propSchema: PropSchema): PropSchema;
 
 export function mapAsArray(propSchema: PropSchema, keyPropertyName: string): PropSchema;
 
-export function custom(serializer: (value: any, sourcePropertyName?: string, sourceObject?: any, context?: SerializeContext) => any, deserializer: (jsonValue: any, context?: Context, oldValue: any) => any): PropSchema;
+export function custom(serializer: (value: any, sourcePropertyName?: string, sourceObject?: any, context?: SerializeContext) => any, deserializer: (jsonValue: any, context?: Context, oldValue?: any) => any): PropSchema;
 
 export function serializeAll<T extends Function>(clazz: T): T
 
