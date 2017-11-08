@@ -83,4 +83,5 @@ export function custom(serializer: (value: any, sourcePropertyName?: string, sou
 
 export function serializeAll<T extends Function>(clazz: T): T
 
+export function getIdentifierProperty(modelSchema: ClazzOrModelSchema<any>): string;
 export const SKIP: {}
