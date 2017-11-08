@@ -59,7 +59,7 @@ export { default as serializable } from "./api/serializable"
  * ## Serialization and deserialization
  */
 export { default as serialize, serializeAll } from "./core/serialize"
-export { default as deserialize } from "./core/deserialize"
+export { default as deserialize, deserializeObjectWithSchema } from "./core/deserialize"
 export { default as update } from "./core/update"
 
 export { default as primitive } from "./types/primitive"
