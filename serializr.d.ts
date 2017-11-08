@@ -4,7 +4,15 @@ export interface Context {
     json: any;
     target: any;
     parentContext: Context;
+    rootContext: Context;
     args: any;
+    addCallback: (callbackFunction: (error?: Error) => void) => void;
+}
+
+export interface SerializeContext {
+    parentContext: SerializeContext;
+    rootContext: SerializeContext;
+    addCallback: (callbackFunction: (error?: Error) => void) => void;
 }
 
 export type Factory<T> = (context: Context) => T
@@ -71,7 +79,7 @@ export function map(propSchema: PropSchema): PropSchema;
 
 export function mapAsArray(propSchema: PropSchema, keyPropertyName: string): PropSchema;
 
-export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any) => any): PropSchema;
+export function custom(serializer: (value: any, sourcePropertyName?: string, sourceObject?: any, context?: SerializeContext) => any, deserializer: (jsonValue: any, sourcePropertyName?: string, sourceObject?: any, context?: Context) => any): PropSchema;
 
 export function serializeAll<T extends Function>(clazz: T): T
 
