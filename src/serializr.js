@@ -72,6 +72,7 @@ export { default as reference } from "./types/reference"
 export { default as list } from "./types/list"
 export { default as map } from "./types/map"
 export { default as mapAsArray } from "./types/mapAsArray"
+export { default as unionObject } from "./types/unionObject"
 
 export { SKIP } from "./constants"
 

@@ -368,3 +368,99 @@ test("it should support dates", t => {
 
     t.end()
 })
+
+test("it should support unionObject type", t => {
+    var x = _.createSimpleSchema({
+        x1: primitive(),
+        x2: primitive(),
+        common: primitive()
+    })
+
+    var y = _.createSimpleSchema({
+        y1: primitive(),
+        y2: primitive(),
+        common: primitive()
+    })
+
+    var unionObjectFetcher = function(obj) {
+        if (obj.version === "x") {
+            return x;
+        } else {
+            return y;
+        }
+    }
+    var unionSchema = _.createSimpleSchema({
+        union: _.unionObject(unionObjectFetcher)
+    })
+
+    var a = _.deserialize(unionSchema, {
+        union: {
+            version: "x",
+            x1: "blue",
+            x2: "red"
+        }
+    })
+
+    t.equal(a.union.x1, "blue")
+    t.equal(a.union.x2, "red")
+    t.equal(a.union.y1, undefined)
+    t.equal(a.union.y2, undefined)
+    t.equal(a.union.version, undefined)
+
+    var b = _.deserialize(unionSchema, {
+        union: {
+            y1: "black",
+            y2: "orange"
+        }
+    })
+
+    t.equal(b.union.y1, "black")
+    t.equal(b.union.y2, "orange")
+    t.equal(b.union.x1, undefined)
+    t.equal(b.union.x2, undefined)
+    t.equal(b.union.version, undefined)
+
+    t.end()
+})
+
+test("it should catch unionObject type errors", t => {
+    var x = _.createSimpleSchema({
+        x1: primitive(),
+        x2: primitive(),
+        common: primitive()
+    })
+
+    var y = _.createSimpleSchema({
+        y1: primitive(),
+        y2: primitive(),
+        common: primitive()
+    })
+
+    // union object function throws an error
+    var unionObjectFetcherWithError = function(obj) {
+        throw new Error("something bad happened here")
+    }
+    var unionSchemaWithError = _.createSimpleSchema({
+        union: _.unionObject(unionObjectFetcherWithError)
+    })
+    var throwErrorFunction = function() {
+        return _.deserialize(unionSchemaWithError, {union: {}})
+    }
+    t.throws(throwErrorFunction, /unionObject function error/)
+
+    // union object function returns null
+    var unionObjectFetcherWithNullReturn = function(obj) {
+        return null
+    }
+    var unionSchemaWithNull = _.createSimpleSchema({
+        union: _.unionObject(unionObjectFetcherWithNullReturn)
+    })
+    var nullReturnErrorFunction = function() {
+        return _.deserialize(unionSchemaWithNull, {union: {}})
+    }
+    t.throws(nullReturnErrorFunction, /expected unionObject to return type, got/)
+
+    t.end()
+})
+
+
