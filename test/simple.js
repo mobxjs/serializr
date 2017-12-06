@@ -368,3 +368,23 @@ test("it should support dates", t => {
 
     t.end()
 })
+
+test("it should support date strings", t => {
+    var s = _.createSimpleSchema({
+        d: _.date()
+    })
+
+    var a = _.deserialize(s, {
+        d: "2017-12-06T15:37:39.903"
+    })
+    t.ok(a.d instanceof Date)
+    // Months are zero indexed in js
+    var expectedDate = new Date(2017, 11, 6, 15, 37, 39, 903)
+    t.equal(a.d.getTime(), expectedDate.getTime())
+
+    t.deepEqual(_.serialize(s, a), {
+        d: expectedDate.getTime()
+    })
+
+    t.end()
+})
