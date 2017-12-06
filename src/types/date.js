@@ -17,7 +17,8 @@ export default function date() {
         deserializer: function (jsonValue, done) {
             if (jsonValue === null || jsonValue === undefined)
                 return void done(null, jsonValue)
-            return void done(null, new Date(jsonValue))
+            var dateArray = jsonValue.split(/[^0-9]/)
+            return void done(null, new Date (dateArray[0], dateArray[1] - 1, dateArray[2], dateArray[3], dateArray[4], dateArray[5]))
         }
     }
 }
