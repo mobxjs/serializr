@@ -268,6 +268,26 @@ test("it should respect refs", t => {
     t.end()
 })
 
+test("it should respect raw", (t) => {
+    var rawData = {
+        a: 1,
+        b: [],
+        c: new Date()
+    }
+    var schema = _.createSimpleSchema({
+        rawData: _.raw()
+    })
+    var source = {
+        rawData: rawData
+    }
+    var json = source
+
+    t.deepEqual(serialize(schema, source), json)
+    t.deepEqual(deserialize(schema, json), source)
+
+    t.end()
+})
+
 test("it should support maps", t => {
     var schema = _.createSimpleSchema({
         x: _.map()

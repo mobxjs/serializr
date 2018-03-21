@@ -72,6 +72,7 @@ export { default as reference } from "./types/reference"
 export { default as list } from "./types/list"
 export { default as map } from "./types/map"
 export { default as mapAsArray } from "./types/mapAsArray"
+export { default as raw } from "./types/raw"
 
 export { getIdentifierProp as getIdentifierProperty } from "./utils/utils";
 export { SKIP } from "./constants"
