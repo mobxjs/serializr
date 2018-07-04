@@ -1,3 +1,7 @@
+# 1.2.1
+
+* Introduced `customAsync`, to support asynchronous custom deserialization
+
 # 1.1.12
 
 * Improved documentation examples, see #43 by @brikou
