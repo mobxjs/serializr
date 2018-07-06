@@ -2,7 +2,7 @@ import { invariant } from "../utils/utils"
 
 /**
  * Can be used to create asynchronous custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
- * In comparison to the 'custom' propSchema it is possible to wait for resolution of references during the deserialization process. The context.await function can
+ * In comparison to the 'custom' propSchema it is possible to wait for asynchronous deserialization steps. This allows e.g. resolution of references during the deserialization process (using context.await..
 
  * The `customAsync` function takes two parameters, the `serializer` function and the `deserializer` function.
 
