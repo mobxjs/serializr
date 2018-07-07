@@ -158,13 +158,14 @@ test("[ts] custom prop schemas", t => {
         return jsonValue
     }
 
-    function customAsyncDeserializer(jsonValue, done, context, oldValue) {
+    function customAsyncDeserializer(jsonValue, context, oldValue, done) {
+        console.log(context, oldValue, done)
         done(null, jsonValue)
     }
 
     class A {
         @serializable(custom(customSerializer, customDeserializer)) a = "hoi";
-        @serializable(customAsync(customSerializer, customAsyncDeserializer)) a2 = "oeps";
+        @serializable(custom(customSerializer, customAsyncDeserializer)) a2 = "oeps";
     }
 
     let result = serialize(new A())

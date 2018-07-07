@@ -78,6 +78,10 @@ export function isMapLike(thing) {
     return thing && typeof thing.keys === "function" && typeof thing.clear === "function"
 }
 
+export function isPromise(obj) {
+    return !!obj && (typeof obj === "object" || typeof obj === "function") && typeof obj.then === "function"
+}
+
 export function getIdentifierProp(modelSchema) {
     invariant(isModelSchema(modelSchema))
     // optimization: cache this lookup

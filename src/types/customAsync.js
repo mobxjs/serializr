@@ -25,7 +25,7 @@ import { invariant } from "../utils/utils"
  *         function(v) {
  *             return v + 2;
  *         },
- *         function(v, callback, context, oldValue) {
+ *         function(v, context, oldValue, callback) {
  *             somePromise(v, context, oldValue).then((result) => {
  *                 callback(null, result - 2)
  *             }.catch((err) => {
@@ -49,7 +49,7 @@ export default function customAsync(serializer, deserializer) {
     return {
         serializer: serializer,
         deserializer: function (jsonValue, done, context, oldValue) {
-            deserializer(jsonValue, done, context, oldValue)
+            deserializer(jsonValue, context, oldValue, done)
         }
     }
 }
