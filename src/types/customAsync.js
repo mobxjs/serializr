@@ -27,7 +27,7 @@ import { invariant } from "../utils/utils"
  *         },
  *         function(v, callback, context, oldValue) {
  *             somePromise(v, context, oldValue).then((result) => {
- *                 callback(null, result)
+ *                 callback(null, result - 2)
  *             }.catch((err) => {
  *                 callback(err)
  *             }
@@ -35,7 +35,9 @@ import { invariant } from "../utils/utils"
  *     ),
  * });
  * t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 });
- * t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 });
+ * _.deserialize(s, { a: 6 }, (err, res) => {
+ *   t.deepEqual(res.a, 4)
+ * };
  *
  * @param {function} serializer function that takes a model value and turns it into a json value
  * @param {function} deserializer function that takes a json value and turns it into a model value. It also receives a callback function to notify the caller about the completion of the deserialization. It also takes context argument, which can allow you to deserialize based on the context of other parameters.

@@ -295,7 +295,7 @@ When deserializing a model elememt / property, the following fields are availabl
 
 ## ModelSchema
 
-[src/serializr.js:52-52](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/serializr.js#L52-L52 "Source code on GitHub")
+[src/serializr.js:52-52](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/serializr.js#L52-L52 "Source code on GitHub")
 
 JSDOC type defintions for usage w/o typescript.
 
@@ -341,7 +341,7 @@ Returns **any** void
 
 ## createSimpleSchema
 
-[src/api/createSimpleSchema.js:17-24](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/api/createSimpleSchema.js#L17-L24 "Source code on GitHub")
+[src/api/createSimpleSchema.js:17-24](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/api/createSimpleSchema.js#L17-L24 "Source code on GitHub")
 
 Creates a model schema that (de)serializes from / to plain javascript objects.
 Its factory method is: `() => ({})`
@@ -366,7 +366,7 @@ Returns **[object](#object)** model schema
 
 ## createModelSchema
 
-[src/api/createModelSchema.js:29-47](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/api/createModelSchema.js#L29-L47 "Source code on GitHub")
+[src/api/createModelSchema.js:29-47](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/api/createModelSchema.js#L29-L47 "Source code on GitHub")
 
 Creates a model schema that (de)serializes an object created by a constructor function (class).
 The created model schema is associated by the targeted type as default model schema, see setDefaultModelSchema.
@@ -399,7 +399,7 @@ Returns **[object](#object)** model schema
 
 ## getDefaultModelSchema
 
-[src/api/getDefaultModelSchema.js:9-18](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/api/getDefaultModelSchema.js#L9-L18 "Source code on GitHub")
+[src/api/getDefaultModelSchema.js:9-18](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/api/getDefaultModelSchema.js#L9-L18 "Source code on GitHub")
 
 Returns the standard model schema associated with a class / constructor function
 
@@ -411,7 +411,7 @@ Returns **[ModelSchema](#modelschema)** model schema
 
 ## setDefaultModelSchema
 
-[src/api/setDefaultModelSchema.js:15-18](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/api/setDefaultModelSchema.js#L15-L18 "Source code on GitHub")
+[src/api/setDefaultModelSchema.js:15-18](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/api/setDefaultModelSchema.js#L15-L18 "Source code on GitHub")
 
 Sets the default model schema for class / constructor function.
 Everywhere where a model schema is required as argument, this class / constructor function
@@ -429,7 +429,7 @@ Returns **[ModelSchema](#modelschema)** model schema
 
 ## serializable
 
-[src/api/serializable.js:93-103](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/api/serializable.js#L93-L103 "Source code on GitHub")
+[src/api/serializable.js:93-103](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/api/serializable.js#L93-L103 "Source code on GitHub")
 
 Decorator that defines a new property mapping on the default model schema for the class
 it is used in.
@@ -453,7 +453,7 @@ Returns **PropertyDescriptor**
 
 ## serialize
 
-[src/core/serialize.js:16-34](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/core/serialize.js#L16-L34 "Source code on GitHub")
+[src/core/serialize.js:16-34](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/core/serialize.js#L16-L34 "Source code on GitHub")
 
 Serializes an object (graph) into json using the provided model schema.
 The model schema can be omitted if the object type has a default model schema associated with it.
@@ -468,7 +468,7 @@ Returns **[object](#object)** serialized representation of the object
 
 ## serializeAll
 
-[src/core/serialize.js:89-100](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/core/serialize.js#L89-L100 "Source code on GitHub")
+[src/core/serialize.js:89-100](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/core/serialize.js#L89-L100 "Source code on GitHub")
 
 The `serializeAll` decorator can be used on a class to signal that all primitive properties should be serialized automatically.
 
@@ -478,7 +478,7 @@ The `serializeAll` decorator can be used on a class to signal that all primitive
 
 ## deserialize
 
-[src/core/deserialize.js:38-56](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/core/deserialize.js#L38-L56 "Source code on GitHub")
+[src/core/deserialize.js:38-56](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/core/deserialize.js#L38-L56 "Source code on GitHub")
 
 Deserializes a json structor into an object graph.
 This process might be asynchronous (for example if there are references with an asynchronous
@@ -497,7 +497,7 @@ Returns **([object](#object) \| [array](https://developer.mozilla.org/en-US/docs
 
 ## update
 
-[src/core/update.js:21-42](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/core/update.js#L21-L42 "Source code on GitHub")
+[src/core/update.js:21-42](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/core/update.js#L21-L42 "Source code on GitHub")
 
 Similar to deserialize, but updates an existing object instance.
 Properties will always updated entirely, but properties not present in the json will be kept as is.
@@ -513,7 +513,7 @@ Further this method behaves similar to deserialize.
 
 ## primitive
 
-[src/types/primitive.js:17-29](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/primitive.js#L17-L29 "Source code on GitHub")
+[src/types/primitive.js:17-29](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/primitive.js#L17-L29 "Source code on GitHub")
 
 Indicates that this field contains a primitive value (or Date) which should be serialized literally to json.
 
@@ -532,7 +532,7 @@ Returns **[ModelSchema](#modelschema)**
 
 ## identifier
 
-[src/types/identifier.js:42-56](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/identifier.js#L42-L56 "Source code on GitHub")
+[src/types/identifier.js:42-56](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/identifier.js#L42-L56 "Source code on GitHub")
 
 Similar to primitive, but this field will be marked as the identifier for the given Model type.
 This is used by for example `reference()` to serialize the reference
@@ -572,13 +572,13 @@ Returns **PropSchema**
 
 ## date
 
-[src/types/date.js:8-23](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/date.js#L8-L23 "Source code on GitHub")
+[src/types/date.js:8-23](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/date.js#L8-L23 "Source code on GitHub")
 
 Similar to primitive, serializes instances of Date objects
 
 ## alias
 
-[src/types/alias.js:20-31](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/alias.js#L20-L31 "Source code on GitHub")
+[src/types/alias.js:20-31](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/alias.js#L20-L31 "Source code on GitHub")
 
 Alias indicates that this model property should be named differently in the generated json.
 Alias should be the outermost propschema.
@@ -603,7 +603,7 @@ Returns **PropSchema**
 
 ## custom
 
-[src/types/custom.js:36-45](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/custom.js#L36-L45 "Source code on GitHub")
+[src/types/custom.js:36-45](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/custom.js#L36-L45 "Source code on GitHub")
 
 Can be used to create simple custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
 
@@ -645,7 +645,7 @@ Returns **PropSchema**
 
 ## customAsync
 
-[src/types/customAsync.js:44-53](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/customAsync.js#L44-L53 "Source code on GitHub")
+[src/types/customAsync.js:46-55](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/customAsync.js#L46-L55 "Source code on GitHub")
 
 Can be used to create asynchronous custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
 In comparison to the 'custom' propSchema it is possible to wait for asynchronous deserialization steps. This allows e.g. resolution of references during the deserialization process (using context.await..
@@ -680,7 +680,7 @@ var schema = _.createSimpleSchema({
         },
         function(v, callback, context, oldValue) {
             somePromise(v, context, oldValue).then((result) => {
-                callback(null, result)
+                callback(null, result - 2)
             }.catch((err) => {
                 callback(err)
             }
@@ -688,14 +688,16 @@ var schema = _.createSimpleSchema({
     ),
 });
 t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 });
-t.deepEqual(_.deserialize(s, { a: 6 }), { a: 4 });
+_.deserialize(s, { a: 6 }, (err, res) => {
+  t.deepEqual(res.a, 4)
+};
 ```
 
 Returns **PropSchema** 
 
 ## object
 
-[src/types/object.js:34-52](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/object.js#L34-L52 "Source code on GitHub")
+[src/types/object.js:34-52](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/object.js#L34-L52 "Source code on GitHub")
 
 `object` indicates that this property contains an object that needs to be (de)serialized
 using its own model schema.
@@ -732,7 +734,7 @@ Returns **PropSchema**
 
 ## reference
 
-[src/types/reference.js:65-98](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/reference.js#L65-L98 "Source code on GitHub")
+[src/types/reference.js:65-98](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/reference.js#L65-L98 "Source code on GitHub")
 
 `reference` can be used to (de)serialize references that point to other models.
 
@@ -796,7 +798,7 @@ Returns **PropSchema**
 
 ## list
 
-[src/types/list.js:33-54](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/list.js#L33-L54 "Source code on GitHub")
+[src/types/list.js:33-54](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/list.js#L33-L54 "Source code on GitHub")
 
 List indicates that this property contains a list of things.
 Accepts a sub model schema to serialize the contents
@@ -834,7 +836,7 @@ Returns **PropSchema**
 
 ## map
 
-[src/types/map.js:13-62](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/map.js#L13-L62 "Source code on GitHub")
+[src/types/map.js:13-62](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/map.js#L13-L62 "Source code on GitHub")
 
 Similar to list, but map represents a string keyed dynamic collection.
 This can be both plain objects (default) or ES6 Map like structures.
@@ -846,7 +848,7 @@ This will be inferred from the initial value of the targetted attribute.
 
 ## mapAsArray
 
-[src/types/mapAsArray.js:15-52](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/mapAsArray.js#L15-L52 "Source code on GitHub")
+[src/types/mapAsArray.js:15-52](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/mapAsArray.js#L15-L52 "Source code on GitHub")
 
 Similar to map, mapAsArray can be used to serialize a map-like collection where the key is contained in the 'value object'.
 Example: consider Map&lt;id: number, customer: Customer> where the Customer object has the id stored on itself.
@@ -861,7 +863,7 @@ For ES6 maps this has the benefit of being allowed to have non-string keys in th
 
 ## raw
 
-[src/types/raw.js:15-24](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/types/raw.js#L15-L24 "Source code on GitHub")
+[src/types/raw.js:15-24](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/types/raw.js#L15-L24 "Source code on GitHub")
 
 Indicates that this field is only need to putted in the serialized json or
 deserialized instance, without any transformations. Stay with its original value
@@ -881,7 +883,7 @@ Returns **[ModelSchema](#modelschema)**
 
 ## SKIP
 
-[src/constants.js:20-20](https://github.com/evoye/serializr/blob/d668510a9149ba57622ac3c4090f4516f3669ca0/src/constants.js#L20-L20 "Source code on GitHub")
+[src/constants.js:20-20](https://github.com/evoye/serializr/blob/2b154f7156a77360e9babbd368dd075a646d4a1e/src/constants.js#L20-L20 "Source code on GitHub")
 
 In the event that a property needs to be deserialized, but not serialized, you can use the SKIP symbol to omit the property. This has to be used with the custom serializer.
 

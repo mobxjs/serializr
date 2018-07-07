@@ -1,4 +1,17 @@
-import {serializable, alias, list, object, identifier, reference, primitive, serialize, deserialize, serializeAll} from "../../";
+import {
+    serializable,
+    alias,
+    list,
+    object,
+    identifier,
+    reference,
+    primitive,
+    serialize,
+    deserialize,
+    serializeAll,
+    custom,
+    customAsync
+} from "../../";
 import {observable, autorun} from "mobx";
 
 declare var require;
@@ -26,19 +39,19 @@ test("should work in typescript", t => {
     });
 
     t.equal(called, 1);
-    t.deepEqual(res, { x: 3, y: 4, z: 5});
+    t.deepEqual(res, {x: 3, y: 4, z: 5});
     a.z++; // no autorun
     t.equal(a.z, 6);
 
     a.y++;
     t.equal(called, 2);
-    t.deepEqual(res, { x: 3, y: 5, z: 6});
+    t.deepEqual(res, {x: 3, y: 5, z: 6});
 
     a.x++;
     t.equal(called, 3);
-    t.deepEqual(res, { x: 4, y: 5, z: 6});
+    t.deepEqual(res, {x: 4, y: 5, z: 6});
 
-    const b = deserialize(A, { x: 1, y: 2, z: 3});
+    const b = deserialize(A, {x: 1, y: 2, z: 3});
     t.deepEqual(serialize(b), {x: 1, y: 2, z: 3});
     t.ok(b instanceof A);
 
@@ -46,28 +59,28 @@ test("should work in typescript", t => {
 });
 
 test("typescript class with constructor params", t => {
-   class Rectangle {
-      @serializable
-      public someNumber: number;
+    class Rectangle {
+        @serializable
+        public someNumber: number;
 
-      @serializable(alias("identifier", identifier()))
-      public id: string;
+        @serializable(alias("identifier", identifier()))
+        public id: string;
 
-      @serializable(alias("width", true))
-      public width: number
+        @serializable(alias("width", true))
+        public width: number
 
-      @serializable(alias("height", true))
-      public height: number
+        @serializable(alias("height", true))
+        public height: number
 
-      constructor(id: string, width: number, height: number) {
-          this.id = id;
-          this.width = width;
-          this.height = height;
-      }
+        constructor(id: string, width: number, height: number) {
+            this.id = id;
+            this.width = width;
+            this.height = height;
+        }
 
-      public getArea(): number {
-        return this.width * this.height;
-      }
+        public getArea(): number {
+            return this.width * this.height;
+        }
     }
 
     const a = new Rectangle("A", 10, 20);
@@ -136,6 +149,42 @@ test("[ts] it should handle prototypes", t => {
     t.end();
 });
 
+test("[ts] custom prop schemas", t => {
+    function customSerializer(v) {
+        return v
+    }
+
+    function customDeserializer(jsonValue, context, oldValue) {
+        return jsonValue
+    }
+
+    function customAsyncDeserializer(jsonValue, done, context, oldValue) {
+        done(null, jsonValue)
+    }
+
+    class A {
+        @serializable(custom(customSerializer, customDeserializer)) a = "hoi";
+        @serializable(customAsync(customSerializer, customAsyncDeserializer)) a2 = "oeps";
+    }
+
+    let result = serialize(new A())
+    const initial = {
+        a: "hoi", a2: "oeps"
+    }
+    const updated = {
+        a: "all", a2: "new"
+    }
+    t.deepEqual(result, initial)
+
+
+    deserialize(A, updated, (err, resultObj) => {
+        err ? t.end(err) : null
+        result = serialize(resultObj)
+        t.deepEqual(result, updated)
+        t.end()
+    })
+});
+
 test.skip("[ts] it should handle not yet defined modelschema's for classes", t => {
     // classes are declared as var, not as function, so aren't hoisted :'(
     class Comment {
@@ -154,8 +203,8 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
     const json = {
         ref: 1,
         child: [
-            { id: 2, title: "foo" },
-            { id: 1, title: "bar "}
+            {id: 2, title: "foo"},
+            {id: 1, title: "bar "}
         ]
     };
     const m = deserialize(Message, json);
@@ -179,9 +228,9 @@ test("@serializeAll (babel)", t => {
     (store as any).c = 5;
     (store as any).d = {};
 
-    t.deepEqual(serialize(store), { a: 3, c: 5})
+    t.deepEqual(serialize(store), {a: 3, c: 5})
 
-    const store2 = deserialize(Store, { a: 2, b: 3, c: 4})
+    const store2 = deserialize(Store, {a: 2, b: 3, c: 4})
     t.equal(store2.a, 2)
     t.equal(store2.b, 3)
     t.equal((store2 as any).c, 4)
