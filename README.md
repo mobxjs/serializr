@@ -75,7 +75,7 @@ function fetchUserSomewhere(uuid) {
 
 function findUserById(uuid, callback, context) {
     // This is a lookup function
-    // identifier is the identifier being resolved
+    // uuid is the identifier being resolved
     // callback is a node style callback function to be invoked with the found object (as second arg) or an error (first arg)
     // context is an object detailing the execution context of the serializer now
     callback(null, fetchUserSomewhere(uuid));
