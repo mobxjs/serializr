@@ -9,8 +9,7 @@ import {
     serialize,
     deserialize,
     serializeAll,
-    custom,
-    customAsync
+    custom
 } from "../../";
 import {observable, autorun} from "mobx";
 

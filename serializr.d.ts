@@ -74,8 +74,6 @@ export function mapAsArray(propSchema: PropSchema, keyPropertyName: string): Pro
 export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context?: any, oldValue?: any) => any): PropSchema;
 export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context: any, oldValue: any, callback: (err: any, result: any) => void) => any): PropSchema;
 
-export function customAsync(serializer: (value: any) => any, deserializer: (jsonValue: any, context: any, oldValue: any, callback: (err: any, result: any) => void) => any): PropSchema;
-
 export function serializeAll<T extends Function>(clazz: T): T
 
 export const SKIP: {}
