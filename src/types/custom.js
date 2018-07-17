@@ -1,4 +1,4 @@
-import {invariant, isPromise} from "../utils/utils"
+import {invariant} from "../utils/utils"
 
 /**
  * Can be used to create simple custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
@@ -10,7 +10,7 @@ import {invariant, isPromise} from "../utils/utils"
 
  * When serializing the object `{a: 1}` the `serializer` function will be called with `serializer(1, 'a', {a: 1})`.
 
- * The `deserializer` function has the signature for synchronous processing
+ * The `deserializer` function has the following signature for synchronous processing
  * `(value, context, oldValue) => void`
 
  * For asynchronous processing the function expects the following signature
@@ -58,18 +58,12 @@ import {invariant, isPromise} from "../utils/utils"
  */
 export default function custom(serializer, deserializer) {
     invariant(typeof serializer === "function", "first argument should be function")
-    invariant((typeof deserializer === "function") || isPromise(deserializer), "second argument should be a function or promise")
+    invariant((typeof deserializer === "function"), "second argument should be a function or promise")
     return {
         serializer: serializer,
         deserializer: function (jsonValue, done, context, oldValue) {
             if (deserializer.length === 4) {
                 deserializer(jsonValue, context, oldValue, done)
-            } else if (isPromise(deserializer)) {
-                deserializer(jsonValue, context, oldValue).then((result) => {
-                    done(null, result)
-                }).catch((err) => {
-                    done(err)
-                })
             } else {
                 done(null, deserializer(jsonValue, context, oldValue))
             }
