@@ -76,4 +76,6 @@ export function custom(serializer: (value: any) => any, deserializer: (jsonValue
 
 export function serializeAll<T extends Function>(clazz: T): T
 
+export function raw(): any;
+
 export const SKIP: {}
