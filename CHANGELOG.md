@@ -1,6 +1,10 @@
-# 1.2.1
+# 1.3.0
+* Introduced async ability into `custom` (de)serializer, to support asynchronous custom deserialization by @evoye
+* Fixed missed typescript export of `raw` type by @VChastinet
+* Documentation updates by @maslade and @razetdinov
 
-* Introduced `customAsync`, to support asynchronous custom deserialization
+# 1.2.1
+* Introduced `raw` type, to allow for complex dynamic types to be deserialized
 
 # 1.1.12
 
