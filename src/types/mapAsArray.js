@@ -1,4 +1,4 @@
-import { invariant, isPropSchema, isMapLike } from "../utils/utils"
+import {invariant, isPropSchema, isMapLike, processAdditionalPropArgs} from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import list from "./list"
 
@@ -12,11 +12,11 @@ import list from "./list"
  * @param {any} propSchema, {string} keyPropertyName - the property of stored objects used as key in the map
  * @returns
  */
-export default function mapAsArray(propSchema, keyPropertyName) {
+export default function mapAsArray(propSchema, keyPropertyName, additionalArgs) {
     propSchema = propSchema || _defaultPrimitiveProp
     invariant(isPropSchema(propSchema), "expected prop schema as first argument")
     invariant(!!keyPropertyName, "expected key property name as second argument")
-    return {
+    var res = {
         serializer: function (m) {
             var result = []
             // eslint-disable-next-line no-unused-vars
@@ -49,4 +49,6 @@ export default function mapAsArray(propSchema, keyPropertyName) {
           )
         }
     }
+    res = processAdditionalPropArgs(res, additionalArgs)
+    return res
 }

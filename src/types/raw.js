@@ -1,3 +1,5 @@
+import {processAdditionalPropArgs} from "../utils/utils"
+
 /**
  * Indicates that this field is only need to putted in the serialized json or
  * deserialized instance, without any transformations. Stay with its original value
@@ -12,8 +14,8 @@
  *
  * @returns {ModelSchema}
  */
-export default function raw() {
-    return {
+export default function raw(additionalArgs) {
+    var result = {
         serializer: function (value) {
             return value
         },
@@ -21,4 +23,6 @@ export default function raw() {
             return void done(null, jsonValue)
         }
     }
+    result = processAdditionalPropArgs(result, additionalArgs)
+    return result
 }

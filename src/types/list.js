@@ -1,4 +1,4 @@
-import { invariant, isPropSchema, isAliasedPropSchema, parallel } from "../utils/utils"
+import {invariant, isPropSchema, isAliasedPropSchema, parallel, processAdditionalPropArgs} from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 
 /**
@@ -28,13 +28,14 @@ import { _defaultPrimitiveProp } from "../constants"
  * });
  *
  * @param {PropSchema} propSchema to be used to (de)serialize the contents of the array
+ * @param {AdditionalPropArgs} additionalArgs optional
  * @returns {PropSchema}
  */
-export default function list(propSchema) {
+export default function list(propSchema, additionalArgs) {
     propSchema = propSchema || _defaultPrimitiveProp
     invariant(isPropSchema(propSchema), "expected prop schema as first argument")
     invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
-    return {
+    var result = {
         serializer: function (ar) {
             invariant(ar && "length" in ar && "map" in ar, "expected array (like) object")
             return ar.map(propSchema.serializer)
@@ -51,4 +52,6 @@ export default function list(propSchema) {
             )
         }
     }
+    result = processAdditionalPropArgs(result, additionalArgs)
+    return result
 }

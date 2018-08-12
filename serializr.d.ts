@@ -9,9 +9,17 @@ export interface Context {
 
 export type Factory<T> = (context: Context) => T
 
+
+export interface AdditionalPropArgs {
+    beforeDeserialize: BeforeDeserializeFunc;
+    afterDeserialize: AfterDeserializeFunc;
+}
+
 export interface PropSchema {
     serializer(sourcePropertyValue: any): any;
     deserializer(jsonValue: any, callback: (err: any, targetPropertyValue: any) => void, context: Context, currentPropertyValue: any): void;
+    beforeDeserialize: BeforeDeserializeFunc;
+    afterDeserialize: AfterDeserializeFunc;
 }
 
 export type Props = {
@@ -25,6 +33,10 @@ export interface ModelSchema<T> {
 
 export type Clazz<T> = new(...args: any[]) => T;
 export type ClazzOrModelSchema<T> = ModelSchema<T> | Clazz<T>;
+
+export type AfterDeserializeFunc = (err: any, targetPropertyValue: any, jsonValue: any, targetPropertyName: string, context: Context, propDef: PropSchema) => void | { continueOnError: boolean, retryJsonValue: any };
+
+export type BeforeDeserializeFunc = (jsonValue: any, jsonParentValue: any, propName: string, context: Context, propDef: PropSchema) => { jsonValue: any, cancel: boolean };
 
 export function createSimpleSchema<T extends Object>(props: Props): ModelSchema<T>;
 
@@ -46,33 +58,36 @@ export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, json: any, ca
 export function update<T>(modelschema: ClazzOrModelSchema<T>, instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any): void;
 export function update<T>(instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any): void;
 
-export function primitive(): PropSchema;
+export function primitive(additionalArgs?: AdditionalPropArgs): PropSchema;
 
-export function identifier(registerFn?: (id: any, value: any, context: Context) => void): PropSchema;
+export function identifier(registerFn?: (id: any, value: any, context: Context) => void, additionalArgs?: AdditionalPropArgs): PropSchema;
+export function identifier(additionalArgs: AdditionalPropArgs): PropSchema;
 
-export function date(): PropSchema;
+export function date(additionalArgs?: AdditionalPropArgs): PropSchema;
 
 export function alias(jsonName: string, propSchema?: PropSchema | boolean): PropSchema;
 
-export function child(modelschema: ClazzOrModelSchema<any>): PropSchema;
-export function object(modelschema: ClazzOrModelSchema<any>): PropSchema;
+export function child(modelschema: ClazzOrModelSchema<any>, additionalArgs?: AdditionalPropArgs): PropSchema;
+export function object(modelschema: ClazzOrModelSchema<any>, additionalArgs?: AdditionalPropArgs): PropSchema;
 
 export type RefLookupFunction = (id: string, callback: (err: any, result: any) => void) => void;
 export type RegisterFunction = (id: any, object: any, context: Context) => void;
 
-export function ref(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
-export function ref(identifierAttr: string, lookupFn: RefLookupFunction): PropSchema;
-export function reference(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
-export function reference(identifierAttr: string, lookupFn: RefLookupFunction): PropSchema;
+export function ref(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction, additionalArgs?: AdditionalPropArgs): PropSchema;
+export function ref(modelschema: ClazzOrModelSchema<any>, additionalArgs?: AdditionalPropArgs): PropSchema;
+export function ref(identifierAttr: string, lookupFn: RefLookupFunction, additionalArgs?: AdditionalPropArgs): PropSchema;
+export function reference(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction, additionalArgs?: AdditionalPropArgs): PropSchema;
+export function reference(modelschema: ClazzOrModelSchema<any>, additionalArgs?: AdditionalPropArgs): PropSchema;
+export function reference(identifierAttr: string, lookupFn: RefLookupFunction, additionalArgs?: AdditionalPropArgs): PropSchema;
 
-export function list(propSchema: PropSchema): PropSchema;
+export function list(propSchema: PropSchema, additionalArgs?: AdditionalPropArgs): PropSchema;
 
-export function map(propSchema: PropSchema): PropSchema;
+export function map(propSchema: PropSchema, additionalArgs?: AdditionalPropArgs): PropSchema;
 
-export function mapAsArray(propSchema: PropSchema, keyPropertyName: string): PropSchema;
+export function mapAsArray(propSchema: PropSchema, keyPropertyName: string, additionalArgs?: AdditionalPropArgs): PropSchema;
 
-export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context?: any, oldValue?: any) => any): PropSchema;
-export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context: any, oldValue: any, callback: (err: any, result: any) => void) => any): PropSchema;
+export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context?: any, oldValue?: any) => any, additionalArgs?: AdditionalPropArgs): PropSchema;
+export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context: any, oldValue: any, callback: (err: any, result: any) => void) => any, additionalArgs?: AdditionalPropArgs): PropSchema;
 
 export function serializeAll<T extends Function>(clazz: T): T
 

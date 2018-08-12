@@ -1,7 +1,10 @@
 import {
     serializable,
     alias,
+    date,
     list,
+    map,
+    mapAsArray,
     object,
     identifier,
     reference,
@@ -158,7 +161,6 @@ test("[ts] custom prop schemas", t => {
     }
 
     function customAsyncDeserializer(jsonValue, context, oldValue, done) {
-        console.log(context, oldValue, done)
         done(null, jsonValue)
     }
 
@@ -216,6 +218,175 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
 
     t.end();
 });
+
+test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeserialize'", t => {
+
+    const jsonInput = {
+        id1: 1101,
+        id11: 1102,
+        custom1: 2,
+        customAsync1: "trigger error",
+        date1: 1534021029937,
+        listObj1: [
+            {
+                id1: 1121,
+                text1: "good data",
+                valid1: true
+            },
+            {
+                id1: 1122,
+                text1: "ignored",
+                valid1: false
+            },
+            null,
+            1234,
+            "invalid"
+        ],
+        mapObj1: {
+            1131: {
+                id1: 1131,
+                text1: "good data",
+                valid1: true
+            },
+            1132: {
+                id1: 1132,
+                text1: "ignored",
+                valid1: false
+            },
+            1133: null
+        },
+        mapRefObj1: {
+            1131: 1131,
+            1132: 1132,
+            1133: 1133
+        },
+        mapArrayRefObj1: {
+            1131: 1131,
+            1132: 1132,
+            1133: 1133
+        },
+        obj1: {
+            id1: 1141,
+            text1: "yee"
+        },
+        primitiveNumber1: 12,
+        primitiveText1: "foo",
+        aliasPrimitiveText1: "yo",
+    }
+
+    const jsonResult = {
+        id: 1101,
+        custom: 2,
+        customAsync: "ok now",
+        date: 1534021029937,
+        listObj: [
+            {
+                id: 1121,
+                text: "good data",
+                valid: true
+            },
+            {
+                id: 1122,
+                text: "ignored",
+                valid: false
+            }
+        ],
+        mapObj: {
+            1131: {
+                id: 1131,
+                text: "good data",
+                valid: true
+            },
+            1132: {
+                id: 1132,
+                text: "ignored",
+                valid: false
+            }
+        },
+        mapRefObj: {
+            1131: 1131,
+            1132: 1132,
+        },
+        mapArrayRefObj: {
+            1131: 1131,
+            1132: 1132,
+        },
+        obj: {
+            id: 1141,
+            text: "yee"
+        },
+        primitiveNumber: 12,
+        primitiveText: "foo",
+        aliasText: "yo",
+    }
+
+    function customSerializer(v) {
+        return v
+    }
+
+    function customDeserializer(jsonValue, context, oldValue) {
+        return jsonValue
+    }
+
+    function customAsyncDeserializer(jsonValue, context, oldValue, done) {
+        if (jsonValue === "trigger error") {
+            done(new Error("this error should be overruled in afterDeserialize"))
+        } else {
+            done(null, jsonValue)
+        }
+    }
+
+    function beforeDeserialize(jsonValue, jsonParentValue, propName, context, propDef) {
+        var jsonAttrName = propName + '1'
+        return {
+            jsonValue: jsonValue || jsonParentValue[jsonAttrName],
+            cancel: false
+        }
+    }
+
+    function afterDeserialize(error, targetPropertyValue, jsonValue, targetPropertyName, context, propDef) {
+        if (!error) {
+            return
+        }
+        return {
+            continueOnError: true,
+            retryJsonValue: "ok now"
+        }
+    }
+
+    const args = {
+        beforeDeserialize: beforeDeserialize,
+        afterDeserialize: afterDeserialize
+    }
+
+    class SubData {
+        @serializable(identifier()) id
+        @serializable text
+        @serializable valid = true
+    }
+
+    class FinalData {
+        @serializable(identifier(args)) id
+        @serializable(custom(customSerializer, customDeserializer, args)) custom
+        @serializable(custom(customSerializer, customAsyncDeserializer, args)) customAsync
+        @serializable(date(args)) date
+        @serializable(list(object(SubData, args), args)) listObj
+        @serializable(map(object(SubData, args), args)) mapObj
+        @serializable(map(reference(SubData, args), args)) mapRefObj
+        @serializable(mapAsArray(reference(SubData, args), 'id', args)) mapArrayRefObj
+        @serializable(object(SubData, args)) obj
+        @serializable(primitive(args)) primitiveNumber
+        @serializable(primitive(args)) primitiveText
+        @serializable(alias('aliasText', primitive(args))) aliasPrimitiveText
+    }
+
+    const result = deserialize(FinalData, jsonInput)
+
+    t.deepEqual(serialize(result), jsonInput);
+
+    t.end();
+
+})
 
 test("@serializeAll (babel)", t => {
     @serializeAll

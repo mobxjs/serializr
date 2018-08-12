@@ -1,4 +1,4 @@
-import { invariant, isModelSchema, getIdentifierProp } from "../utils/utils"
+import {invariant, isModelSchema, getIdentifierProp, processAdditionalPropArgs} from "../utils/utils"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 
 function createDefaultRefLookup(modelSchema) {
@@ -59,17 +59,22 @@ function createDefaultRefLookup(modelSchema) {
  * );
  *
  * @param target: ModelSchema or string
- * @param {RefLookupFunction} lookupFn function
+ * @param {RefLookupFunction | AdditionalPropArgs} lookupFn optional function or additionalArgs object
+ * @param {AdditionalPropArgs} additionalArgs optional object
  * @returns {PropSchema}
  */
-export default function reference(target, lookupFn) {
+export default function reference(target, lookupFn, additionalArgs) {
     invariant(!!target, "No modelschema provided. If you are importing it from another file be aware of circular dependencies.")
     var initialized = false
     var childIdentifierAttribute
     function initialize() {
         initialized = true
-        invariant(typeof target !== "string" || lookupFn, "if the reference target is specified by attribute name, a lookup function is required")
-        invariant(!lookupFn || typeof lookupFn === "function", "second argument should be a lookup function")
+        invariant(typeof target !== "string" || lookupFn && typeof lookupFn === "function", "if the reference target is specified by attribute name, a lookup function is required")
+        if (typeof lookupFn === "object") {
+            additionalArgs = lookupFn
+            lookupFn = undefined
+        }
+        invariant(!lookupFn || typeof lookupFn === "function", "second argument should be a lookup function or additional arguments object")
         if (typeof target === "string")
             childIdentifierAttribute = target
         else {
@@ -80,7 +85,7 @@ export default function reference(target, lookupFn) {
             invariant(!!childIdentifierAttribute, "provided model schema doesn't define an identifier() property and cannot be used by 'ref'.")
         }
     }
-    return {
+    var result = {
         serializer: function (item) {
             if (!initialized)
                 initialize()
@@ -95,4 +100,6 @@ export default function reference(target, lookupFn) {
                 lookupFn(identifierValue, done, context)
         }
     }
+    result = processAdditionalPropArgs(result, additionalArgs)
+    return result
 }

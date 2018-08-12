@@ -1,13 +1,13 @@
-import { invariant } from "../utils/utils"
+import { invariant, processAdditionalPropArgs } from "../utils/utils"
 
 /**
  * Similar to primitive, serializes instances of Date objects
  *
  * @returns
  */
-export default function date() {
+export default function date(additionalArgs) {
   // TODO: add format option?
-    return {
+    var result = {
         serializer: function(value) {
             if (value === null || value === undefined)
                 return value
@@ -20,4 +20,6 @@ export default function date() {
             return void done(null, new Date(jsonValue))
         }
     }
+    result = processAdditionalPropArgs(result, additionalArgs)
+    return result
 }

@@ -1,4 +1,4 @@
-import { invariant } from "../utils/utils"
+import { invariant, processAdditionalPropArgs } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 
 function defaultRegisterFunction(id, value, context) {
@@ -18,30 +18,38 @@ function defaultRegisterFunction(id, value, context) {
  *
  * @example
  * var todos = {};
- * 
+ *
  * var s = _.createSimpleSchema({
  *     id: _.identifier((id, object) => (todos[id] = object)),
  *     title: true,
  * });
- * 
+ *
  * _.deserialize(s, {
  *     id: 1,
  *     title: 'test0',
  * });
  * _.deserialize(s, [{ id: 2, title: 'test2' }, { id: 1, title: 'test1' }]);
- * 
+ *
  * t.deepEqual(todos, {
  *     1: { id: 1, title: 'test1' },
  *     2: { id: 2, title: 'test2' },
  * });
  *
- * @param {RegisterFunction} registerFn optional function to register this object during creation.
+ * @param { RegisterFunction | AdditionalPropArgs } arg1 optional registerFn: function to register this object during creation.
+ * @param { AdditionalPropArgs } arg2 optional
  *
  * @returns {PropSchema}
  */
-export default function identifier(registerFn) {
-    invariant(!registerFn || typeof registerFn === "function", "First argument should be omitted or function")
-    return {
+export default function identifier(arg1, arg2) {
+    var registerFn, additionalArgs
+    if (typeof arg1 === "function") {
+        registerFn = arg1
+        additionalArgs = arg2
+    } else {
+        additionalArgs = arg1
+    }
+    invariant(!additionalArgs || typeof additionalArgs === "object", "Additional property arguments should be an object, register function should be omitted or a funtion")
+    var result = {
         identifier: true,
         serializer: _defaultPrimitiveProp.serializer,
         deserializer: function (jsonValue, done, context) {
@@ -53,4 +61,6 @@ export default function identifier(registerFn) {
             })
         }
     }
+    result = processAdditionalPropArgs(result, additionalArgs)
+    return result
 }
