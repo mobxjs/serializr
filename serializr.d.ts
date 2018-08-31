@@ -5,6 +5,8 @@ export interface Context {
     target: any;
     parentContext: Context;
     args: any;
+    await(modelschema: ClazzOrModelSchema<any>,id:string,callback?: (err: any, result: any) => void):any;
+	rootContext:Context;
 }
 
 export type Factory<T> = (context: Context) => T
@@ -57,7 +59,7 @@ export function alias(jsonName: string, propSchema?: PropSchema | boolean): Prop
 export function child(modelschema: ClazzOrModelSchema<any>): PropSchema;
 export function object(modelschema: ClazzOrModelSchema<any>): PropSchema;
 
-export type RefLookupFunction = (id: string, callback: (err: any, result: any) => void) => void;
+export type RefLookupFunction = (id: string, callback: (err: any, result: any) => void,context:Context) => void;
 export type RegisterFunction = (id: any, object: any, context: Context) => void;
 
 export function ref(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
