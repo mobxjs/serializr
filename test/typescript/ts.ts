@@ -458,10 +458,10 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
                 })
             } else if (typeof jsonValue === 'object') {
                 result = {}
-                var entries = Object.entries(jsonValue)
-                numItemsWaiting = entries.length
-                entries.forEach((elem) => {
-                    getValidItem(elem[1], elem[0])
+                var keys = Object.keys(jsonValue)
+                numItemsWaiting = keys.length
+                keys.forEach((key) => {
+                    getValidItem(jsonValue[key], key)
                 })
             }
         },
