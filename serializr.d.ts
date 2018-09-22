@@ -11,8 +11,8 @@ export type Factory<T> = (context: Context) => T
 
 
 export interface AdditionalPropArgs {
-    beforeDeserialize: BeforeDeserializeFunc;
-    afterDeserialize: AfterDeserializeFunc;
+    beforeDeserialize?: BeforeDeserializeFunc;
+    afterDeserialize?: AfterDeserializeFunc;
 }
 
 export interface PropSchema {
@@ -34,9 +34,9 @@ export interface ModelSchema<T> {
 export type Clazz<T> = new(...args: any[]) => T;
 export type ClazzOrModelSchema<T> = ModelSchema<T> | Clazz<T>;
 
-export type AfterDeserializeFunc = (err: any, targetPropertyValue: any, jsonValue: any, targetPropertyName: string, context: Context, propDef: PropSchema) => void | { continueOnError: boolean, retryJsonValue: any };
+export type AfterDeserializeFunc = (callback: (err: any, value: any) => void, err: any, newValue: any, jsonValue: any, jsonParentValue: any, propNameOrIndex: string | number, context: Context, propDef: PropSchema, numRetry: number) => void;
 
-export type BeforeDeserializeFunc = (jsonValue: any, jsonParentValue: any, propName: string, context: Context, propDef: PropSchema) => { jsonValue: any, cancel: boolean };
+export type BeforeDeserializeFunc = (callback: (err: any, value: any) => void, jsonValue: any, jsonParentValue: any, propNameOrIndex: string | number, context: Context, propDef: PropSchema) => void;
 
 export function createSimpleSchema<T extends Object>(props: Props): ModelSchema<T>;
 
@@ -51,6 +51,8 @@ export function setDefaultModelSchema<T>(clazz: Clazz<T>, modelschema: ModelSche
 
 export function serialize<T>(modelschema: ClazzOrModelSchema<T>, instance: T): any;
 export function serialize<T>(instance: T): any;
+
+export function cancelDeserialize<T>(instance: T): void;
 
 export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, jsonArray: any[], callback?: (err: any, result: T[]) => void, customArgs?: any): T[];
 export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, json: any, callback?: (err: any, result: T) => void, customArgs?: any): T;

@@ -1,9 +1,9 @@
 /*
  * Deserialization
  */
-import {invariant, isPrimitive, isModelSchema, parallel, GUARDED_NOOP} from "../utils/utils"
+import { invariant, isPrimitive, isModelSchema, parallel, GUARDED_NOOP } from "../utils/utils"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
-import {SKIP, _defaultPrimitiveProp} from "../constants"
+import { SKIP, _defaultPrimitiveProp } from "../constants"
 import Context from "./Context"
 
 function schemaHasAlias(schema, name) {
@@ -16,32 +16,13 @@ function schemaHasAlias(schema, name) {
 function deserializeStarProps(schema, obj, json) {
     for (var key in json) if (!(key in schema.props) && !schemaHasAlias(schema, key)) {
         var value = json[key]
-        // when deserializing we don't want to silently ignore 'unparseable data' to avoid confusing bugs
-        invariant(isPrimitive(value), "encountered non primitive value while deserializing '*' properties in property '" + key + "': " + value)
+        // when deserializing we don't want to silently ignore 'unparseable data' to avoid
+        // confusing bugs
+        invariant(isPrimitive(value),
+            "encountered non primitive value while deserializing '*' properties in property '" +
+            key + "': " + value)
         obj[key] = value
     }
-}
-
-function onBeforeDeserialize(jsonValue, jsonParentValue, propName, context, propDef) {
-    var cancel = false
-    if (propDef && typeof propDef.beforeDeserialize === "function") {
-        var result = propDef.beforeDeserialize(jsonValue, jsonParentValue, propName, context, propDef)
-        if (result) {
-            if (result.jsonValue) {
-                jsonValue = result.jsonValue
-            }
-            cancel = result.cancel === true
-        }
-    }
-    return {jsonValue: jsonValue, cancel: cancel}
-}
-
-function onAfterDeserialize(err, value, jsonValue, targetPropertyName, context, propDef) {
-    var result = {}
-    if (propDef && typeof propDef.afterDeserialize === "function") {
-        result = propDef.afterDeserialize(err, value, jsonValue, targetPropertyName, context, propDef)
-    }
-    return result
 }
 
 /**
@@ -52,9 +33,12 @@ function onAfterDeserialize(err, value, jsonValue, targetPropertyName, context, 
  *
  * @param {object|array} schema to use for deserialization
  * @param {json} json data to deserialize
- * @param {function} callback node style callback that is invoked once the deserializaiton has finished.
- * First argument is the optional error, second argument is the deserialized object (same as the return value)
- * @param {*} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
+ * @param {function} callback node style callback that is invoked once the deserialization has
+ *   finished. First argument is the optional error, second argument is the deserialized object
+ *   (same as the return value)
+ * @param {*} customArgs custom arguments that are available as `context.args` during the
+ *   deserialization process. This can be used as dependency injection mechanism to pass in, for
+ *   example, stores.
  * @returns {object|array} deserialized object, possibly incomplete.
  */
 export default function deserialize(schema, json, callback, customArgs) {
@@ -66,7 +50,8 @@ export default function deserialize(schema, json, callback, customArgs) {
         parallel(
             json,
             function (childJson, itemDone) {
-                var instance = deserializeObjectWithSchema(null, schema, childJson, itemDone, customArgs)
+                var instance = deserializeObjectWithSchema(null, schema, childJson, itemDone,
+                    customArgs)
                 // instance is created synchronously so can be pushed
                 items.push(instance)
             },
@@ -77,15 +62,18 @@ export default function deserialize(schema, json, callback, customArgs) {
         return deserializeObjectWithSchema(null, schema, json, callback, customArgs)
 }
 
-export function deserializeObjectWithSchema(parentContext, modelSchema, json, callback, customArgs) {
-    if (json === null || json === undefined)
+export function deserializeObjectWithSchema(parentContext, modelSchema, json, callback,
+                                            customArgs) {
+    if (json === null || json === undefined || typeof json !== "object")
         return void callback(null, null)
     var context = new Context(parentContext, modelSchema, json, callback, customArgs)
     var target = modelSchema.factory(context)
     // todo async invariant
     invariant(!!target, "No object returned from factory")
-    // TODO: make invariant?            invariant(schema.extends || !target.constructor.prototype.constructor.serializeInfo, "object has a serializable supertype, but modelschema did not provide extends clause")
-    context.target = target
+    // TODO: make invariant?            invariant(schema.extends ||
+    // !target.constructor.prototype.constructor.serializeInfo, "object has a serializable
+    // supertype, but modelschema did not provide extends clause")
+    context.setTarget(target)
     var lock = context.createCallback(GUARDED_NOOP)
     deserializePropsWithSchema(context, modelSchema, json, target)
     lock()
@@ -97,31 +85,43 @@ export function deserializePropsWithSchema(context, modelSchema, json, target) {
         deserializePropsWithSchema(context, modelSchema.extends, json, target)
 
     function deserializeProp(propDef, jsonValue, propName) {
+        var numRetry = 0
+
+        function setValue(value) {
+            if (value !== SKIP) {
+                target[propName] = value
+            }
+        }
+
+        function preProcess(resultCallback) {
+            return function (err, newValue) {
+                function finalCallback(errPreliminary, finalOrRetryValue) {
+                    if (errPreliminary && finalOrRetryValue !== undefined &&
+                        typeof propDef.afterDeserialize === "function") {
+
+                        propDef.deserializer(
+                            finalOrRetryValue,
+                            preProcess(resultCallback),
+                            context,
+                            target[propName]
+                        )
+                    } else {
+                        resultCallback(errPreliminary, finalOrRetryValue)
+                    }
+                }
+
+                onAfterDeserialize(finalCallback, err, newValue, jsonValue, json,
+                    propName, context, propDef, numRetry)
+                numRetry += 1
+            }
+        }
+
         propDef.deserializer(
             jsonValue,
             // for individual props, use root context based callbacks
             // this allows props to complete after completing the object itself
             // enabling reference resolving and such
-            context.rootContext.createCallback(
-                function (value) {
-                    if (value !== SKIP) {
-                        target[propName] = value
-                        onAfterDeserialize(null, value, jsonValue, propName, context, propDef)
-                    }
-                },
-                function (err, value) {
-                    var isError = true
-                    if (typeof propDef.afterDeserialize === "function") {
-                        var res = onAfterDeserialize(err, value, jsonValue, propName, context, propDef)
-                        if (res && res.continueOnError === true) {
-                            isError = false
-                            if (res.retryJsonValue !== undefined) {
-                                deserializeProp(propDef, res.retryJsonValue, propName)
-                            }
-                        }
-                    }
-                    return isError
-                }),
+            preProcess(context.rootContext.createCallback(setValue)),
             context,
             target[propName] // initial value
         )
@@ -129,6 +129,13 @@ export function deserializePropsWithSchema(context, modelSchema, json, target) {
 
     Object.keys(modelSchema.props).forEach(function (propName) {
         var propDef = modelSchema.props[propName]
+
+        function callbackDeserialize(err, jsonValue) {
+            if (!err && jsonValue !== undefined) {
+                deserializeProp(propDef, jsonValue, propName)
+            }
+        }
+
         if (propName === "*") {
             invariant(propDef === true, "prop schema '*' can only be used with 'true'")
             deserializeStarProps(modelSchema, target, json)
@@ -140,10 +147,30 @@ export function deserializePropsWithSchema(context, modelSchema, json, target) {
             return
         var jsonAttr = propDef.jsonname || propName
         var jsonValue = json[jsonAttr]
-        var resBefore = onBeforeDeserialize(jsonValue, json, jsonAttr, context, propDef)
-        jsonValue = resBefore.jsonValue
-        if (resBefore.cancel || !(jsonAttr in json) && jsonValue === undefined)
-            return
-        deserializeProp(propDef, jsonValue, propName)
+        onBeforeDeserialize(callbackDeserialize, jsonValue, json, jsonAttr, context, propDef)
     })
 }
+
+
+export function onBeforeDeserialize(
+    callback, jsonValue, jsonParentValue, propNameOrIndex, context, propDef) {
+
+    if (propDef && typeof propDef.beforeDeserialize === "function") {
+        propDef.beforeDeserialize(callback, jsonValue, jsonParentValue, propNameOrIndex, context,
+            propDef)
+    } else {
+        callback(null, jsonValue)
+    }
+}
+
+export function onAfterDeserialize(
+    callback, err, newValue, jsonValue, jsonParentValue, propNameOrIndex, context, propDef) {
+
+    if (propDef && typeof propDef.afterDeserialize === "function") {
+        propDef.afterDeserialize(callback, err, newValue, jsonValue, jsonParentValue,
+            propNameOrIndex, context, propDef)
+    } else {
+        callback(err, newValue)
+    }
+}
+

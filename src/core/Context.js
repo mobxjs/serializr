@@ -1,4 +1,6 @@
-import {extend, GUARDED_NOOP, once, invariant, isAssignableTo} from "../utils/utils"
+import { extend, GUARDED_NOOP, once, invariant, isAssignableTo } from "../utils/utils"
+
+var rootContextCache = new Map()
 
 export default function Context(parentContext, modelSchema, json, onReadyCb, customArgs) {
     this.parentContext = parentContext
@@ -7,7 +9,7 @@ export default function Context(parentContext, modelSchema, json, onReadyCb, cus
     this.pendingRefsCount = 0
     this.onReadyCb = onReadyCb || GUARDED_NOOP
     this.json = json
-    this.target = null
+    this.target = null // always set this property using setTarget
     this.hasError = false
     this.modelSchema = modelSchema
     if (this.isRoot) {
@@ -29,24 +31,21 @@ export default function Context(parentContext, modelSchema, json, onReadyCb, cus
     }
 }
 
-Context.prototype.createCallback = function (successFn, isErrorFn) {
+Context.prototype.createCallback = function (fn) {
     this.pendingCallbacks++
     // once: defend against user-land calling 'done' twice
     return once(function (err, value) {
         if (err) {
             if (!this.hasError) {
-                if (!isErrorFn || isErrorFn && isErrorFn(err, value)) {
-                    this.hasError = true
-                }
-                if (this.hasError) {
-                    this.onReadyCb(err)
-                }
+                this.hasError = true
+                this.onReadyCb(err)
+                rootContextCache.delete(this)
             }
         } else if (!this.hasError) {
-            successFn(value)
+            fn(value)
             if (--this.pendingCallbacks === this.pendingRefsCount) {
-                if (this.pendingRefsCount > 0)
-                // all pending callbacks are pending reference resolvers. not good.
+                if (this.pendingRefsCount > 0) {
+                    // all pending callbacks are pending reference resolvers. not good.
                     this.onReadyCb(new Error(
                         "Unresolvable references in json: \"" +
                         Object.keys(this.pendingRefs).filter(function (uuid) {
@@ -54,8 +53,11 @@ Context.prototype.createCallback = function (successFn, isErrorFn) {
                         }, this).join("\", \"") +
                         "\""
                     ))
-                else
+                    rootContextCache.delete(this)
+                } else {
                     this.onReadyCb(null, this.target)
+                    rootContextCache.delete(this)
+                }
             }
         }
     }.bind(this))
@@ -100,4 +102,31 @@ Context.prototype.resolve = function (modelSchema, uuid, value) {
             }
         }
     }
+}
+
+// set target and update root context cache
+Context.prototype.setTarget = function (target) {
+    if (this.isRoot && this.target) {
+        rootContextCache.delete(this.target)
+    }
+    this.target = target
+    rootContextCache.set(this.target, this)
+}
+
+// call all remaining reference lookup callbacks indicating an error during ref resolution
+Context.prototype.cancelAwaits = function () {
+    invariant(this.isRoot)
+    var self = this
+    Object.keys(this.pendingRefs).forEach(function (uuid) {
+        self.pendingRefs[uuid].forEach(function (refOpts) {
+            self.pendingRefsCount--
+            refOpts.callback(new Error("Reference resolution canceled for " + uuid))
+        })
+    })
+    this.pendingRefs = {}
+    this.pendingRefsCount = 0
+}
+
+export function getTargetContext(target) {
+    return rootContextCache.get(target)
 }

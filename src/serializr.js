@@ -59,6 +59,7 @@ export { default as serializable } from "./api/serializable"
  * ## Serialization and deserialization
  */
 export { default as serialize, serializeAll } from "./core/serialize"
+export { default as cancelDeserialize } from "./core/cancelDeserialize"
 export { default as deserialize } from "./core/deserialize"
 export { default as update } from "./core/update"
 

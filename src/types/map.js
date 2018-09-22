@@ -31,7 +31,7 @@ export default function map(propSchema, additionalArgs) {
             if (!jsonObject || typeof jsonObject !== "object")
                 return void done("[serializr] expected JSON object")
             var keys = Object.keys(jsonObject)
-            list(propSchema).deserializer(
+            list(propSchema, additionalArgs).deserializer(
               keys.map(function (key) {
                   return jsonObject[key]
               }),

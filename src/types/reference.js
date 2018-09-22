@@ -67,13 +67,13 @@ export default function reference(target, lookupFn, additionalArgs) {
     invariant(!!target, "No modelschema provided. If you are importing it from another file be aware of circular dependencies.")
     var initialized = false
     var childIdentifierAttribute
+    if (typeof lookupFn === "object" && additionalArgs === undefined) {
+        additionalArgs = lookupFn
+        lookupFn = undefined
+    }
     function initialize() {
         initialized = true
         invariant(typeof target !== "string" || lookupFn && typeof lookupFn === "function", "if the reference target is specified by attribute name, a lookup function is required")
-        if (typeof lookupFn === "object") {
-            additionalArgs = lookupFn
-            lookupFn = undefined
-        }
         invariant(!lookupFn || typeof lookupFn === "function", "second argument should be a lookup function or additional arguments object")
         if (typeof target === "string")
             childIdentifierAttribute = target

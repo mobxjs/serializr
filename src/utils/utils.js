@@ -23,7 +23,7 @@ export function parallel(ar, processor, cb) {
     // TODO: limit parallelization?
     if (ar.length === 0)
         return void cb(null, [])
-    var left = ar.length
+    var left = ar.filter(function(){ return true }).length // only count items processed by forEach
     var resultArray = []
     var failed = false
     var processorCb = function (idx, err, result) {
@@ -39,7 +39,7 @@ export function parallel(ar, processor, cb) {
         }
     }
     ar.forEach(function (value, idx) {
-        processor(value, processorCb.bind(null, idx))
+        processor(value, processorCb.bind(null, idx), idx)
     })
 }
 

@@ -10,11 +10,14 @@ import {
     reference,
     primitive,
     serialize,
+    cancelDeserialize,
     deserialize,
     serializeAll,
+    getDefaultModelSchema,
     custom
 } from "../../";
-import {observable, autorun} from "mobx";
+
+import { observable, autorun } from "mobx";
 
 declare var require;
 const test = require("tape");
@@ -41,20 +44,20 @@ test("should work in typescript", t => {
     });
 
     t.equal(called, 1);
-    t.deepEqual(res, {x: 3, y: 4, z: 5});
+    t.deepEqual(res, { x: 3, y: 4, z: 5 });
     a.z++; // no autorun
     t.equal(a.z, 6);
 
     a.y++;
     t.equal(called, 2);
-    t.deepEqual(res, {x: 3, y: 5, z: 6});
+    t.deepEqual(res, { x: 3, y: 5, z: 6 });
 
     a.x++;
     t.equal(called, 3);
-    t.deepEqual(res, {x: 4, y: 5, z: 6});
+    t.deepEqual(res, { x: 4, y: 5, z: 6 });
 
-    const b = deserialize(A, {x: 1, y: 2, z: 3});
-    t.deepEqual(serialize(b), {x: 1, y: 2, z: 3});
+    const b = deserialize(A, { x: 1, y: 2, z: 3 });
+    t.deepEqual(serialize(b), { x: 1, y: 2, z: 3 });
     t.ok(b instanceof A);
 
     t.end();
@@ -160,21 +163,28 @@ test("[ts] custom prop schemas", t => {
         return jsonValue
     }
 
-    function customAsyncDeserializer(jsonValue, context, oldValue, done) {
+    function customCallbackDeserializer(jsonValue, context, oldValue, done) {
         done(null, jsonValue)
+    }
+
+    function customAsyncDeserializer(jsonValue, context, oldValue, done) {
+        setTimeout(() => {
+            done(null, jsonValue)
+        }, 1)
     }
 
     class A {
         @serializable(custom(customSerializer, customDeserializer)) a = "hoi";
-        @serializable(custom(customSerializer, customAsyncDeserializer)) a2 = "oeps";
+        @serializable(custom(customSerializer, customCallbackDeserializer)) a2 = "oeps";
+        @serializable(custom(customSerializer, customAsyncDeserializer)) a3 = "lulu";
     }
 
     let result = serialize(new A())
     const initial = {
-        a: "hoi", a2: "oeps"
+        a: "hoi", a2: "oeps", a3: "lulu"
     }
     const updated = {
-        a: "all", a2: "new"
+        a: "all", a2: "new", a3: "lala"
     }
     t.deepEqual(result, initial)
 
@@ -205,8 +215,8 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
     const json = {
         ref: 1,
         child: [
-            {id: 2, title: "foo"},
-            {id: 1, title: "bar "}
+            { id: 2, title: "foo" },
+            { id: 1, title: "bar " }
         ]
     };
     const m = deserialize(Message, json);
@@ -222,102 +232,126 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
 test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeserialize'", t => {
 
     const jsonInput = {
-        id1: 1101,
+        id1: "1101",
         id11: 1102,
         custom1: 2,
         customAsync1: "trigger error",
         date1: 1534021029937,
         listObj1: [
             {
-                id1: 1121,
+                id1: "1121",
                 text1: "good data",
-                valid1: true
+                valid: true
             },
             {
-                id1: 1122,
+                id1: "1122",
                 text1: "ignored",
-                valid1: false
+                valid: false
+            },
+            {
+                id1: "1123",
+                text1: "good data",
+                valid: true
             },
             null,
+            undefined,
             1234,
             "invalid"
         ],
+        listRefObj1: [
+            "1121", "1122", "1123", "1234", "1131", "1132", "1133", "1134", undefined, null, 1234, "invalid", "1121"
+        ],
         mapObj1: {
             1131: {
-                id1: 1131,
+                id1: "1131",
                 text1: "good data",
-                valid1: true
+                valid: true
             },
             1132: {
-                id1: 1132,
+                id1: "1132",
                 text1: "ignored",
-                valid1: false
+                valid: false
             },
-            1133: null
+            1133: {
+                id1: "1133",
+                text1: "good data",
+                valid: true
+            },
+            1134: null,
+            1234: null
         },
         mapRefObj1: {
-            1131: 1131,
-            1132: 1132,
-            1133: 1133
+            1131: "1131",
+            1132: "1132",
+            1133: "1133",
+            1134: "1134",
+            1234: "1234"
         },
-        mapArrayRefObj1: {
-            1131: 1131,
-            1132: 1132,
-            1133: 1133
-        },
+        mapArrayRefObj1: [
+            "1131",
+            "1132",
+            "1133",
+            "1134",
+            "1234"
+        ],
         obj1: {
-            id1: 1141,
-            text1: "yee"
+            id1: "1141",
+            text1: "yee",
+            valid: true
         },
         primitiveNumber1: 12,
         primitiveText1: "foo",
-        aliasPrimitiveText1: "yo",
+        aliasText: "yo",
     }
 
     const jsonResult = {
-        id: 1101,
+        id: "1101",
         custom: 2,
         customAsync: "ok now",
         date: 1534021029937,
         listObj: [
             {
-                id: 1121,
+                id: "1121",
                 text: "good data",
                 valid: true
             },
             {
-                id: 1122,
-                text: "ignored",
-                valid: false
-            }
-        ],
-        mapObj: {
-            1131: {
-                id: 1131,
+                id: "1123",
                 text: "good data",
                 valid: true
             },
-            1132: {
-                id: 1132,
-                text: "ignored",
-                valid: false
-            }
+        ],
+        listRefObj: [
+            "1121", "1123", "1131", "1133", "1121"
+        ],
+        mapObj: {
+            1131: {
+                id: "1131",
+                text: "good data",
+                valid: true
+            },
+            1133: {
+                id: "1133",
+                text: "good data",
+                valid: true
+            },
         },
         mapRefObj: {
-            1131: 1131,
-            1132: 1132,
+            1131: "1131",
+            1133: "1133",
         },
-        mapArrayRefObj: {
-            1131: 1131,
-            1132: 1132,
-        },
+        mapArrayRefObj: [
+            "1131",
+            "1133",
+        ],
         obj: {
-            id: 1141,
-            text: "yee"
+            id: "1141",
+            text: "yee",
+            valid: true
         },
         primitiveNumber: 12,
-        primitiveText: "foo",
-        aliasText: "yo",
+        primitiveText: "foo hee haa",
+        aliasText: "yo hee haa",
     }
 
     function customSerializer(v) {
@@ -336,55 +370,163 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
         }
     }
 
-    function beforeDeserialize(jsonValue, jsonParentValue, propName, context, propDef) {
-        var jsonAttrName = propName + '1'
-        return {
-            jsonValue: jsonValue || jsonParentValue[jsonAttrName],
-            cancel: false
+    const renameOpts = {
+        beforeDeserialize: function (callback, jsonValue, jsonParentValue, propNameOrIndex,) {
+            var jsonAttrName = propNameOrIndex + '1'
+            jsonValue = jsonValue || jsonParentValue[jsonAttrName]
+            callback(null, jsonValue)
         }
     }
 
-    function afterDeserialize(error, targetPropertyValue, jsonValue, targetPropertyName, context, propDef) {
-        if (!error) {
-            return
-        }
-        return {
-            continueOnError: true,
-            retryJsonValue: "ok now"
+    const replaceValueOpts = {
+        beforeDeserialize: function (callback, jsonValue, jsonParentValue, propNameOrIndex) {
+            var jsonAttrName = propNameOrIndex + '1'
+            jsonValue = (jsonValue || jsonParentValue[jsonAttrName]) + ' hee'
+            callback(null, jsonValue)
+        },
+        afterDeserialize: function (callback, error, newValue, jsonValue, jsonParentValue, propNameOrIndex, context,
+                                    propDef, numRetry) {
+            var err = null
+            if (numRetry === 0) {
+                err = new Error('retry once more')
+            }
+            callback(err, newValue + ' haa')
         }
     }
 
-    const args = {
-        beforeDeserialize: beforeDeserialize,
-        afterDeserialize: afterDeserialize
+    const resumeOnErrorOpts = {
+        beforeDeserialize: function (callback, jsonValue, jsonParentValue, propNameOrIndex) {
+            var jsonAttrName = propNameOrIndex + '1'
+            jsonValue = jsonValue || jsonParentValue[jsonAttrName]
+            callback(null, jsonValue)
+        },
+        afterDeserialize(callback, error) {
+            callback(null, 'ok now')
+        }
+    }
+
+    const removeInvalidItemsOpts = {
+        /**
+         * remove all invalid objects in lists and maps,
+         * also does this for reference objects asynchronously
+         */
+        beforeDeserialize(callback, jsonValue, jsonParentValue, propNameOrIndex, context, propDef) {
+            var numItemsWaiting = 0
+            var jsonAttrName = propNameOrIndex + '1'
+            jsonValue = jsonValue || jsonParentValue[jsonAttrName]
+            var result = jsonValue
+
+            function getValidItem(inputValue, nameOrIndex) {
+
+                function onItemCallback(err) {
+                    if (!err) {
+                        result[nameOrIndex] = inputValue
+                    }
+                    numItemsWaiting -= 1
+                    if (numItemsWaiting === 0) {
+                        if (Array.isArray(result)) {
+                            // clear gaps in array
+                            result = result.filter(function() { return true })
+                        }
+                        callback(null, result)
+                    }
+                }
+
+                if (inputValue) {
+                    if (typeof inputValue === 'object') {
+                        if (inputValue.valid === true) {
+                            onItemCallback(null)
+                        } else {
+                            onItemCallback(new Error('not a valid item'))
+                        }
+                    } else if (propNameOrIndex.indexOf('Ref') >= 0) {
+                        context.rootContext.await(getDefaultModelSchema(SubData), inputValue, onItemCallback)
+                    } else {
+                        onItemCallback(new Error('object expected'))
+                    }
+                } else {
+                    onItemCallback(new Error('not a valid reference'))
+                }
+            }
+
+
+            if (Array.isArray(jsonValue)) {
+                result = []
+                numItemsWaiting = jsonValue.length
+                jsonValue.forEach((value, index) => {
+                    getValidItem(value, index)
+                })
+            } else if (typeof jsonValue === 'object') {
+                result = {}
+                var entries = Object.entries(jsonValue)
+                numItemsWaiting = entries.length
+                entries.forEach((elem) => {
+                    getValidItem(elem[1], elem[0])
+                })
+            }
+        },
+        /**
+         * remove item in case it caused an error during deserialization
+         */
+        afterDeserialize: function (callback, error, newValue, jsonValue, jsonParentValue, propNameOrIndex, context,
+                                    propDef, numRetry) {
+            if (error && error.itemKey) {
+                if (Array.isArray(jsonValue)) {
+                    var nextArray = jsonValue.splice(error.itemKey, 1)
+                    callback(error, nextArray)
+                } else {
+                    var nextObj = Object.assign({}, jsonValue)
+                    delete nextObj[error.itemKey]
+                    callback(error, nextObj)
+                }
+            } else {
+                callback(error, newValue)
+            }
+        }
     }
 
     class SubData {
-        @serializable(identifier()) id
-        @serializable text
-        @serializable valid = true
+        @serializable(identifier(renameOpts)) id
+        @serializable(primitive(renameOpts)) text
+        @serializable(primitive(renameOpts)) valid
     }
 
     class FinalData {
-        @serializable(identifier(args)) id
-        @serializable(custom(customSerializer, customDeserializer, args)) custom
-        @serializable(custom(customSerializer, customAsyncDeserializer, args)) customAsync
-        @serializable(date(args)) date
-        @serializable(list(object(SubData, args), args)) listObj
-        @serializable(map(object(SubData, args), args)) mapObj
-        @serializable(map(reference(SubData, args), args)) mapRefObj
-        @serializable(mapAsArray(reference(SubData, args), 'id', args)) mapArrayRefObj
-        @serializable(object(SubData, args)) obj
-        @serializable(primitive(args)) primitiveNumber
-        @serializable(primitive(args)) primitiveText
-        @serializable(alias('aliasText', primitive(args))) aliasPrimitiveText
+        @serializable(identifier(renameOpts)) id
+        @serializable(custom(customSerializer, customDeserializer, renameOpts)) custom
+        @serializable(custom(customSerializer, customAsyncDeserializer, resumeOnErrorOpts)) customAsync
+        @serializable(date(renameOpts)) date
+        @serializable(list(object(SubData, renameOpts), removeInvalidItemsOpts)) listObj
+        @serializable(list(reference(SubData, renameOpts), removeInvalidItemsOpts)) listRefObj
+        @serializable(map(object(SubData, renameOpts), removeInvalidItemsOpts)) mapObj
+        @serializable(map(reference(SubData, renameOpts), removeInvalidItemsOpts)) mapRefObj
+        @serializable(mapAsArray(reference(SubData, renameOpts), 'id', removeInvalidItemsOpts)) mapArrayRefObj
+        @serializable(object(SubData, renameOpts)) obj
+        @serializable(primitive(renameOpts)) primitiveNumber
+        @serializable(primitive(replaceValueOpts)) primitiveText
+        @serializable(alias('aliasText', primitive(replaceValueOpts))) aliasPrimitiveText
     }
 
-    const result = deserialize(FinalData, jsonInput)
+    let resultIsFinal = false
+    const prelimResult = deserialize(FinalData, jsonInput, (err, result) => {
+        resultIsFinal = true
+        err ? t.end(err) : null
+        t.deepEqual(serialize(result), jsonResult);
+        t.end();
+    })
 
-    t.deepEqual(serialize(result), jsonInput);
+    setTimeout(() => {
+            cancelDeserialize(prelimResult)
+        }, 100
+    )
 
-    t.end();
+    setTimeout(() => {
+            if (!resultIsFinal) {
+                t.end(new Error("deserialization canceled due to timeout"))
+            }
+        }, 1000
+    )
+
 
 })
 
@@ -399,9 +541,9 @@ test("@serializeAll (babel)", t => {
     (store as any).c = 5;
     (store as any).d = {};
 
-    t.deepEqual(serialize(store), {a: 3, c: 5})
+    t.deepEqual(serialize(store), { a: 3, c: 5 })
 
-    const store2 = deserialize(Store, {a: 2, b: 3, c: 4})
+    const store2 = deserialize(Store, { a: 2, b: 3, c: 4 })
     t.equal(store2.a, 2)
     t.equal(store2.b, 3)
     t.equal((store2 as any).c, 4)

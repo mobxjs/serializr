@@ -35,7 +35,7 @@ export default function update(modelSchema, target, json, callback, customArgs) 
     invariant(isModelSchema(modelSchema), "update failed to determine schema")
     invariant(typeof target === "object" && target && !Array.isArray(target), "update needs an object")
     var context = new Context(null, modelSchema, json, callback, customArgs)
-    context.target = target
+    context.setTarget(target)
     var lock = context.createCallback(GUARDED_NOOP)
     deserializePropsWithSchema(context, modelSchema, json, target)
     lock()

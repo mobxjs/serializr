@@ -1,8 +1,8 @@
 {
     "version": "1.7.5",
     "compilerOptions": {
-        "target": "es5",
-        "sourceMap": false,
+        "target": "esnext",
+        "sourceMap": true,
         "module": "commonjs",
         "removeComments": false,
         "experimentalDecorators": true
