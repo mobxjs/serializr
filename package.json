@@ -6,10 +6,10 @@
   "module": "lib/es/serializr.js",
   "typings": "serializr.d.ts",
   "scripts": {
-    "test": "npm run build-test && node $NODE_DEBUG_OPTION test/index",
+    "test": "npm run build-test && node test/index",
     "lint": "eslint src",
     "prepublish": "npm run build && npm run build-docs",
-    "build": "node $NODE_DEBUG_OPTION scripts/build.js",
+    "build": "node scripts/build.js",
     "build-docs": "documentation readme src/serializr.js --github --section API",
     "build-test": "npm run build-test-babel && npm run build-test-ts",
     "build-test-ts": "tsc -p test/typescript",
