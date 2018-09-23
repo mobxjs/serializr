@@ -287,13 +287,13 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             1134: "1134",
             1234: "1234"
         },
-        // mapArrayRefObj1: [
-        //     "1131",
-        //     "1132",
-        //     "1133",
-        //     "1134",
-        //     "1234"
-        // ],
+        mapArrayRefObj1: [
+            "1131",
+            "1132",
+            "1133",
+            "1134",
+            "1234"
+        ],
         obj1: {
             id1: "1141",
             text1: "yee",
@@ -340,10 +340,10 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             1131: "1131",
             1133: "1133",
         },
-        // mapArrayRefObj: [
-        //     "1131",
-        //     "1133",
-        // ],
+        mapArrayRefObj: [
+            "1131",
+            "1133",
+        ],
         obj: {
             id: "1141",
             text: "yee",
@@ -500,7 +500,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
         @serializable(list(reference(SubData, renameOpts), removeInvalidItemsOpts)) listRefObj
         @serializable(map(object(SubData, renameOpts), removeInvalidItemsOpts)) mapObj
         @serializable(map(reference(SubData, renameOpts), removeInvalidItemsOpts)) mapRefObj
-        // @serializable(mapAsArray(reference(SubData, renameOpts), 'id', removeInvalidItemsOpts)) mapArrayRefObj
+        @serializable(mapAsArray(reference(SubData, renameOpts), 'id', removeInvalidItemsOpts)) mapArrayRefObj
         @serializable(object(SubData, renameOpts)) obj
         @serializable(primitive(renameOpts)) primitiveNumber
         @serializable(primitive(replaceValueOpts)) primitiveText

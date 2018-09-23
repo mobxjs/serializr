@@ -45,8 +45,10 @@ export default function mapAsArray(propSchema, keyPropertyName, additionalArgs) 
                     if (isMap) {
                         oldValue.clear()
                         newValue = oldValue
-                    } else
-                        newValue = {}
+                    } else {
+                        newValue = new Map() // {}
+                        isMap = true
+                    }
                     for (var i = 0, l = jsonArray.length; i < l; i++)
                         if (isMap)
                             newValue.set(values[i][keyPropertyName], values[i])
