@@ -50,8 +50,7 @@ export default function deserialize(schema, json, callback, customArgs) {
         parallel(
             json,
             function (childJson, itemDone) {
-                var instance = deserializeObjectWithSchema(null, schema, childJson, itemDone,
-                    customArgs)
+                var instance = deserializeObjectWithSchema(null, schema, childJson, itemDone, customArgs)
                 // instance is created synchronously so can be pushed
                 items.push(instance)
             },
@@ -62,8 +61,7 @@ export default function deserialize(schema, json, callback, customArgs) {
         return deserializeObjectWithSchema(null, schema, json, callback, customArgs)
 }
 
-export function deserializeObjectWithSchema(parentContext, modelSchema, json, callback,
-                                            customArgs) {
+export function deserializeObjectWithSchema(parentContext, modelSchema, json, callback, customArgs) {
     if (json === null || json === undefined || typeof json !== "object")
         return void callback(null, null)
     var context = new Context(parentContext, modelSchema, json, callback, customArgs)
@@ -85,7 +83,6 @@ export function deserializePropsWithSchema(context, modelSchema, json, target) {
         deserializePropsWithSchema(context, modelSchema.extends, json, target)
 
     function deserializeProp(propDef, jsonValue, propName) {
-        var numRetry = 0
 
         function setValue(value) {
             if (value !== SKIP) {
@@ -111,8 +108,7 @@ export function deserializePropsWithSchema(context, modelSchema, json, target) {
                 }
 
                 onAfterDeserialize(finalCallback, err, newValue, jsonValue, json,
-                    propName, context, propDef, numRetry)
-                numRetry += 1
+                    propName, context, propDef)
             }
         }
 

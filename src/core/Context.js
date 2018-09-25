@@ -1,4 +1,4 @@
-import { extend, GUARDED_NOOP, once, invariant, isAssignableTo } from "../utils/utils"
+import { GUARDED_NOOP, once, invariant, isAssignableTo } from "../utils/utils"
 
 var rootContextCache = new Map()
 
@@ -19,15 +19,7 @@ export default function Context(parentContext, modelSchema, json, onReadyCb, cus
         this.resolvedRefs = {} // uuid: [{ modelSchema, value }]
     } else {
         this.rootContext = parentContext.rootContext
-        var args = parentContext.args
-        if (customArgs) {
-            if (args) {
-                extend(args, customArgs)
-            } else {
-                args = customArgs
-            }
-        }
-        this.args = args
+        this.args = parentContext.args
     }
 }
 

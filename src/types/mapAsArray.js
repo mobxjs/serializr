@@ -30,7 +30,8 @@ export default function mapAsArray(propSchema, keyPropertyName, additionalArgs) 
                     result.push(propSchema.serializer(value))
                 })
             } else for (var key in m) {
-                result[key] = propSchema.serializer(m[key])
+                result.push(propSchema.serializer(m[key]))
+                // result[key] = propSchema.serializer(m[key])
             }
             return result
         },
@@ -46,8 +47,7 @@ export default function mapAsArray(propSchema, keyPropertyName, additionalArgs) 
                         oldValue.clear()
                         newValue = oldValue
                     } else {
-                        newValue = new Map() // {}
-                        isMap = true
+                        newValue = {}
                     }
                     for (var i = 0, l = jsonArray.length; i < l; i++)
                         if (isMap)
