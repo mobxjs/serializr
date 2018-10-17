@@ -26,7 +26,8 @@ function deserializeStarProps(schema, obj, json) {
 }
 
 /**
- * Deserializes a json structor into an object graph.
+ * Deserializes a json structure into an object graph.
+ *
  * This process might be asynchronous (for example if there are references with an asynchronous
  * lookup function). The function returns an object (or array of objects), but the returned object
  * might be incomplete until the callback has fired as well (which might happen immediately)

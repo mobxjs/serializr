@@ -12,6 +12,7 @@ import {processAdditionalPropArgs} from "../utils/utils"
  * console.dir(serialize(new Model({ rawData: { a: 1, b: [], c: {} } } })));
  * // outputs: { rawData: { a: 1, b: [], c: {} } } }
  *
+ * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {ModelSchema}
  */
 export default function raw(additionalArgs) {

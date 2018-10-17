@@ -29,7 +29,7 @@ import { deserializeObjectWithSchema } from "../core/deserialize"
  * });
  *
  * @param {ModelSchema} modelSchema to be used to (de)serialize the object
- * @param {AdditionalPropArgs} additionalArgs optional
+ * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {PropSchema}
  */
 export default function object(modelSchema, additionalArgs) {

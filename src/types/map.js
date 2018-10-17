@@ -8,7 +8,8 @@ import list from "./list"
 * This will be inferred from the initial value of the targetted attribute.
 *
 * @param {*} propSchema
-* @returns
+* @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
+* @returns {PropSchema}
 */
 export default function map(propSchema, additionalArgs) {
     propSchema = propSchema || _defaultPrimitiveProp

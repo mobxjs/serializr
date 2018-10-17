@@ -3,7 +3,8 @@ import { invariant, processAdditionalPropArgs } from "../utils/utils"
 /**
  * Similar to primitive, serializes instances of Date objects
  *
- * @returns
+ * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
+ * @returns {PropSchema}
  */
 export default function date(additionalArgs) {
   // TODO: add format option?

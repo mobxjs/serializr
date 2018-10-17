@@ -36,7 +36,7 @@ import { _defaultPrimitiveProp } from "../constants"
  * });
  *
  * @param {PropSchema} propSchema to be used to (de)serialize the contents of the array
- * @param {AdditionalPropArgs} additionalArgs optional
+ * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {PropSchema}
  */
 export default function list(propSchema, additionalArgs) {

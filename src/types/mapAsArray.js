@@ -11,9 +11,10 @@ import list from "./list"
  * allowed to have non-string keys in the map. The serialized json also may be slightly more
  * compact.
  *
- * @param {any} propSchema, {string} keyPropertyName - the property of stored objects used as key
- *   in the map
- * @returns
+ * @param {any} propSchema
+ * @param {string} keyPropertyName - the property of stored objects used as key in the map
+ * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
+ * @returns {PropSchema}
  */
 export default function mapAsArray(propSchema, keyPropertyName, additionalArgs) {
     propSchema = propSchema || _defaultPrimitiveProp

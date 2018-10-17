@@ -36,7 +36,7 @@ function defaultRegisterFunction(id, value, context) {
  * });
  *
  * @param { RegisterFunction | AdditionalPropArgs } arg1 optional registerFn: function to register this object during creation.
- * @param { AdditionalPropArgs } arg2 optional
+ * @param {AdditionalPropArgs} arg2 optional object that contains beforeDeserialize and/or afterDeserialize handlers
  *
  * @returns {PropSchema}
  */

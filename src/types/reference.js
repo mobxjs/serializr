@@ -60,7 +60,7 @@ function createDefaultRefLookup(modelSchema) {
  *
  * @param target: ModelSchema or string
  * @param {RefLookupFunction | AdditionalPropArgs} lookupFn optional function or additionalArgs object
- * @param {AdditionalPropArgs} additionalArgs optional object
+ * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {PropSchema}
  */
 export default function reference(target, lookupFn, additionalArgs) {

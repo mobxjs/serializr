@@ -12,6 +12,7 @@ import { isPrimitive } from "../utils/utils"
  * console.dir(serialize(new Todo('test')));
  * // outputs: { title : "test" }
  *
+ * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {ModelSchema}
  */
 export default function primitive(additionalArgs) {
