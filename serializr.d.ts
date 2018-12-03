@@ -4,8 +4,9 @@ export interface Context {
     json: any;
     target: any;
     parentContext: Context;
-    rootContext: Context;
     args: any;
+    await(modelschema: ClazzOrModelSchema<any>,id:string,callback?: (err: any, result: any) => void):any;
+    rootContext: Context;
     addCallback: (callbackFunction: (error?: Error) => void) => void;
 }
 
@@ -68,7 +69,7 @@ export function alias(jsonName: string, propSchema?: PropSchema | boolean): Prop
 export function child(modelschema: ClazzOrModelSchema<any>): PropSchema;
 export function object(modelschema: ClazzOrModelSchema<any>): PropSchema;
 
-export type RefLookupFunction = (id: string, callback: (err: any, result: any) => void) => void;
+export type RefLookupFunction = (id: string, callback: (err: any, result: any) => void,context:Context) => void;
 export type RegisterFunction = (id: any, object: any, context: Context) => void;
 
 export function ref(modelschema: ClazzOrModelSchema<any>, lookupFn?: RefLookupFunction): PropSchema;
@@ -82,9 +83,13 @@ export function map(propSchema: PropSchema): PropSchema;
 
 export function mapAsArray(propSchema: PropSchema, keyPropertyName: string): PropSchema;
 
-export function custom(serializer: (value: any, sourcePropertyName?: string, sourceObject?: any, context?: SerializeContext) => any, deserializer: (jsonValue: any, context?: Context, oldValue?: any) => any): PropSchema;
+export function custom(serializer: (value: any, sourcePropertyName?: string, sourceObject?: any, context?: SerializeContext) => any, deserializer: (jsonValue: any, context?: any, oldValue?: any) => any): PropSchema;
+export function custom(serializer: (value: any, sourcePropertyName?: string, sourceObject?: any, context?: SerializeContext) => any, deserializer: (jsonValue: any, context: any, oldValue: any, callback: (err: any, result: any) => void) => any): PropSchema;
 
 export function serializeAll<T extends Function>(clazz: T): T
 
 export function getIdentifierProperty(modelSchema: ClazzOrModelSchema<any>): string;
+export const SKIP: {}
+export function raw(): any;
+
 export const SKIP: {}
