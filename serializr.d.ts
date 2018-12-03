@@ -92,4 +92,3 @@ export function getIdentifierProperty(modelSchema: ClazzOrModelSchema<any>): str
 export const SKIP: {}
 export function raw(): any;
 
-export const SKIP: {}
