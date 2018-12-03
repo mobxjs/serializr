@@ -52,7 +52,7 @@ import {invariant} from "../utils/utils"
  * };
 
  *
- * @param {function} serializer function that takes a model value and turns it into a json value
+ * @param {function} serializer function that takes a model value and turns it into a json value. It also takes context argument, which can allow you to add a global callback to the ending of serialization.
  * @param {function} deserializer function that takes a json value and turns it into a model value. It also takes context argument, which can allow you to deserialize based on the context of other parameters.
  * @returns {PropSchema}
  */

@@ -35,9 +35,9 @@ export default function list(propSchema) {
     invariant(isPropSchema(propSchema), "expected prop schema as first argument")
     invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
     return {
-        serializer: function (ar) {
+        serializer: function (ar, key, target, context) {
             invariant(ar && "length" in ar && "map" in ar, "expected array (like) object")
-            return ar.map(propSchema.serializer)
+            return ar.map(function (item, index) { return propSchema.serializer(item, index, ar, context) })
         },
         deserializer: function(jsonArray, done, context) {
             if (!Array.isArray(jsonArray))

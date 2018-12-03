@@ -15,16 +15,16 @@ export default function map(propSchema) {
     invariant(isPropSchema(propSchema), "expected prop schema as first argument")
     invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
     return {
-        serializer: function (m) {
+        serializer: function (m, k, target, context) {
             invariant(m && typeof m === "object", "expected object or Map")
             var isMap = isMapLike(m)
             var result = {}
             if (isMap)
                 m.forEach(function(value, key) {
-                    result[key] = propSchema.serializer(value)
+                    result[key] = propSchema.serializer(value, key, m, context)
                 })
             else for (var key in m)
-                result[key] = propSchema.serializer(m[key])
+                result[key] = propSchema.serializer(m[key], key, m, context)
             return result
         },
         deserializer: function(jsonObject, done, context, oldValue) {

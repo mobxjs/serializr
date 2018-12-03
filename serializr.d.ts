@@ -6,7 +6,14 @@ export interface Context {
     parentContext: Context;
     args: any;
     await(modelschema: ClazzOrModelSchema<any>,id:string,callback?: (err: any, result: any) => void):any;
-	rootContext:Context;
+    rootContext: Context;
+    addCallback: (callbackFunction: (error?: Error) => void) => void;
+}
+
+export interface SerializeContext {
+    parentContext: SerializeContext;
+    rootContext: SerializeContext;
+    addCallback: (callbackFunction: (error?: Error) => void) => void;
 }
 
 export type Factory<T> = (context: Context) => T
@@ -45,6 +52,9 @@ export function serialize<T>(instance: T): any;
 export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, jsonArray: any[], callback?: (err: any, result: T[]) => void, customArgs?: any): T[];
 export function deserialize<T>(modelschema: ClazzOrModelSchema<T>, json: any, callback?: (err: any, result: T) => void, customArgs?: any): T;
 
+export function deserializeObjectWithSchema<T>(parentContext: Context, modelschema: ClazzOrModelSchema<T>, jsonArray: any[], callback?: (err: any, result: T[]) => void, customArgs?: any): T[];
+export function deserializeObjectWithSchema<T>(parentContext: Context, modelschema: ClazzOrModelSchema<T>, json: any, callback?: (err: any, result: T) => void, customArgs?: any): T;
+
 export function update<T>(modelschema: ClazzOrModelSchema<T>, instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any): void;
 export function update<T>(instance:T, json: any, callback?: (err: any, result: T) => void, customArgs?: any): void;
 
@@ -73,11 +83,12 @@ export function map(propSchema: PropSchema): PropSchema;
 
 export function mapAsArray(propSchema: PropSchema, keyPropertyName: string): PropSchema;
 
-export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context?: any, oldValue?: any) => any): PropSchema;
-export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context: any, oldValue: any, callback: (err: any, result: any) => void) => any): PropSchema;
+export function custom(serializer: (value: any, sourcePropertyName?: string, sourceObject?: any, context?: SerializeContext) => any, deserializer: (jsonValue: any, context?: any, oldValue?: any) => any): PropSchema;
+export function custom(serializer: (value: any, sourcePropertyName?: string, sourceObject?: any, context?: SerializeContext) => any, deserializer: (jsonValue: any, context: any, oldValue: any, callback: (err: any, result: any) => void) => any): PropSchema;
 
 export function serializeAll<T extends Function>(clazz: T): T
 
+export function getIdentifierProperty(modelSchema: ClazzOrModelSchema<any>): string;
+export const SKIP: {}
 export function raw(): any;
 
-export const SKIP: {}
