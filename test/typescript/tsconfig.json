@@ -2,7 +2,7 @@
     "version": "1.7.5",
     "compilerOptions": {
         "target": "esnext",
-        "sourceMap": true,
+        "sourceMap": false,
         "module": "commonjs",
         "removeComments": false,
         "experimentalDecorators": true
