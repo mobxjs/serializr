@@ -1,4 +1,4 @@
-import { invariant } from "../utils/utils"
+import {invariant, processAdditionalPropArgs} from "../utils/utils"
 import { isPrimitive } from "../utils/utils"
 
 /**
@@ -12,10 +12,11 @@ import { isPrimitive } from "../utils/utils"
  * console.dir(serialize(new Todo('test')));
  * // outputs: { title : "test" }
  *
+ * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {ModelSchema}
  */
-export default function primitive() {
-    return {
+export default function primitive(additionalArgs) {
+    var result = {
         serializer: function (value) {
             invariant(isPrimitive(value), "this value is not primitive: " + value)
             return value
@@ -26,4 +27,6 @@ export default function primitive() {
             return void done(null, jsonValue)
         }
     }
+    result = processAdditionalPropArgs(result, additionalArgs)
+    return result
 }

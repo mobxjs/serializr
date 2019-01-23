@@ -26,6 +26,8 @@ export default function alias(name, propSchema) {
         jsonname: name,
         serializer: propSchema.serializer,
         deserializer: propSchema.deserializer,
-        identifier: isIdentifierPropSchema(propSchema)
+        identifier: isIdentifierPropSchema(propSchema),
+        beforeDeserialize: propSchema.beforeDeserialize,
+        afterDeserialize: propSchema.afterDeserialize
     }
 }

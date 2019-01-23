@@ -5,7 +5,7 @@ export function GUARDED_NOOP(err) {
 
 export function once(fn) {
     var fired = false
-    return function() {
+    return function () {
         if (!fired) {
             fired = true
             return fn.apply(null, arguments)
@@ -20,13 +20,13 @@ export function invariant(cond, message) {
 }
 
 export function parallel(ar, processor, cb) {
-  // TODO: limit parallelization?
+    // TODO: limit parallelization?
     if (ar.length === 0)
         return void cb(null, [])
-    var left = ar.length
+    var left = ar.filter(function(){ return true }).length // only count items processed by forEach
     var resultArray = []
     var failed = false
-    var processorCb = function(idx, err, result) {
+    var processorCb = function (idx, err, result) {
         if (err) {
             if (!failed) {
                 failed = true
@@ -39,7 +39,7 @@ export function parallel(ar, processor, cb) {
         }
     }
     ar.forEach(function (value, idx) {
-        processor(value, processorCb.bind(null, idx))
+        processor(value, processorCb.bind(null, idx), idx)
     })
 }
 
@@ -62,7 +62,7 @@ export function isAliasedPropSchema(propSchema) {
 }
 
 export function isIdentifierPropSchema(propSchema) {
-    return  typeof propSchema === "object" && propSchema.identifier === true
+    return typeof propSchema === "object" && propSchema.identifier === true
 }
 
 export function isAssignableTo(actualType, expectedType) {
@@ -88,4 +88,17 @@ export function getIdentifierProp(modelSchema) {
         modelSchema = modelSchema.extends
     }
     return null
+}
+
+export function processAdditionalPropArgs(propSchema, additionalArgs) {
+    if (additionalArgs) {
+        invariant(isPropSchema(propSchema), "expected a propSchema")
+        var argNames = ["beforeDeserialize", "afterDeserialize"]
+        argNames.forEach(function(argName) {
+            if (typeof additionalArgs[argName] === "function") {
+                propSchema[argName] = additionalArgs[argName]
+            }
+        })
+    }
+    return propSchema
 }

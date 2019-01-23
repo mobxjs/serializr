@@ -1,4 +1,4 @@
-import { invariant, isAliasedPropSchema, isPropSchema, isMapLike } from "../utils/utils"
+import {invariant, isAliasedPropSchema, isPropSchema, isMapLike, processAdditionalPropArgs} from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import list from "./list"
 
@@ -8,13 +8,14 @@ import list from "./list"
 * This will be inferred from the initial value of the targetted attribute.
 *
 * @param {*} propSchema
-* @returns
+* @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
+* @returns {PropSchema}
 */
-export default function map(propSchema) {
+export default function map(propSchema, additionalArgs) {
     propSchema = propSchema || _defaultPrimitiveProp
     invariant(isPropSchema(propSchema), "expected prop schema as first argument")
     invariant(!isAliasedPropSchema(propSchema), "provided prop is aliased, please put aliases first")
-    return {
+    var res = {
         serializer: function (m) {
             invariant(m && typeof m === "object", "expected object or Map")
             var isMap = isMapLike(m)
@@ -31,7 +32,7 @@ export default function map(propSchema) {
             if (!jsonObject || typeof jsonObject !== "object")
                 return void done("[serializr] expected JSON object")
             var keys = Object.keys(jsonObject)
-            list(propSchema).deserializer(
+            list(propSchema, additionalArgs).deserializer(
               keys.map(function (key) {
                   return jsonObject[key]
               }),
@@ -59,4 +60,6 @@ export default function map(propSchema) {
           )
         }
     }
+    res = processAdditionalPropArgs(res, additionalArgs)
+    return res
 }
