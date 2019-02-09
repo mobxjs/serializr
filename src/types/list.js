@@ -53,8 +53,6 @@ export default function list(propSchema, additionalArgs) {
             if (!Array.isArray(jsonArray))
                 return void done("[serializr] expected JSON array")
 
-            var numRetry = 0
-
             function processItem(jsonValue, onItemDone, itemIndex) {
                 function callbackBefore(err, value) {
                     if (!err) {
@@ -74,7 +72,6 @@ export default function list(propSchema, additionalArgs) {
                 }
 
                 function callbackAfter(errPreliminary, finalOrRetryValue) {
-                    numRetry += 1
                     if (errPreliminary && finalOrRetryValue !== undefined &&
                         typeof propSchema.afterDeserialize === "function") {
 

@@ -46,7 +46,7 @@ export function serializeWithSchema(schema, obj) {
     Object.keys(schema.props).forEach(function (key) {
         var propDef = schema.props[key]
         if (key === "*") {
-            invariant(propDef === true, "prop schema '*' can onle be used with 'true'")
+            invariant(propDef === true, "prop schema '*' can only be used with 'true'")
             serializeStarProps(schema, obj, res)
             return
         }

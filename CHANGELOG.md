@@ -1,11 +1,15 @@
+# 1.4.2
+* switched build and tests to Babel 7
+* switched code compression to [Terser](https://github.com/terser-js/terser)
+
 # 1.4.0
-* Introduced beforeDeserialize and afterDeserialize lifecycle methods to support e.g. better error handling during deserialization by @evoye
-* Introduced cancelDeserialize to stop async requests that get stuck, e.g. in case of unresolved waiting references by @evoye
-* Added capability to deserialize arrays with empty entries by @evoye
-* Fixed mapAsArray to always push elements to the serialized array by @evoye
+* Introduced beforeDeserialize and afterDeserialize lifecycle methods to support e.g. better error handling during deserialization by @1R053
+* Introduced cancelDeserialize to stop async requests that get stuck, e.g. in case of unresolved waiting references by @1R053
+* Added capability to deserialize arrays with empty entries by @1R053
+* Fixed mapAsArray to always push elements to the serialized array by @1R053
 
 # 1.3.0
-* Introduced async ability into `custom` (de)serializer, to support asynchronous custom deserialization by @evoye
+* Introduced async ability into `custom` (de)serializer, to support asynchronous custom deserialization by @1R053
 * Fixed missed typescript export of `raw` type by @VChastinet
 * Documentation updates by @maslade and @razetdinov
 

@@ -36,7 +36,7 @@ export default function createModelSchema(clazz, props, factory) {
         },
         props: props
     }
-  // find super model
+    // find super model
     if (clazz.prototype.constructor !== Object) {
         var s = getDefaultModelSchema(clazz.prototype.constructor)
         if (s && s.targetClass !== clazz)

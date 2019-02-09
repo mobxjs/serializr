@@ -1,6 +1,6 @@
 {
   "name": "serializr",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Serialize and deserialize complex object graphs to JSON",
   "main": "lib/serializr.js",
   "module": "lib/es/serializr.js",
@@ -37,24 +37,23 @@
     "serializr.d.ts"
   ],
   "devDependencies": {
-    "babel-cli": "^6.11.4",
-    "babel-eslint": "^7.2.3",
-    "babel-plugin-transform-decorators-legacy": "^1.3.4",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-stage-1": "^6.5.0",
-    "coveralls": "^2.11.9",
-    "documentation": "^4.0.0-beta9",
-    "eslint": "^2.12.0",
-    "eslint-plugin-import": "^2.7.0",
+    "@babel/cli": "^7.2.3",
+    "@babel/plugin-proposal-class-properties": "^7.3.0",
+    "@babel/plugin-proposal-decorators": "^7.3.0",
+    "@babel/preset-env": "^7.3.1",
+    "babel-eslint": "^10.0.1",
+    "coveralls": "^3.0.2",
+    "documentation": "^9.1.1",
+    "eslint": "^5.13.0",
+    "eslint-plugin-import": "^2.16.0",
     "istanbul": "^0.4.4",
     "lodash.merge": "^4.6.0",
-    "mobx": "^2.4.1 || ^3.0.0",
-    "rollup": "^0.49.2",
-    "rollup-plugin-commonjs": "^8.2.0",
-    "rollup-plugin-node-resolve": "^3.0.0",
-    "rollup-plugin-uglify": "^2.0.1",
-    "tape": "^4.5.1",
-    "typescript": "^2.1.4",
-    "uglify-js": "^2.6.4"
+    "mobx": "^2.4.1 || ^3.0.0 || ^4.0.0 || ^5.0.0",
+    "rollup": "^1.1.2",
+    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup-plugin-node-resolve": "^4.0.0",
+    "rollup-plugin-terser": "^4.0.4",
+    "tape": "^4.9.2",
+    "typescript": "^3.3.3"
   }
 }

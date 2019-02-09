@@ -43,6 +43,9 @@ test("schema's can be defined on constructors", t => {
 })
 
 test("complex async schema", t => {
+    var postStore = []
+    var commentStore = {}
+
     function Post(id, msg) {
         this.id = id
         this.message = msg;
@@ -64,9 +67,6 @@ test("complex async schema", t => {
         message: true,
         comments: _.list(_.ref(Comment, fetchComment))
     })
-
-    var postStore = []
-    var commentStore = {}
 
     function fetchComment(id, cb) {
         if (!commentStore[id])

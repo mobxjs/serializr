@@ -7,7 +7,7 @@ import { invariant, processAdditionalPropArgs } from "../utils/utils"
  * @returns {PropSchema}
  */
 export default function date(additionalArgs) {
-  // TODO: add format option?
+    // TODO: add format option?
     var result = {
         serializer: function(value) {
             if (value === null || value === undefined)

@@ -2,7 +2,7 @@ const path = require("path")
 const rollup = require("rollup")
 const resolve = require("rollup-plugin-node-resolve")
 const commonjs = require("rollup-plugin-commonjs")
-const uglify = require("rollup-plugin-uglify")
+const { terser } = require("rollup-plugin-terser")
 const merge = require("lodash.merge")
 
 const LICENSE = "/** serializr - (c) Michel Weststrate 2016 - MIT Licensed */"
@@ -16,7 +16,6 @@ function buildBundle(rollupConfig) {
 const commonConfig = {
     input: {
         input: path.resolve(__dirname, "../src/serializr.js"),
-        name: "serializr",
         plugins: [
             resolve(),
             commonjs()
@@ -52,7 +51,7 @@ buildBundle(jsBundleConfig)
 buildBundle(merge({}, jsBundleConfig, {
     input: {
         plugins: [
-            uglify({
+            terser({
                 output: {
                     preamble: LICENSE
                 },
