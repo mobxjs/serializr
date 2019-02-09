@@ -30,8 +30,10 @@ export default function invariant(condition, message) {
             return match
         })
 
-        // eslint-disable-next-line no-console
-        console.log.apply(console, variablesToLog)
+        if (console && variablesToLog.length > 0) {
+            // eslint-disable-next-line no-console
+            console.log.apply(console, variablesToLog)
+        }
 
         throw new Error("[serializr] " + (formattedMessage || "Illegal State"))
     }
