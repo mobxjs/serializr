@@ -30,13 +30,13 @@ test("schema's can be defined on constructors", t => {
     })
     t.equal(res.title, "bloop2")
 
-    test("serialize list", t => {
+    test("serialize list", t2 => {
         var jsonlist = [{ title: "test1" }, { title: "test2" }]
         var todos = _.deserialize(Todo, jsonlist)
-        t.equal(todos.length, 2)
-        t.deepEqual(_.serialize(todos), jsonlist)
+        t2.equal(todos.length, 2)
+        t2.deepEqual(_.serialize(todos), jsonlist)
 
-        t.end()
+        t2.end()
     })
 
     t.end()
@@ -48,8 +48,8 @@ test("complex async schema", t => {
 
     function Post(id, msg) {
         this.id = id
-        this.message = msg;
-        this.comments = [];
+        this.message = msg
+        this.comments = []
         postStore.push(this)
     }
     function Comment(id, msg) {
@@ -79,41 +79,41 @@ test("complex async schema", t => {
             }, 10)
     }
 
-    test("aliased identifier is (de)serialized correctly ", t => {
+    test("aliased identifier is (de)serialized correctly ", t2 => {
         var c1 = new Comment(2, "World")
         var serialized = _.serialize(c1)
-        t.deepEqual(serialized, {
+        t2.deepEqual(serialized, {
             __id: 2, message: "World"
         })
-        t.deepEqual(_.serialize(_.deserialize(Comment, serialized)), serialized)
-        t.end()
+        t2.deepEqual(_.serialize(_.deserialize(Comment, serialized)), serialized)
+        t2.end()
     })
 
-    test("simple async fetch", t => {
+    test("simple async fetch", t2 => {
         var p = new Post(1, "Hello")
         var c1 = new Comment(2, "World")
         var c2 = new Comment(3, "Universe")
         p.comments.push(c1, c2)
 
         var serialized = _.serialize(p)
-        t.deepEqual(serialized, {
+        t2.deepEqual(serialized, {
             id: 1, message: "Hello", comments: [2, 3]
         })
 
         var clone = _.deserialize(Post, serialized, function (err, r) {
-            t.notOk(err)
-            t.ok(clone === r)
-            t.equal(r.comments.length, 2)
-            t.ok(r.comments[0] === c1)
-            t.ok(r.comments[1] === c2)
+            t2.notOk(err)
+            t2.ok(clone === r)
+            t2.equal(r.comments.length, 2)
+            t2.ok(r.comments[0] === c1)
+            t2.ok(r.comments[1] === c2)
 
-            t.end()
+            t2.end()
         })
 
-        t.ok(clone instanceof Post)
-        t.equal(clone.id, 1)
-        t.equal(clone.message, "Hello")
-        t.equal(clone.comments.length, 0)
+        t2.ok(clone instanceof Post)
+        t2.equal(clone.id, 1)
+        t2.equal(clone.message, "Hello")
+        t2.equal(clone.comments.length, 0)
         // end in the above async callback
     })
 
@@ -164,15 +164,15 @@ test("test context and factories", t => {
         this.title = "bla"
     }
 
-    var myArgs = "myStore";
-    var theMessage = null;
+    var myArgs = "myStore"
+    var theMessage = null
     var json = {
         title: "bloopie",
         comments: [{
             title: "42"
         }]
     }
-    var mContext;
+    var mContext
 
     var commentModel = {
         factory: (context) => {
@@ -231,13 +231,13 @@ test("sync error handling", t => {
         var a = _.deserialize(parent, { r: [1, 42] })
     }, /oops/)
 
-    t.end();
+    t.end()
 })
 
 test("async error handling without handler", t => {
     var sub = _.createSimpleSchema({
         id: true
-    });
+    })
 
     var parent = _.createSimpleSchema({
         r: _.list(_.ref("id", (id, cb) => {
@@ -262,7 +262,7 @@ test("async error handling without handler", t => {
 test("async error handling with handler", t => {
     var sub = _.createSimpleSchema({
         id: true
-    });
+    })
 
     var parent = _.createSimpleSchema({
         r: _.list(_.ref("id", (id, cb) => {
@@ -345,10 +345,10 @@ test("default reference resolving", t => {
 
     })
 
-    test("it should throw on missing references", t => {
-         _.deserialize(
-             Store,
-             {
+    test("it should throw on missing references", t2 => {
+        _.deserialize(
+            Store,
+            {
                 boxes : [ { id: 1 }, { id: 2 }],
                 arrows: [
                     { from: 1, to: 4 },
@@ -356,9 +356,9 @@ test("default reference resolving", t => {
                 ]
             },
             (err, res) => {
-                t.notOk(res)
-                t.equal("" + err, 'Error: Unresolvable references in json: "3", "4"')
-                t.end()
+                t2.notOk(res)
+                t2.equal("" + err, "Error: Unresolvable references in json: \"3\", \"4\"")
+                t2.end()
             }
         )
     })
@@ -442,22 +442,22 @@ test("it should handle refs to subtypes", t => {
         circles: _.list(_.child(Circle))
     })
 
-    test("it should accept subtypes", t => {
+    test("it should accept subtypes", t2 => {
         var s = _.deserialize(Store, {
             boxes: [{ id: 1 }],
             arrows: [{ from: 2, to: 2 }],
             circles: [{ id: 2 }]
         })
 
-        t.ok(s.arrows[0].from instanceof Circle)
-        t.ok(s.arrows[0].to instanceof Circle)
-        t.ok(s.arrows[0].from === s.circles[0])
-        t.ok(s.arrows[0].to === s.circles[0])
-        t.end()
+        t2.ok(s.arrows[0].from instanceof Circle)
+        t2.ok(s.arrows[0].to instanceof Circle)
+        t2.ok(s.arrows[0].from === s.circles[0])
+        t2.ok(s.arrows[0].to === s.circles[0])
+        t2.end()
     })
 
-    test("it should not find supertypes", t => {
-        t.throws(
+    test("it should not find supertypes", t2 => {
+        t2.throws(
             () => {
                 _.deserialize(Store, {
                     boxes: [{ id: 1 }, { id: 2}],
@@ -467,14 +467,14 @@ test("it should handle refs to subtypes", t => {
             },
             /Error: Unresolvable references in json: "2"/
         )
-        t.end()
+        t2.end()
     })
 
     t.end()
 })
 
 test("identifier can register themselves", t => {
-    var todos = {};
+    var todos = {}
 
     var s = _.createSimpleSchema({
         id: _.identifier((id, object) => todos[id] = object),
