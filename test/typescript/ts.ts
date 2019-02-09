@@ -232,6 +232,29 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
     t.end();
 });
 
+test("[ts] array parameters", t => {
+    class User {
+        @serializable nick
+        @serializable age
+        @serializable gender
+        @serializable(list(primitive())) hobbies
+        @serializable(list(primitive())) friends
+    }
+
+    const user = new User()
+
+    user.age = 22
+    user.nick = 'Nick'
+    user.hobbies = ['debugging']
+
+    const result = serialize(user)
+
+    t.deepEqual(result, {age: 22, nick: 'Nick', gender: undefined, hobbies: ['debugging']})
+
+    t.end();
+})
+
+
 test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeserialize'", t => {
 
     const jsonInput = {
