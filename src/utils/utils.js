@@ -1,3 +1,5 @@
+import invariant from "./invariant"
+
 export function GUARDED_NOOP(err) {
     if (err) // unguarded error...
         throw new Error(err)
@@ -12,11 +14,6 @@ export function once(fn) {
         }
         invariant(false, "callback was invoked twice")
     }
-}
-
-export function invariant(cond, message) {
-    if (!cond)
-        throw new Error("[serializr] " + (message || "Illegal State"))
 }
 
 export function parallel(ar, processor, cb) {
@@ -102,3 +99,5 @@ export function processAdditionalPropArgs(propSchema, additionalArgs) {
     }
     return propSchema
 }
+
+export { invariant }
