@@ -1,3 +1,4 @@
+import { SKIP } from "../constants"
 import {
     invariant,
     isPropSchema,
@@ -46,6 +47,9 @@ export default function list(propSchema, additionalArgs) {
         "provided prop is aliased, please put aliases first")
     var result = {
         serializer: function (ar) {
+            if (ar === undefined) {
+                return SKIP
+            }
             invariant(ar && "length" in ar && "map" in ar, "expected array (like) object")
             return ar.map(propSchema.serializer)
         },
