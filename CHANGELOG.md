@@ -1,5 +1,6 @@
 # 1.5.0
 * Introduced enhanced debug messages on invariant errors, see #68 by @chengjianhua
++ Fixed undefined should not throw error in Arraylike object, see #58
 * switched build and tests to Babel 7
 * switched code compression to [Terser](https://github.com/terser-js/terser)
 
