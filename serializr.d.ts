@@ -20,8 +20,8 @@ export interface AdditionalPropArgs {
 export interface PropSchema {
     serializer(sourcePropertyValue: any): any;
     deserializer(jsonValue: any, callback: (err: any, targetPropertyValue: any) => void, context: Context, currentPropertyValue: any): void;
-    beforeDeserialize: BeforeDeserializeFunc;
-    afterDeserialize: AfterDeserializeFunc;
+    beforeDeserialize?: BeforeDeserializeFunc;
+    afterDeserialize?: AfterDeserializeFunc;
 }
 
 export type Props = {
