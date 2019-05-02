@@ -9,7 +9,7 @@ import { SKIP, _defaultPrimitiveProp } from "../constants"
  * The model schema can be omitted if the object type has a default model schema associated with it.
  * If a list of objects is provided, they should have an uniform type.
  *
- * @param arg1 modelschema to use. Optional
+ * @param arg1 class or modelschema to use. Optional
  * @param arg2 object(s) to serialize
  * @returns {object} serialized representation of the object
  */
@@ -22,8 +22,12 @@ export default function serialize(arg1, arg2) {
             return [] // don't bother finding a schema
         else if (!schema)
             schema = getDefaultModelSchema(thing[0])
+        else if (typeof schema !== "object")
+            schema = getDefaultModelSchema(schema)
     } else if (!schema) {
         schema = getDefaultModelSchema(thing)
+    } else if (typeof schema !== "object") {
+        schema = getDefaultModelSchema(schema)
     }
     invariant(!!schema, "Failed to find default schema for " + arg1)
     if (Array.isArray(thing))
