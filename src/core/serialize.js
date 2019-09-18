@@ -106,15 +106,32 @@ export function serializeStarProps(schema, propDef, obj, target) {
  * store.d = {};
  * t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5 });
  */
-export function serializeAll(target) {
-    invariant(arguments.length === 1 && typeof target === "function", "@serializeAll can only be used as class decorator")
-
-    var info = getDefaultModelSchema(target)
-    if (!info || !target.hasOwnProperty("serializeInfo")) {
-        info = createModelSchema(target, {})
-        setDefaultModelSchema(target, info)
+export function serializeAll(targetOrPattern, clazzOrSchema) {
+    let propSchema;
+    if (arguments.length === 1) {
+        invariant(arguments.length === 1 && typeof target === "function", "@serializeAll can only be used as class decorator")        
+        propSchema = true;
+    } else {
+        invariant(typeof targetOrPattern === "object" && targetOrPattern.match, "@serializeAll pattern doesn't have match");
+        if (typeof clazzOrSchema === "function") {
+            clazzOrSchema = object(clazzOrSchema);
+        }
+        invariant(typeof clazzOrSchema === "object" && clazzOrSchema.serializer, "couldn't resolve schema");
+        propSchema = clazzOrSchema;
     }
 
-    getDefaultModelSchema(target).props["*"] = true
-    return target
+    function result(target) {
+        var info = getDefaultModelSchema(target)
+        if (!info || !target.hasOwnProperty("serializeInfo")) {
+            info = createModelSchema(target, {})
+            setDefaultModelSchema(target, info)
+        }
+
+        getDefaultModelSchema(target).props["*"] = propSchema
+        return target
+    }
+    if (arguments.length === 1) {
+        return result();
+    }
+    return result;
 }
