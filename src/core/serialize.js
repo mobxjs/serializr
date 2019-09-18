@@ -74,25 +74,22 @@ export function serializeWithSchema(schema, obj) {
 export function serializeStarProps(schema, propDef, obj, target) {
     checkStarSchemaInvariant(propDef)
     for (var key in obj) if (obj.hasOwnProperty(key)) if (!(key in schema.props)) {
-                let onlyPrimitives = propDef === true
-                let pattern = !onlyPrimitives && propDef.pattern
-                let matchesPattern = pattern && pattern.test(key)
-                if (onlyPrimitives || matchesPattern) {
-                    var value = obj[key]
-                    if (onlyPrimitives) {
-                        if (isPrimitive(value)) {
-                            target[key] = value
-                        }
-                    } else {
-                        var jsonValue = serializeWithSchema(propDef, value)
-                        if (jsonValue === SKIP) {
-                            return
-                        }
-                        // todo: propDef.jsonname could be a transform function on key 
-                        target[key] = jsonValue
-                    }
+        if ((propDef === true) || (propDef.pattern && propDef.pattern.test(key))) {
+            var value = obj[key]
+            if (propDef === true) {
+                if (isPrimitive(value)) {
+                    target[key] = value
                 }
+            } else {
+                var jsonValue = serializeWithSchema(propDef, value)
+                if (jsonValue === SKIP) {
+                    return
+                }
+                // todo: propDef.jsonname could be a transform function on key 
+                target[key] = jsonValue
             }
+        }
+    }
 }
 
 /**
