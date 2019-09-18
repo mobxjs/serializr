@@ -6,6 +6,7 @@ import {
     map,
     mapAsArray,
     object,
+    optional,
     identifier,
     reference,
     primitive,
@@ -74,6 +75,9 @@ test("typescript class with constructor params", t => {
         @serializable(alias("identifier", identifier()))
         public id: string;
 
+        @serializable(alias("desc", optional()))
+        public description?: string;
+
         @serializable(alias("width", true))
         public width: number
 
@@ -95,12 +99,19 @@ test("typescript class with constructor params", t => {
     a.someNumber = 123;
 
     let json = serialize(a);
+    t.equal(false, json.hasOwnProperty("desc"));
+    t.equal(false, json.hasOwnProperty("description"));
     const b = deserialize(Rectangle, json);
     t.equal(a.id, b.id);
     t.equal(a.width, b.width);
     t.equal(a.height, b.height);
     t.equal(a.someNumber, b.someNumber);
     t.equal(b.getArea(), 200);
+
+    a.description = "example";
+    json = serialize(a);
+    t.equal("example", json["desc"]);
+    t.equal(false, json.hasOwnProperty("description"));
 
     t.end();
 });
