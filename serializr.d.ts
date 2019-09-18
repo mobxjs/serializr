@@ -70,6 +70,7 @@ export function identifier(additionalArgs: AdditionalPropArgs): PropSchema;
 export function date(additionalArgs?: AdditionalPropArgs): PropSchema;
 
 export function alias(jsonName: string, propSchema?: PropSchema | boolean): PropSchema;
+export function optional(propSchema?: PropSchema | boolean): PropSchema;
 
 export function child(modelschema: ClazzOrModelSchema<any>, additionalArgs?: AdditionalPropArgs): PropSchema;
 export function object(modelschema: ClazzOrModelSchema<any>, additionalArgs?: AdditionalPropArgs): PropSchema;
