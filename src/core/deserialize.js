@@ -5,6 +5,7 @@ import { invariant, isPrimitive, isModelSchema, parallel, GUARDED_NOOP } from ".
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import { SKIP, _defaultPrimitiveProp } from "../constants"
 import Context from "./Context"
+import {checkStarSchemaInvariant} from "./serialize";
 
 function schemaHasAlias(schema, name) {
     for (var key in schema.props)
@@ -13,15 +14,20 @@ function schemaHasAlias(schema, name) {
     return false
 }
 
-function deserializeStarProps(schema, obj, json) {
+function deserializeStarProps(context, schema, propDef, obj, json) {
+    checkStarSchemaInvariant(propDef)
     for (var key in json) if (!(key in schema.props) && !schemaHasAlias(schema, key)) {
         var value = json[key]
-        // when deserializing we don't want to silently ignore 'unparseable data' to avoid
-        // confusing bugs
-        invariant(isPrimitive(value),
-            "encountered non primitive value while deserializing '*' properties in property '" +
-            key + "': " + value)
-        obj[key] = value
+        if (propDef === true) {
+            // when deserializing we don't want to silently ignore 'unparseable data' to avoid
+            // confusing bugs
+            invariant(isPrimitive(value),
+                "encountered non primitive value while deserializing '*' properties in property '" +
+                key + "': " + value)
+            obj[key] = value
+        } else if (propDef.pattern.test(key)) {
+            obj[key] = deserializeObjectWithSchema(context, propDef, value, context.callback, {})
+        }
     }
 }
 
@@ -134,8 +140,7 @@ export function deserializePropsWithSchema(context, modelSchema, json, target) {
         }
 
         if (propName === "*") {
-            invariant(propDef === true, "prop schema '*' can only be used with 'true'")
-            deserializeStarProps(modelSchema, target, json)
+            deserializeStarProps(context, modelSchema, propDef, target, json)
             return
         }
         if (propDef === true)

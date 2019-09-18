@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { invariant, isPrimitive } from "../utils/utils"
 import createModelSchema from "../api/createModelSchema"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
@@ -37,6 +38,10 @@ export default function serialize(arg1, arg2) {
     return serializeWithSchema(schema, thing)
 }
 
+export function checkStarSchemaInvariant(propDef) {
+    invariant(propDef === true || propDef.pattern, "prop schema '*' can only be used with 'true'")
+}
+
 export function serializeWithSchema(schema, obj) {
     invariant(schema && typeof schema === "object", "Expected schema")
     invariant(obj && typeof obj === "object", "Expected object")
@@ -50,8 +55,7 @@ export function serializeWithSchema(schema, obj) {
     Object.keys(schema.props).forEach(function (key) {
         var propDef = schema.props[key]
         if (key === "*") {
-            invariant(propDef === true, "prop schema '*' can only be used with 'true'")
-            serializeStarProps(schema, obj, res)
+            serializeStarProps(schema, propDef, obj, res)
             return
         }
         if (propDef === true)
@@ -67,12 +71,35 @@ export function serializeWithSchema(schema, obj) {
     return res
 }
 
-export function serializeStarProps(schema, obj, target) {
-    for (var key in obj) if (obj.hasOwnProperty(key)) if (!(key in schema.props)) {
-        var value = obj[key]
-        // when serializing only serialize primitive props. Assumes other props (without schema) are local state that doesn't need serialization
-        if (isPrimitive(value))
-            target[key] = value
+export function serializeStarProps(schema, propDef, obj, target) {
+    checkStarSchemaInvariant(propDef)
+    for (var key in obj) {
+        let hasOwnProp = obj.hasOwnProperty(key)
+        //console.log({obj, key, hasOwnProp})
+        if (hasOwnProp) {
+            if (!(key in schema.props)) {
+                let onlyPrimitives = propDef === true
+                let pattern = !onlyPrimitives && propDef.pattern
+                let matchesPattern = pattern && pattern.test(key)
+                //console.log({propDef, obj, key, pattern, onlyPrimitives, matchesPattern})
+                if (onlyPrimitives || matchesPattern) {
+                    var value = obj[key]
+                    //console.log({propDef, obj, key, value});
+                    if (onlyPrimitives) {
+                        // when serializing only serialize primitive props. Assumes other props (without schema) are local state that doesn't need serialization
+                        if (isPrimitive(value)) {
+                            target[key] = value
+                        }
+                    } else {
+                        var jsonValue = serializeWithSchema(propDef, value)
+                        if (jsonValue === SKIP) {
+                            return
+                        }
+                        target[/*propDef.jsonname ||*/ key] = jsonValue
+                    }
+                }
+            }
+        }
     }
 }
 
