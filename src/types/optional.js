@@ -27,8 +27,5 @@ export default function optional(name, propSchema) {
         }
         return result
     }
-    return {
-        ...propSchema,
-        serializer,
-    }
+    return Object.assign({}, propSchema, {serializer})
 }
