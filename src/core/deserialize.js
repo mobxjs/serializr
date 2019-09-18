@@ -26,7 +26,11 @@ function deserializeStarProps(context, schema, propDef, obj, json) {
                 key + "': " + value)
             obj[key] = value
         } else if (propDef.pattern.test(key)) {
-            obj[key] = deserializeObjectWithSchema(context, propDef, value, context.callback, {})
+            var value = deserializeObjectWithSchema(context, propDef, value, context.callback || GUARDED_NOOP, {})
+            // deserializeObjectWithSchema returns undefined on error
+            if (value !== undefined) {
+                obj[key] = value;
+            }    
         }
     }
 }
@@ -138,7 +142,6 @@ export function deserializePropsWithSchema(context, modelSchema, json, target) {
                 deserializeProp(propDef, jsonValue, propName)
             }
         }
-
         if (propName === "*") {
             deserializeStarProps(context, modelSchema, propDef, target, json)
             return

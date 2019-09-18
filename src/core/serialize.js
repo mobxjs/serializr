@@ -63,7 +63,6 @@ export function serializeWithSchema(schema, obj) {
         if (propDef === false)
             return
         var jsonValue = propDef.serializer(obj[key], key, obj)
-        console.warn({schema, obj, key, value: obj[key], jsonValue})
         if (jsonValue === SKIP){
             return
         }
@@ -74,20 +73,13 @@ export function serializeWithSchema(schema, obj) {
 
 export function serializeStarProps(schema, propDef, obj, target) {
     checkStarSchemaInvariant(propDef)
-    for (var key in obj) {
-        let hasOwnProp = obj.hasOwnProperty(key)
-        //console.log({obj, key, hasOwnProp})
-        if (hasOwnProp) {
-            if (!(key in schema.props)) {
+    for (var key in obj) if (obj.hasOwnProperty(key)) if (!(key in schema.props)) {
                 let onlyPrimitives = propDef === true
                 let pattern = !onlyPrimitives && propDef.pattern
                 let matchesPattern = pattern && pattern.test(key)
-                //console.log({propDef, obj, key, pattern, onlyPrimitives, matchesPattern})
                 if (onlyPrimitives || matchesPattern) {
                     var value = obj[key]
-                    //console.log({propDef, obj, key, value});
                     if (onlyPrimitives) {
-                        // when serializing only serialize primitive props. Assumes other props (without schema) are local state that doesn't need serialization
                         if (isPrimitive(value)) {
                             target[key] = value
                         }
@@ -96,12 +88,11 @@ export function serializeStarProps(schema, propDef, obj, target) {
                         if (jsonValue === SKIP) {
                             return
                         }
-                        target[/*propDef.jsonname ||*/ key] = jsonValue
+                        // todo: propDef.jsonname could be a transform function on key 
+                        target[key] = jsonValue
                     }
                 }
             }
-        }
-    }
 }
 
 /**

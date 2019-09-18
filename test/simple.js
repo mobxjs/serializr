@@ -122,12 +122,12 @@ test("it should respect `*` : true (primitive) prop schemas", t => {
     t.end()
 })
 
-test("it should respect `*` : schema prop schemas", t => {
+test.only("it should respect `*` : schema prop schemas", t => {
     var schema = {
         factory: () => ({}),
         pattern: /^\d.\d+$/,
         props: {
-            x: primitive()
+            x: optional(primitive())
         }
     }
 
@@ -135,27 +135,27 @@ test("it should respect `*` : schema prop schemas", t => {
     t.deepEqual(_.serialize(s, { "1.0": {x: 42}, "2.10": {x: 17 } }), { "1.0": {x: 42}, "2.10": {x: 17 } })
     t.deepEqual(_.deserialize(s, { "1.0": {x: 42}, "2.10": {x: 17 } }), { "1.0": {x: 42}, "2.10": {x: 17 } })
 
-    t.deepEqual(_.serialize(s, { a: new Date(), d: 2 }), { d: 2 })
+    t.deepEqual(_.serialize(s, { a: new Date(), d: 2 }), {})
     t.deepEqual(_.serialize(s, { a: {}, "2.10": {x: 17 } }), { "2.10": {x: 17 }})
 
-    t.throws(() => _.deserialize(s, { "1.0": new Date() }), /encountered non primitive value while deserializing/)
-    t.throws(() => _.deserialize(s, { "1.0": {} }), /encountered non primitive value while deserializing/)
+    // deserialize silently ignores properties that aren't objects:
+    //     if (json === null || json === undefined || typeof json !== "object")
+    //         return void callback(null, null)
+    t.deepEqual(_.deserialize(s, { "1.0": "not an object" }), {})
+
     var s2 = _.createSimpleSchema({
         "*" : schema,
         "1.0": _.date()
     })
     t.doesNotThrow(() => _.serialize(s2, { "1.0": new Date(), d: 2 }))
-    t.deepEqual(_.serialize(s2, { c: {}, d: 2 }), { "1.0": undefined, d: 2 })
-
-    t.doesNotThrow(() => _.deserialize(s2, { "1.0": new Date().getTime() }), /bla/)
-    t.throws(() => _.deserialize(s2, { c: {}, d: 2 }), /encountered non primitive value while deserializing/)
+    t.deepEqual(_.serialize(s2, { c: {}, "2.0": {x: 2} }), { "1.0": undefined, "2.0": {x: 2} })
 
     // don't assign aliased attrs
     var s3 = _.createSimpleSchema({
         a: _.alias("1.0", true),
         "*" : schema,
     })
-    t.deepEqual(_.deserialize(s3, { b: 4, a: 5}), { a: 4 })
+    t.deepEqual(_.deserialize(s3, { b: 4, "1.0": 5,  "2.0": {x: 2}}), { a: 5,  "2.0": {x: 2}})
 
 
     t.end()
