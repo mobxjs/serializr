@@ -1,10 +1,7 @@
 /* eslint-disable no-console */
 import { invariant, isPrimitive } from "../utils/utils"
-import createModelSchema from "../api/createModelSchema"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
-import setDefaultModelSchema from "../api/setDefaultModelSchema"
 import { SKIP, _defaultPrimitiveProp } from "../constants"
-
 /**
  * Serializes an object (graph) into json using the provided model schema.
  * The model schema can be omitted if the object type has a default model schema associated with it.
@@ -39,11 +36,11 @@ export default function serialize(arg1, arg2) {
 }
 
 export function checkStarSchemaInvariant(propDef) {
-    invariant(propDef === true || propDef.pattern, "prop schema '*' can only be used with 'true'")
+    invariant(propDef === true || propDef.pattern, `prop schema '*' can only be used with 'true': ${JSON.stringify(propDef)}`)
 }
 
 export function serializeWithSchema(schema, obj) {
-    invariant(schema && typeof schema === "object", "Expected schema")
+    invariant(schema && typeof schema === "object" && schema.props, "Expected schema")
     invariant(obj && typeof obj === "object", "Expected object")
     var res
     if (schema.extends)
@@ -80,58 +77,21 @@ export function serializeStarProps(schema, propDef, obj, target) {
                 if (isPrimitive(value)) {
                     target[key] = value
                 }
-            } else {
-                var jsonValue = serializeWithSchema(propDef, value)
-                if (jsonValue === SKIP) {
+            } else if (propDef.props) {
+                var jsonValue = serialize(propDef, value)
+                if (jsonValue === SKIP){
                     return
                 }
-                // todo: propDef.jsonname could be a transform function on key 
+                // todo: propDef.jsonname could be a transform function on key
+                target[key] = jsonValue
+            } else {
+                var jsonValue = propDef.serializer(value, key, obj)
+                if (jsonValue === SKIP){
+                    return
+                }
+                // todo: propDef.jsonname could be a transform function on key
                 target[key] = jsonValue
             }
         }
     }
-}
-
-/**
- * The `serializeAll` decorator can be used on a class to signal that all primitive properties should be serialized automatically.
- *
- * @example
- * @serializeAll class Store {
- *     a = 3;
- *     b;
- * }
- *
- * const store = new Store();
- * store.c = 5;
- * store.d = {};
- * t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5 });
- */
-export function serializeAll(targetOrPattern, clazzOrSchema) {
-    let propSchema;
-    if (arguments.length === 1) {
-        invariant(arguments.length === 1 && typeof target === "function", "@serializeAll can only be used as class decorator")        
-        propSchema = true;
-    } else {
-        invariant(typeof targetOrPattern === "object" && targetOrPattern.match, "@serializeAll pattern doesn't have match");
-        if (typeof clazzOrSchema === "function") {
-            clazzOrSchema = object(clazzOrSchema);
-        }
-        invariant(typeof clazzOrSchema === "object" && clazzOrSchema.serializer, "couldn't resolve schema");
-        propSchema = clazzOrSchema;
-    }
-
-    function result(target) {
-        var info = getDefaultModelSchema(target)
-        if (!info || !target.hasOwnProperty("serializeInfo")) {
-            info = createModelSchema(target, {})
-            setDefaultModelSchema(target, info)
-        }
-
-        getDefaultModelSchema(target).props["*"] = propSchema
-        return target
-    }
-    if (arguments.length === 1) {
-        return result();
-    }
-    return result;
 }

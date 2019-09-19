@@ -588,28 +588,29 @@ test("[ts] @serializeAll", t => {
     t.end()
 })
 
-class StarValue {
-    @serializable(optional())
-    public x?: number;
-}
-
 test("[ts] @serializeAll(schema)", t => {
-    @serializeAll(/^\d\.\d+$/, StarValue)
-    class Store {
-        a = 3
-        b
+    class StarValue {
+        @serializable(optional())
+        public x?: number;
     }
 
-    const store = new Store();
+    @serializeAll(/^\d\.\d+$/, StarValue)
+    class StoreWithStarSchema {
+        [key: string]: StarValue;
+    }
+
+    const store = new StoreWithStarSchema();
+    store["1.4"] = { x: 1 };
+    store["1.77"] = { };
     (store as any).c = 5;
     (store as any).d = {};
 
-    t.deepEqual(serialize(store), { a: 3, c: 5 })
+    t.deepEqual(serialize(store), { "1.4": {x: 1}, "1.77": {} })
 
-    const store2 = deserialize(Store, { a: 2, b: 3, c: 4 })
-    t.equal(store2.a, 2)
-    t.equal(store2.b, 3)
-    t.equal((store2 as any).c, 4)
+    const store2 = deserialize(StoreWithStarSchema, { "1.4": {x: 1}, "1.77": {}, c: 4 })
+    t.deepEqual(store["1.4"], { x: 1 })
+    t.deepEqual(store["1.77"], { })
+    t.equal((store2 as any).c, undefined)
 
     t.end()
 })

@@ -26,11 +26,19 @@ function deserializeStarProps(context, schema, propDef, obj, json) {
                 key + "': " + value)
             obj[key] = value
         } else if (propDef.pattern.test(key)) {
-            var value = deserializeObjectWithSchema(context, propDef, value, context.callback || GUARDED_NOOP, {})
-            // deserializeObjectWithSchema returns undefined on error
-            if (value !== undefined) {
-                obj[key] = value;
-            }    
+            var value;
+            if (propDef.factory) {
+                value = deserializeObjectWithSchema(context, propDef, value, context.callback || GUARDED_NOOP, {})
+                // deserializeObjectWithSchema returns undefined on error
+                if (value !== undefined) {
+                    obj[key] = value;
+                }
+            } else {
+                value = propDef.deserializer(value, context.callback || GUARDED_NOOP, context)
+                if (value !== SKIP) {
+                    obj[key] = value;
+                }
+            }
         }
     }
 }

@@ -122,14 +122,10 @@ test("it should respect `*` : true (primitive) prop schemas", t => {
     t.end()
 })
 
-test.only("it should respect `*` : schema prop schemas", t => {
-    var schema = {
-        factory: () => ({}),
-        pattern: /^\d.\d+$/,
-        props: {
-            x: optional(primitive())
-        }
-    }
+test("it should respect `*` : schema prop schemas", t => {
+    var schema = Object.assign(_.createSimpleSchema({
+            x: optional(primitive()),
+        }), { pattern: /^\d.\d+$/ })
 
     var s = _.createSimpleSchema({ "*" : schema} )
     t.deepEqual(_.serialize(s, { "1.0": {x: 42}, "2.10": {x: 17 } }), { "1.0": {x: 42}, "2.10": {x: 17 } })
