@@ -17,27 +17,33 @@ function schemaHasAlias(schema, name) {
 function deserializeStarProps(context, schema, propDef, obj, json) {
     checkStarSchemaInvariant(propDef)
     for (var key in json) if (!(key in schema.props) && !schemaHasAlias(schema, key)) {
-        var value = json[key]
+        var jsonValue = json[key]
         if (propDef === true) {
             // when deserializing we don't want to silently ignore 'unparseable data' to avoid
             // confusing bugs
-            invariant(isPrimitive(value),
+            invariant(isPrimitive(jsonValue),
                 "encountered non primitive value while deserializing '*' properties in property '" +
-                key + "': " + value)
-            obj[key] = value
+                key + "': " + jsonValue)
+            obj[key] = jsonValue
         } else if (propDef.pattern.test(key)) {
-            var value;
             if (propDef.factory) {
-                value = deserializeObjectWithSchema(context, propDef, value, context.callback || GUARDED_NOOP, {})
+                var resultValue = deserializeObjectWithSchema(context, propDef, jsonValue, context.callback || GUARDED_NOOP, {})
                 // deserializeObjectWithSchema returns undefined on error
-                if (value !== undefined) {
-                    obj[key] = value;
+                if (resultValue !== undefined) {
+                    obj[key] = resultValue;
                 }
             } else {
-                value = propDef.deserializer(value, context.callback || GUARDED_NOOP, context)
-                if (value !== SKIP) {
-                    obj[key] = value;
+                function setValue(resultValue) {
+                    if (resultValue !== SKIP) {
+                        obj[key] = resultValue
+                    }
                 }
+                propDef.deserializer(jsonValue,
+                    // for individual props, use root context based callbacks
+                    // this allows props to complete after completing the object itself
+                    // enabling reference resolving and such
+                    context.rootContext.createCallback(setValue),
+                    context)
             }
         }
     }
