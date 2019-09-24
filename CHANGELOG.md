@@ -1,3 +1,6 @@
+# 1.5.2
+* Fixed potential memory leak, fixes #95 through #100 by @svennergr 
+
 # 1.5.1
 * Fixed make beforeDeserialize, afterDeserialize optional, see #94 by zeevl
 
