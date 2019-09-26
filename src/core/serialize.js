@@ -59,7 +59,6 @@ export function serializeWithSchema(schema, obj) {
         if (propDef === false)
             return
         var jsonValue = propDef.serializer(obj[key], key, obj)
-        console.warn({schema, obj, key, value: obj[key], jsonValue})
         if (jsonValue === SKIP){
             return
         }

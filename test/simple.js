@@ -39,11 +39,12 @@ test("it should serialize simple object", t1 => {
         t.end()
     })
 
-    test("it should (de)serialize all fields in the schema even if they're not defined on the object (existing behavior)", t => {
+    test("it should serialize all fields in the schema even if they're not defined on the object (existing behavior)", t => {
         var a = { y: 1337 }
         var s = serialize(schema, a)
 
         t.deepEqual(s, { x: undefined })
+        // Note that this behavior is only one-way: it doesn't set props as undefined on the deserialized object.
         t.deepEqual(deserialize(schema, s), {})
 
         var d = { x: 1 }
@@ -162,26 +163,28 @@ test("it should not serialize values for optional properties", t => {
     var schema = {
         factory: () => ({}),
         props: {
-            x: optional(primitive())
+            optionalProp: optional(primitive()),
+            requiredProp: primitive()
         }
     }
     var a = { y: 1337 }
     var s = serialize(schema, a)
 
-    t.deepEqual(s, {})
+    t.deepEqual(s, {requiredProp: undefined})
+    // Note that this behavior is only one-way: it doesn't set props as undefined on the deserialized object.
     t.deepEqual(deserialize(schema, s), {})
 
-    var d = { x: 1 }
+    var d = { optionalProp: 1 }
     update(schema, a, d)
     t.deepEqual(a, {
-        y: 1337, x: 1
+        y: 1337, optionalProp: 1
     })
 
     test("it should skip missing attrs", t3 => {
         update(schema, a, {}, (err, res) => {
             t3.ok(res === a)
             t3.notOk(err)
-            t3.equal(res.x, 1)
+            t3.equal(res.optionalProp, 1)
             t3.end()
         })
     })
