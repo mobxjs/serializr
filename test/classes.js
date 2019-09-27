@@ -36,8 +36,41 @@ test("schema's can be defined on constructors", t => {
         t2.equal(todos.length, 2)
         t2.deepEqual(_.serialize(todos), jsonlist)
 
+        test("may be used to serialize plain objects", t3 => {
+            jsonlist[0].otherProp = "should not serialize"
+            jsonlist[1].otherProp = "should not serialize"
+
+            t3.throws(() => {
+                _.serialize(jsonlist);
+            }, /Failed to find default schema/)
+
+            _.serialize(Todo, jsonlist).forEach((serialized, i) => {
+                t.equal(serialized.title, jsonlist[i].title)
+                t.equal(serialized.otherProp, undefined)
+            })
+            t3.end()
+        })
+
         t2.end()
     })
+
+    test("may be used to serialize plain objects", t2 => {
+        var source2 = {
+            title: "test",
+            otherProp: "should not serialize"
+        };
+        t2.throws(() => {
+            _.serialize(source2);
+        }, /Failed to find default schema/)
+
+        t.deepEqual(_.serialize(Todo, source2), json)
+        var res2 = _.deserialize(Todo, json)
+        t.equal(res2.title, "test")
+        t.equal(res2.otherProp, undefined)
+        t.equal(res2 instanceof Todo, true)
+
+        t2.end()
+    });
 
     t.end()
 })
