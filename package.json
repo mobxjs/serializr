@@ -1,6 +1,6 @@
 {
   "name": "serializr",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Serialize and deserialize complex object graphs to JSON",
   "main": "lib/serializr.js",
   "module": "lib/es/serializr.js",
