@@ -641,3 +641,32 @@ test("[ts] @serializeAll(list schema)", t => {
 
     t.end()
 })
+
+test("[ts] tests from serializeAll documentation", t => {
+    @serializeAll class Store {
+        [key: string]: number;
+    }
+
+    const store = new Store();
+    store.c = 5;
+    (store as any).d = {};
+    t.deepEqual(serialize(store), { c: 5 });
+
+    class DataType {
+        @serializable
+        x?: number;
+        @serializable(optional())
+        y?: number;
+    }
+    @serializeAll(/^[a-z]$/, DataType) class ComplexStore {
+        [key: string]: DataType;
+    }
+
+    const complexStore = new ComplexStore();
+    complexStore.a = {x: 1, y: 2};
+    complexStore.b = {};
+    (complexStore as any).somethingElse = 5;
+    t.deepEqual(serialize(complexStore), { a: {x: 1, y: 2}, b: { x: undefined } });
+
+    t.end();
+})
