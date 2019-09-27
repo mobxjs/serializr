@@ -2,6 +2,7 @@ var test = require("tape")
 var _ = require("..")
 var serialize = _.serialize
 var deserialize = _.deserialize
+var optional = _.optional
 var primitive = _.primitive
 var update = _.update
 
@@ -19,6 +20,32 @@ test("it should serialize simple object", t1 => {
 
         t.deepEqual(s, { x: 42 })
         t.deepEqual(deserialize(schema, s), { x: 42 })
+
+        var d = { x: 1 }
+        update(schema, a, d)
+        t.deepEqual(a, {
+            y: 1337, x: 1
+        })
+
+        test("it should skip missing attrs", t3 => {
+            update(schema, a, {}, (err, res) => {
+                t3.ok(res === a)
+                t3.notOk(err)
+                t3.equal(res.x, 1)
+                t3.end()
+            })
+        })
+
+        t.end()
+    })
+
+    test("it should serialize all fields in the schema even if they're not defined on the object (existing behavior)", t => {
+        var a = { y: 1337 }
+        var s = serialize(schema, a)
+
+        t.deepEqual(s, { x: undefined })
+        // Note that this behavior is only one-way: it doesn't set props as undefined on the deserialized object.
+        t.deepEqual(deserialize(schema, s), {})
 
         var d = { x: 1 }
         update(schema, a, d)
@@ -128,6 +155,39 @@ test("it should not set values for custom serializers/deserializer that return S
     })
     t.deepEqual(_.serialize(s, { a: 4 }), { })
     t.deepEqual(_.deserialize(s, { a: 4 }), { a: undefined })
+
+    t.end()
+})
+
+test("it should not serialize values for optional properties", t => {
+    var schema = {
+        factory: () => ({}),
+        props: {
+            optionalProp: optional(primitive()),
+            requiredProp: primitive()
+        }
+    }
+    var a = { y: 1337 }
+    var s = serialize(schema, a)
+
+    t.deepEqual(s, {requiredProp: undefined})
+    // Note that this behavior is only one-way: it doesn't set props as undefined on the deserialized object.
+    t.deepEqual(deserialize(schema, s), {})
+
+    var d = { optionalProp: 1 }
+    update(schema, a, d)
+    t.deepEqual(a, {
+        y: 1337, optionalProp: 1
+    })
+
+    test("it should skip missing attrs", t3 => {
+        update(schema, a, {}, (err, res) => {
+            t3.ok(res === a)
+            t3.notOk(err)
+            t3.equal(res.optionalProp, 1)
+            t3.end()
+        })
+    })
 
     t.end()
 })
