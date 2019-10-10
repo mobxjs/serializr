@@ -1,3 +1,8 @@
+# 1.5.3
+* #105: Support prop schemas for "*" properties by @pyrogenic
+* #104: Add the `@optional` decorator to skip properties not present in the serialized object by @pyrogenic
+* #99: Allow `serialize`-ing plain objects by specifying constructor by @pyrogenic
+
 # 1.5.2
 * Fixed potential memory leak, fixes #95 through #100 by @svennergr 
 
