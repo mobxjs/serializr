@@ -1,7 +1,7 @@
-/* eslint-disable no-console */
 import { invariant, isPrimitive } from "../utils/utils"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import { SKIP, _defaultPrimitiveProp } from "../constants"
+
 /**
  * Serializes an object (graph) into json using the provided model schema.
  * The model schema can be omitted if the object type has a default model schema associated with it.
@@ -36,7 +36,7 @@ export default function serialize(arg1, arg2) {
 }
 
 export function checkStarSchemaInvariant(propDef) {
-    invariant(propDef === true || propDef.pattern, `prop schema '*' can only be used with 'true': ${JSON.stringify(propDef)}`)
+    invariant(propDef === true || propDef.pattern, `prop schema '*' can only be used with 'true' or a prop def with a 'pattern': ${JSON.stringify(propDef)}`)
 }
 
 export function serializeWithSchema(schema, obj) {

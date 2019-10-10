@@ -1,6 +1,6 @@
 import { GUARDED_NOOP, once, invariant, isAssignableTo } from "../utils/utils"
 
-var rootContextCache = new Map()
+var rootContextCache = new WeakMap()
 
 export default function Context(parentContext, modelSchema, json, onReadyCb, customArgs) {
     this.parentContext = parentContext
