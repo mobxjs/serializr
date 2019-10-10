@@ -92,7 +92,7 @@ test("it should support 'false' and 'true' propSchemas", t => {
     t.end()
 })
 
-test("it should respect `*` prop schemas", t => {
+test("it should respect `*` : true (primitive) prop schemas", t => {
     var s = _.createSimpleSchema({ "*" : true })
     t.deepEqual(_.serialize(s, { a: 42, b: 17 }), { a: 42, b: 17 })
     t.deepEqual(_.deserialize(s, { a: 42, b: 17 }), { a: 42, b: 17 })
@@ -118,6 +118,41 @@ test("it should respect `*` prop schemas", t => {
         "*" : true,
     })
     t.deepEqual(_.deserialize(s3, { b: 4, a: 5}), { a: 4 })
+
+
+    t.end()
+})
+
+test("it should respect `*` : schema prop schemas", t => {
+    var schema = Object.assign(_.createSimpleSchema({
+            x: optional(primitive()),
+        }), { pattern: /^\d.\d+$/ })
+
+    var s = _.createSimpleSchema({ "*" : schema} )
+    t.deepEqual(_.serialize(s, { "1.0": {x: 42}, "2.10": {x: 17 } }), { "1.0": {x: 42}, "2.10": {x: 17 } })
+    t.deepEqual(_.deserialize(s, { "1.0": {x: 42}, "2.10": {x: 17 } }), { "1.0": {x: 42}, "2.10": {x: 17 } })
+
+    t.deepEqual(_.serialize(s, { a: new Date(), d: 2 }), {})
+    t.deepEqual(_.serialize(s, { a: {}, "2.10": {x: 17 } }), { "2.10": {x: 17 }})
+
+    // deserialize silently ignores properties that aren't objects:
+    //     if (json === null || json === undefined || typeof json !== "object")
+    //         return void callback(null, null)
+    t.deepEqual(_.deserialize(s, { "1.0": "not an object" }), {})
+
+    var s2 = _.createSimpleSchema({
+        "*" : schema,
+        "1.0": _.date()
+    })
+    t.doesNotThrow(() => _.serialize(s2, { "1.0": new Date(), d: 2 }))
+    t.deepEqual(_.serialize(s2, { c: {}, "2.0": {x: 2} }), { "1.0": undefined, "2.0": {x: 2} })
+
+    // don't assign aliased attrs
+    var s3 = _.createSimpleSchema({
+        a: _.alias("1.0", true),
+        "*" : schema,
+    })
+    t.deepEqual(_.deserialize(s3, { b: 4, "1.0": 5,  "2.0": {x: 2}}), { a: 5,  "2.0": {x: 2}})
 
 
     t.end()

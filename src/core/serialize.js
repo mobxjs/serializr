@@ -1,7 +1,5 @@
 import { invariant, isPrimitive } from "../utils/utils"
-import createModelSchema from "../api/createModelSchema"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
-import setDefaultModelSchema from "../api/setDefaultModelSchema"
 import { SKIP, _defaultPrimitiveProp } from "../constants"
 
 /**
@@ -37,8 +35,12 @@ export default function serialize(arg1, arg2) {
     return serializeWithSchema(schema, thing)
 }
 
+export function checkStarSchemaInvariant(propDef) {
+    invariant(propDef === true || propDef.pattern, `prop schema '*' can only be used with 'true' or a prop def with a 'pattern': ${JSON.stringify(propDef)}`)
+}
+
 export function serializeWithSchema(schema, obj) {
-    invariant(schema && typeof schema === "object", "Expected schema")
+    invariant(schema && typeof schema === "object" && schema.props, "Expected schema")
     invariant(obj && typeof obj === "object", "Expected object")
     var res
     if (schema.extends)
@@ -50,8 +52,7 @@ export function serializeWithSchema(schema, obj) {
     Object.keys(schema.props).forEach(function (key) {
         var propDef = schema.props[key]
         if (key === "*") {
-            invariant(propDef === true, "prop schema '*' can only be used with 'true'")
-            serializeStarProps(schema, obj, res)
+            serializeStarProps(schema, propDef, obj, res)
             return
         }
         if (propDef === true)
@@ -67,38 +68,30 @@ export function serializeWithSchema(schema, obj) {
     return res
 }
 
-export function serializeStarProps(schema, obj, target) {
+export function serializeStarProps(schema, propDef, obj, target) {
+    checkStarSchemaInvariant(propDef)
     for (var key in obj) if (obj.hasOwnProperty(key)) if (!(key in schema.props)) {
-        var value = obj[key]
-        // when serializing only serialize primitive props. Assumes other props (without schema) are local state that doesn't need serialization
-        if (isPrimitive(value))
-            target[key] = value
+        if ((propDef === true) || (propDef.pattern && propDef.pattern.test(key))) {
+            var value = obj[key]
+            if (propDef === true) {
+                if (isPrimitive(value)) {
+                    target[key] = value
+                }
+            } else if (propDef.props) {
+                var jsonValue = serialize(propDef, value)
+                if (jsonValue === SKIP){
+                    return
+                }
+                // todo: propDef.jsonname could be a transform function on key
+                target[key] = jsonValue
+            } else {
+                var jsonValue = propDef.serializer(value, key, obj)
+                if (jsonValue === SKIP){
+                    return
+                }
+                // todo: propDef.jsonname could be a transform function on key
+                target[key] = jsonValue
+            }
+        }
     }
-}
-
-/**
- * The `serializeAll` decorator can be used on a class to signal that all primitive properties should be serialized automatically.
- *
- * @example
- * @serializeAll class Store {
- *     a = 3;
- *     b;
- * }
- *
- * const store = new Store();
- * store.c = 5;
- * store.d = {};
- * t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5 });
- */
-export function serializeAll(target) {
-    invariant(arguments.length === 1 && typeof target === "function", "@serializeAll can only be used as class decorator")
-
-    var info = getDefaultModelSchema(target)
-    if (!info || !target.hasOwnProperty("serializeInfo")) {
-        info = createModelSchema(target, {})
-        setDefaultModelSchema(target, info)
-    }
-
-    getDefaultModelSchema(target).props["*"] = true
-    return target
 }

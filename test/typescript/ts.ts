@@ -587,3 +587,86 @@ test("[ts] @serializeAll", t => {
 
     t.end()
 })
+
+test("[ts] @serializeAll(schema)", t => {
+    class StarValue {
+        @serializable(optional())
+        public x?: number;
+    }
+
+    @serializeAll(/^\d\.\d+$/, StarValue)
+    class StoreWithStarSchema {
+        [key: string]: StarValue;
+    }
+
+    const store = new StoreWithStarSchema();
+    store["1.4"] = { x: 1 };
+    store["1.77"] = { };
+    (store as any).c = 5;
+    (store as any).d = {};
+
+    t.deepEqual(serialize(store), { "1.4": {x: 1}, "1.77": {} })
+
+    const store2 = deserialize(StoreWithStarSchema, { "1.4": {x: 1}, "1.77": {}, c: 4 })
+    t.deepEqual(store["1.4"], { x: 1 })
+    t.deepEqual(store["1.77"], { })
+    t.equal((store2 as any).c, undefined)
+
+    t.end()
+})
+
+test("[ts] @serializeAll(list schema)", t => {
+    class StarValue {
+        @serializable(optional())
+        public x?: number;
+    }
+
+    @serializeAll(/^\d\.\d+$/, list(object(StarValue)))
+    class StoreWithStarSchema {
+        [key: string]: StarValue[];
+    }
+
+    const store = new StoreWithStarSchema();
+    store["1.4"] = [{ x: 1 }];
+    store["1.77"] = [{ }];
+    (store as any).c = 5;
+    (store as any).d = {};
+
+    t.deepEqual(serialize(store), { "1.4": [{x: 1}], "1.77": [{}] })
+
+    const store2 = deserialize(StoreWithStarSchema, { "1.4": [{x: 1}], "1.77": [{}], c: 4 })
+    t.deepEqual(store["1.4"], [{ x: 1 }])
+    t.deepEqual(store["1.77"], [{ }])
+    t.equal((store2 as any).c, undefined)
+
+    t.end()
+})
+
+test("[ts] tests from serializeAll documentation", t => {
+    @serializeAll class Store {
+        [key: string]: number;
+    }
+
+    const store = new Store();
+    store.c = 5;
+    (store as any).d = {};
+    t.deepEqual(serialize(store), { c: 5 });
+
+    class DataType {
+        @serializable
+        x?: number;
+        @serializable(optional())
+        y?: number;
+    }
+    @serializeAll(/^[a-z]$/, DataType) class ComplexStore {
+        [key: string]: DataType;
+    }
+
+    const complexStore = new ComplexStore();
+    complexStore.a = {x: 1, y: 2};
+    complexStore.b = {};
+    (complexStore as any).somethingElse = 5;
+    t.deepEqual(serialize(complexStore), { a: {x: 1, y: 2}, b: { x: undefined } });
+
+    t.end();
+})

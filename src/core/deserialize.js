@@ -5,6 +5,7 @@ import { invariant, isPrimitive, isModelSchema, parallel, GUARDED_NOOP } from ".
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import { SKIP, _defaultPrimitiveProp } from "../constants"
 import Context from "./Context"
+import {checkStarSchemaInvariant} from "./serialize";
 
 function schemaHasAlias(schema, name) {
     for (var key in schema.props)
@@ -13,15 +14,38 @@ function schemaHasAlias(schema, name) {
     return false
 }
 
-function deserializeStarProps(schema, obj, json) {
+function deserializeStarProps(context, schema, propDef, obj, json) {
+    checkStarSchemaInvariant(propDef)
     for (var key in json) if (!(key in schema.props) && !schemaHasAlias(schema, key)) {
-        var value = json[key]
-        // when deserializing we don't want to silently ignore 'unparseable data' to avoid
-        // confusing bugs
-        invariant(isPrimitive(value),
-            "encountered non primitive value while deserializing '*' properties in property '" +
-            key + "': " + value)
-        obj[key] = value
+        var jsonValue = json[key]
+        if (propDef === true) {
+            // when deserializing we don't want to silently ignore 'unparseable data' to avoid
+            // confusing bugs
+            invariant(isPrimitive(jsonValue),
+                "encountered non primitive value while deserializing '*' properties in property '" +
+                key + "': " + jsonValue)
+            obj[key] = jsonValue
+        } else if (propDef.pattern.test(key)) {
+            if (propDef.factory) {
+                var resultValue = deserializeObjectWithSchema(context, propDef, jsonValue, context.callback || GUARDED_NOOP, {})
+                // deserializeObjectWithSchema returns undefined on error
+                if (resultValue !== undefined) {
+                    obj[key] = resultValue;
+                }
+            } else {
+                function setValue(resultValue) {
+                    if (resultValue !== SKIP) {
+                        obj[key] = resultValue
+                    }
+                }
+                propDef.deserializer(jsonValue,
+                    // for individual props, use root context based callbacks
+                    // this allows props to complete after completing the object itself
+                    // enabling reference resolving and such
+                    context.rootContext.createCallback(setValue),
+                    context)
+            }
+        }
     }
 }
 
@@ -132,10 +156,8 @@ export function deserializePropsWithSchema(context, modelSchema, json, target) {
                 deserializeProp(propDef, jsonValue, propName)
             }
         }
-
         if (propName === "*") {
-            invariant(propDef === true, "prop schema '*' can only be used with 'true'")
-            deserializeStarProps(modelSchema, target, json)
+            deserializeStarProps(context, modelSchema, propDef, target, json)
             return
         }
         if (propDef === true)

@@ -94,7 +94,8 @@ export function mapAsArray(propSchema: PropSchema, keyPropertyName: string, addi
 export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context?: any, oldValue?: any) => any, additionalArgs?: AdditionalPropArgs): PropSchema;
 export function custom(serializer: (value: any) => any, deserializer: (jsonValue: any, context: any, oldValue: any, callback: (err: any, result: any) => void) => any, additionalArgs?: AdditionalPropArgs): PropSchema;
 
-export function serializeAll<T extends Function>(clazz: T): T
+export function serializeAll<T>(clazz: Clazz<T>): Clazz<T>;
+export function serializeAll(pattern: RegExp, propSchema: PropSchema | true | Function): (clazz: Clazz<any>) => Clazz<any>;
 
 export function raw(): any;
 
