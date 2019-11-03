@@ -1,4 +1,4 @@
-import primitive from "./types/primitive"
+import primitive from "./types/primitive";
 
 /**
  * If you want to skip serialization or deserialization, you can use SKIP.
@@ -23,7 +23,7 @@ import primitive from "./types/primitive"
  * // Skipping deserialization with computed mobx property.
  *
  * class TodoState {
- *     // Todo.category is @observable(reference(...))
+ *     // Todo.category is @serializable(reference(...))
  *     @serializable(list(object(Todo)))
  *     @observable
  *     todos: Todo[]
@@ -39,6 +39,7 @@ import primitive from "./types/primitive"
  *     }
  * }
  */
-export var SKIP = typeof Symbol !== "undefined" ? Symbol("SKIP") : { SKIP: true }
+export var SKIP =
+    typeof Symbol !== "undefined" ? Symbol("SKIP") : { SKIP: true };
 
-export var _defaultPrimitiveProp = primitive()
+export var _defaultPrimitiveProp = primitive();
