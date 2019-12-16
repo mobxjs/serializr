@@ -36,7 +36,7 @@ export default function serialize(arg1, arg2) {
 }
 
 export function checkStarSchemaInvariant(propDef) {
-    invariant(propDef === true || propDef.pattern, `prop schema '*' can only be used with 'true' or a prop def with a 'pattern': ${JSON.stringify(propDef)}`)
+    invariant(propDef === true || propDef.pattern, "prop schema '*' can only be used with 'true' or a prop def with a 'pattern': " + JSON.stringify(propDef))
 }
 
 export function serializeWithSchema(schema, obj) {
