@@ -1,3 +1,6 @@
+# 1.5.4
+* #113: Fix interpolation problem with IE11 by @danfma
+
 # 1.5.3
 * #105: Support prop schemas for "*" properties by @pyrogenic
 * #104: Add the `@optional` decorator to skip properties not present in the serialized object by @pyrogenic
