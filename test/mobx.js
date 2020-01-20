@@ -11,6 +11,8 @@ const {
 
 test("(de-)serialization for mobx observables", t => {
     class TodoList {
+        // mobx.decorate requires pre-existing class properties
+        data = undefined
         constructor() {
             this.data = {
                 list: []
@@ -29,12 +31,12 @@ test("(de-)serialization for mobx observables", t => {
     })
 
     const asyncTodoResolver = (v, ctx, old, cb) => {
-        setTimeout(() => cb(null, v.map(data => new Todo(data.title))), 0)
+        setTimeout(() => cb(null, v.map(title => { return new Todo(title) })), 0)
     }
     const syncTodoResolver = (v, ctx, old, cb) => {
         cb(null, v.map(title => { return new Todo(title) }))
     }
-
+ 
     const asyncModelSchema = createModelSchema(TodoList, {
         data: object(createSimpleSchema({
             list: custom(
@@ -92,7 +94,7 @@ test("(de-)serialization for mobx observables", t => {
 
             t.equal(list ? list.length : undefined, 2, "TodoList.data.list has two elements")
             t.equal(listL ? list[0].title : undefined, "todo 1", "TodoList's 1st todo has title todo 1")
-            t.equal(listL ? list[1].title : undefined, "todo 2", "TodoList's 1st todo has title todo 2")
+            t.equal(listL ? list[1].title : undefined, "todo 2", "TodoList's 2nd todo has title todo 2")
             t2.end()
         })
     })
