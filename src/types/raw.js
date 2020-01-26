@@ -1,4 +1,4 @@
-import {processAdditionalPropArgs} from "../utils/utils"
+import { processAdditionalPropArgs } from "../utils/utils"
 
 /**
  * Indicates that this field is only need to putted in the serialized json or
@@ -17,10 +17,10 @@ import {processAdditionalPropArgs} from "../utils/utils"
  */
 export default function raw(additionalArgs) {
     var result = {
-        serializer: function (value) {
+        serializer: function(value) {
             return value
         },
-        deserializer: function (jsonValue, done) {
+        deserializer: function(jsonValue, done) {
             return void done(null, jsonValue)
         }
     }

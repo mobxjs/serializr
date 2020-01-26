@@ -1,4 +1,4 @@
-import {invariant, processAdditionalPropArgs} from "../utils/utils"
+import { invariant, processAdditionalPropArgs } from "../utils/utils"
 
 /**
  * Can be used to create simple custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
@@ -59,10 +59,10 @@ import {invariant, processAdditionalPropArgs} from "../utils/utils"
  */
 export default function custom(serializer, deserializer, additionalArgs) {
     invariant(typeof serializer === "function", "first argument should be function")
-    invariant((typeof deserializer === "function"), "second argument should be a function or promise")
+    invariant(typeof deserializer === "function", "second argument should be a function or promise")
     var result = {
         serializer: serializer,
-        deserializer: function (jsonValue, done, context, oldValue) {
+        deserializer: function(jsonValue, done, context, oldValue) {
             if (deserializer.length === 4) {
                 deserializer(jsonValue, context, oldValue, done, additionalArgs)
             } else {

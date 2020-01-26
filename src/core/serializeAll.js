@@ -36,32 +36,42 @@ import object from "../types/object"
  * t.deepEqual(serialize(store), { a: {x: 1, y: 2}, b: { x: undefined, y: undefined } });
  */
 export default function serializeAll(targetOrPattern, clazzOrSchema) {
-    let propSchema;
-    let invokeImmediately = false;
+    let propSchema
+    let invokeImmediately = false
     if (arguments.length === 1) {
-        invariant(typeof targetOrPattern === "function", "@serializeAll can only be used as class decorator");
-        propSchema = true;
-        invokeImmediately = true;
-    }
-    else {
-        invariant(typeof targetOrPattern === "object" && targetOrPattern.test, "@serializeAll pattern doesn't have test");
+        invariant(
+            typeof targetOrPattern === "function",
+            "@serializeAll can only be used as class decorator"
+        )
+        propSchema = true
+        invokeImmediately = true
+    } else {
+        invariant(
+            typeof targetOrPattern === "object" && targetOrPattern.test,
+            "@serializeAll pattern doesn't have test"
+        )
         if (typeof clazzOrSchema === "function") {
-            clazzOrSchema = object(clazzOrSchema);
+            clazzOrSchema = object(clazzOrSchema)
         }
-        invariant(typeof clazzOrSchema === "object" && clazzOrSchema.serializer, "couldn't resolve schema");
-        propSchema = Object.assign({}, clazzOrSchema, {pattern: targetOrPattern})
+        invariant(
+            typeof clazzOrSchema === "object" && clazzOrSchema.serializer,
+            "couldn't resolve schema"
+        )
+        propSchema = Object.assign({}, clazzOrSchema, {
+            pattern: targetOrPattern
+        })
     }
     function result(target) {
-        var info = getDefaultModelSchema(target);
+        var info = getDefaultModelSchema(target)
         if (!info || !target.hasOwnProperty("serializeInfo")) {
-            info = createModelSchema(target, {});
-            setDefaultModelSchema(target, info);
+            info = createModelSchema(target, {})
+            setDefaultModelSchema(target, info)
         }
-        getDefaultModelSchema(target).props["*"] = propSchema;
-        return target;
+        getDefaultModelSchema(target).props["*"] = propSchema
+        return target
     }
     if (invokeImmediately) {
-        return result(targetOrPattern);
+        return result(targetOrPattern)
     }
-    return result;
+    return result
 }

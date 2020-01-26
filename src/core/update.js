@@ -20,9 +20,7 @@ import { deserializePropsWithSchema } from "./deserialize"
  * @returns {object|array} deserialized object, possibly incomplete.
  */
 export default function update(modelSchema, target, json, callback, customArgs) {
-    var inferModelSchema =
-        arguments.length === 2 // only target and json
-        || typeof arguments[2] === "function" // callback as third arg
+    var inferModelSchema = arguments.length === 2 || typeof arguments[2] === "function" // only target and json // callback as third arg
 
     if (inferModelSchema) {
         target = arguments[0]
@@ -34,7 +32,10 @@ export default function update(modelSchema, target, json, callback, customArgs) 
         modelSchema = getDefaultModelSchema(modelSchema)
     }
     invariant(isModelSchema(modelSchema), "update failed to determine schema")
-    invariant(typeof target === "object" && target && !Array.isArray(target), "update needs an object")
+    invariant(
+        typeof target === "object" && target && !Array.isArray(target),
+        "update needs an object"
+    )
     var context = new Context(null, modelSchema, json, callback, customArgs)
     context.setTarget(target)
     var lock = context.createCallback(GUARDED_NOOP)

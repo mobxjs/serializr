@@ -23,52 +23,56 @@ export default function Context(parentContext, modelSchema, json, onReadyCb, cus
     }
 }
 
-Context.prototype.createCallback = function (fn) {
+Context.prototype.createCallback = function(fn) {
     this.pendingCallbacks++
     // once: defend against user-land calling 'done' twice
-    return once(function (err, value) {
-        if (err) {
-            if (!this.hasError) {
-                this.hasError = true
-                this.onReadyCb(err)
-                rootContextCache.delete(this)
-            }
-        } else if (!this.hasError) {
-            fn(value)
-            if (--this.pendingCallbacks === this.pendingRefsCount) {
-                if (this.pendingRefsCount > 0) {
-                    // all pending callbacks are pending reference resolvers. not good.
-                    this.onReadyCb(new Error(
-                        "Unresolvable references in json: \"" +
-                        Object.keys(this.pendingRefs).filter(function (uuid) {
-                            return this.pendingRefs[uuid].length > 0
-                        }, this).join("\", \"") +
-                        "\""
-                    ))
-                    rootContextCache.delete(this)
-                } else {
-                    this.onReadyCb(null, this.target)
+    return once(
+        function(err, value) {
+            if (err) {
+                if (!this.hasError) {
+                    this.hasError = true
+                    this.onReadyCb(err)
                     rootContextCache.delete(this)
                 }
+            } else if (!this.hasError) {
+                fn(value)
+                if (--this.pendingCallbacks === this.pendingRefsCount) {
+                    if (this.pendingRefsCount > 0) {
+                        // all pending callbacks are pending reference resolvers. not good.
+                        this.onReadyCb(
+                            new Error(
+                                'Unresolvable references in json: "' +
+                                    Object.keys(this.pendingRefs)
+                                        .filter(function(uuid) {
+                                            return this.pendingRefs[uuid].length > 0
+                                        }, this)
+                                        .join('", "') +
+                                    '"'
+                            )
+                        )
+                        rootContextCache.delete(this)
+                    } else {
+                        this.onReadyCb(null, this.target)
+                        rootContextCache.delete(this)
+                    }
+                }
             }
-        }
-    }.bind(this))
+        }.bind(this)
+    )
 }
 
 // given an object with uuid, modelSchema, callback, awaits until the given uuid is available
 // resolve immediately if possible
-Context.prototype.await = function (modelSchema, uuid, callback) {
+Context.prototype.await = function(modelSchema, uuid, callback) {
     invariant(this.isRoot)
     if (uuid in this.resolvedRefs) {
-        var match = this.resolvedRefs[uuid].filter(function (resolved) {
+        var match = this.resolvedRefs[uuid].filter(function(resolved) {
             return isAssignableTo(resolved.modelSchema, modelSchema)
         })[0]
-        if (match)
-            return void callback(null, match.value)
+        if (match) return void callback(null, match.value)
     }
     this.pendingRefsCount++
-    if (!this.pendingRefs[uuid])
-        this.pendingRefs[uuid] = []
+    if (!this.pendingRefs[uuid]) this.pendingRefs[uuid] = []
     this.pendingRefs[uuid].push({
         modelSchema: modelSchema,
         uuid: uuid,
@@ -77,12 +81,12 @@ Context.prototype.await = function (modelSchema, uuid, callback) {
 }
 
 // given a model schema, uuid and value, resolve all references that where looking for this object
-Context.prototype.resolve = function (modelSchema, uuid, value) {
+Context.prototype.resolve = function(modelSchema, uuid, value) {
     invariant(this.isRoot)
-    if (!this.resolvedRefs[uuid])
-        this.resolvedRefs[uuid] = []
+    if (!this.resolvedRefs[uuid]) this.resolvedRefs[uuid] = []
     this.resolvedRefs[uuid].push({
-        modelSchema: modelSchema, value: value
+        modelSchema: modelSchema,
+        value: value
     })
     if (uuid in this.pendingRefs) {
         for (var i = this.pendingRefs[uuid].length - 1; i >= 0; i--) {
@@ -97,7 +101,7 @@ Context.prototype.resolve = function (modelSchema, uuid, value) {
 }
 
 // set target and update root context cache
-Context.prototype.setTarget = function (target) {
+Context.prototype.setTarget = function(target) {
     if (this.isRoot && this.target) {
         rootContextCache.delete(this.target)
     }
@@ -106,11 +110,11 @@ Context.prototype.setTarget = function (target) {
 }
 
 // call all remaining reference lookup callbacks indicating an error during ref resolution
-Context.prototype.cancelAwaits = function () {
+Context.prototype.cancelAwaits = function() {
     invariant(this.isRoot)
     var self = this
-    Object.keys(this.pendingRefs).forEach(function (uuid) {
-        self.pendingRefs[uuid].forEach(function (refOpts) {
+    Object.keys(this.pendingRefs).forEach(function(uuid) {
+        self.pendingRefs[uuid].forEach(function(refOpts) {
             self.pendingRefsCount--
             refOpts.callback(new Error("Reference resolution canceled for " + uuid))
         })

@@ -10,14 +10,12 @@ export default function date(additionalArgs) {
     // TODO: add format option?
     var result = {
         serializer: function(value) {
-            if (value === null || value === undefined)
-                return value
+            if (value === null || value === undefined) return value
             invariant(value instanceof Date, "Expected Date object")
             return value.getTime()
         },
-        deserializer: function (jsonValue, done) {
-            if (jsonValue === null || jsonValue === undefined)
-                return void done(null, jsonValue)
+        deserializer: function(jsonValue, done) {
+            if (jsonValue === null || jsonValue === undefined) return void done(null, jsonValue)
             return void done(null, new Date(jsonValue))
         }
     }

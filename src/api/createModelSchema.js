@@ -31,16 +31,17 @@ export default function createModelSchema(clazz, props, factory) {
     invariant(typeof clazz === "function", "expected constructor function")
     var model = {
         targetClass: clazz,
-        factory: factory || function() {
-            return new clazz()
-        },
+        factory:
+            factory ||
+            function() {
+                return new clazz()
+            },
         props: props
     }
     // find super model
     if (clazz.prototype.constructor !== Object) {
         var s = getDefaultModelSchema(clazz.prototype.constructor)
-        if (s && s.targetClass !== clazz)
-            model.extends = s
+        if (s && s.targetClass !== clazz) model.extends = s
     }
     setDefaultModelSchema(clazz, model)
     return model

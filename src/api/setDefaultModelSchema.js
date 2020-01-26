@@ -14,5 +14,5 @@ import { invariant, isModelSchema } from "../utils/utils"
  */
 export default function setDefaultModelSchema(clazz, modelSchema) {
     invariant(isModelSchema(modelSchema))
-    return clazz.serializeInfo = modelSchema
+    return (clazz.serializeInfo = modelSchema)
 }

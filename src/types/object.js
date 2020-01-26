@@ -1,4 +1,4 @@
-import {invariant, isModelSchema, processAdditionalPropArgs} from "../utils/utils"
+import { invariant, isModelSchema, processAdditionalPropArgs } from "../utils/utils"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import serialize from "../core/serialize"
 import { deserializeObjectWithSchema } from "../core/deserialize"
@@ -33,21 +33,28 @@ import { deserializeObjectWithSchema } from "../core/deserialize"
  * @returns {PropSchema}
  */
 export default function object(modelSchema, additionalArgs) {
-    invariant(typeof modelSchema === "object" || typeof modelSchema === "function", "No modelschema provided. If you are importing it from another file be aware of circular dependencies.")
+    invariant(
+        typeof modelSchema === "object" || typeof modelSchema === "function",
+        "No modelschema provided. If you are importing it from another file be aware of circular dependencies."
+    )
     var result = {
-        serializer: function (item) {
+        serializer: function(item) {
             modelSchema = getDefaultModelSchema(modelSchema)
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
-            if (item === null || item === undefined)
-                return item
+            if (item === null || item === undefined) return item
             return serialize(modelSchema, item)
         },
-        deserializer: function (childJson, done, context) {
+        deserializer: function(childJson, done, context) {
             modelSchema = getDefaultModelSchema(modelSchema)
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
-            if (childJson === null || childJson === undefined)
-                return void done(null, childJson)
-            return void deserializeObjectWithSchema(context, modelSchema, childJson, done, additionalArgs)
+            if (childJson === null || childJson === undefined) return void done(null, childJson)
+            return void deserializeObjectWithSchema(
+                context,
+                modelSchema,
+                childJson,
+                done,
+                additionalArgs
+            )
         }
     }
     result = processAdditionalPropArgs(result, additionalArgs)
