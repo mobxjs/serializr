@@ -1,4 +1,5 @@
 import { processAdditionalPropArgs } from "../utils/utils"
+import { PropSchema, AdditionalPropArgs } from "../api/types"
 
 /**
  * Indicates that this field is only need to putted in the serialized json or
@@ -15,8 +16,8 @@ import { processAdditionalPropArgs } from "../utils/utils"
  * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {ModelSchema}
  */
-export default function raw(additionalArgs) {
-    var result = {
+export default function raw(additionalArgs: AdditionalPropArgs) {
+    let result: PropSchema = {
         serializer: function(value) {
             return value
         },

@@ -1,103 +1,107 @@
 import invariant from "./invariant"
+import { ModelSchema, AdditionalPropArgs, PropSchema } from "../api/types"
 
-export function GUARDED_NOOP(err) {
+export function GUARDED_NOOP(err?: any) {
     if (err)
         // unguarded error...
         throw new Error(err)
 }
 
-export function once(fn) {
-    var fired = false
+export function once<F extends Function>(fn: F): F {
+    let fired = false
     return function() {
         if (!fired) {
             fired = true
             return fn.apply(null, arguments)
         }
         invariant(false, "callback was invoked twice")
-    }
+    } as any
 }
 
-export function parallel(ar, processor, cb) {
+export function parallel<T, R>(
+    ar: T[],
+    processor: (val: T, cb: (err?: any, result?: R) => void, idx: number) => void,
+    cb: (err?: any, result?: R[]) => void
+) {
     // TODO: limit parallelization?
     if (ar.length === 0) return void cb(null, [])
-    var left = ar.filter(function() {
-        return true
-    }).length // only count items processed by forEach
-    var resultArray = []
-    var failed = false
-    var processorCb = function(idx, err, result) {
-        if (err) {
-            if (!failed) {
-                failed = true
-                cb(err)
-            }
-        } else {
-            resultArray[idx] = result
-            if (--left === 0) cb(null, resultArray)
-        }
-    }
-    ar.forEach(function(value, idx) {
-        processor(value, processorCb.bind(null, idx), idx)
+    let left = ar.filter(x => true).length // only count items processed by forEach
+    const resultArray: R[] = []
+    let failed = false
+    ar.forEach((value, idx) => {
+        processor(
+            value,
+            (err, result) => {
+                if (err) {
+                    if (!failed) {
+                        failed = true
+                        cb(err)
+                    }
+                } else {
+                    resultArray[idx] = result!
+                    if (--left === 0) cb(null, resultArray)
+                }
+            },
+            idx
+        )
     })
 }
 
-export function isPrimitive(value) {
+export function isPrimitive(value: any): value is number | string | undefined | null | bigint {
     if (value === null) return true
     return typeof value !== "object" && typeof value !== "function"
 }
 
-export function isModelSchema(thing) {
+export function isModelSchema(thing: any): thing is ModelSchema<any> {
     return thing && thing.factory && thing.props
 }
 
-export function isPropSchema(thing) {
+export function isPropSchema(thing: any): thing is PropSchema {
     return thing && thing.serializer && thing.deserializer
 }
 
-export function isAliasedPropSchema(propSchema) {
-    return typeof propSchema === "object" && !!propSchema.jsonname
+export function isAliasedPropSchema(
+    propSchema: any
+): propSchema is PropSchema & { jsonname: string } {
+    return typeof propSchema === "object" && "string" == typeof propSchema.jsonname
 }
 
-export function isIdentifierPropSchema(propSchema) {
+export function isIdentifierPropSchema(propSchema: any): propSchema is PropSchema {
     return typeof propSchema === "object" && propSchema.identifier === true
 }
 
-export function isAssignableTo(actualType, expectedType) {
-    while (actualType) {
-        if (actualType === expectedType) return true
-        actualType = actualType.extends
+export function isAssignableTo(actualType: ModelSchema<any>, expectedType: ModelSchema<any>) {
+    let currentActualType: ModelSchema<any> | undefined = actualType
+    while (currentActualType) {
+        if (currentActualType === expectedType) return true
+        currentActualType = currentActualType.extends
     }
     return false
 }
 
-export function isMapLike(thing) {
+export function isMapLike(thing: any): thing is Pick<Map<any, any>, "keys" | "clear" | "forEach"> {
     return thing && typeof thing.keys === "function" && typeof thing.clear === "function"
 }
 
-export function getIdentifierProp(modelSchema) {
-    invariant(isModelSchema(modelSchema))
+export function getIdentifierProp(modelSchema: ModelSchema<any>): string | undefined {
+    invariant(isModelSchema(modelSchema), "modelSchema must be a ModelSchema")
     // optimization: cache this lookup
-    while (modelSchema) {
-        for (var propName in modelSchema.props)
-            if (
-                typeof modelSchema.props[propName] === "object" &&
-                modelSchema.props[propName].identifier === true
-            )
-                return propName
-        modelSchema = modelSchema.extends
+    let currentModelSchema: ModelSchema<any> | undefined = modelSchema
+    while (currentModelSchema) {
+        for (const propName in currentModelSchema.props)
+            if (isIdentifierPropSchema(currentModelSchema.props[propName])) return propName
+        currentModelSchema = currentModelSchema.extends
     }
-    return null
+    return undefined
 }
 
-export function processAdditionalPropArgs(propSchema, additionalArgs) {
+export function processAdditionalPropArgs<T extends PropSchema>(
+    propSchema: T,
+    additionalArgs?: AdditionalPropArgs
+) {
     if (additionalArgs) {
         invariant(isPropSchema(propSchema), "expected a propSchema")
-        var argNames = ["beforeDeserialize", "afterDeserialize"]
-        argNames.forEach(function(argName) {
-            if (typeof additionalArgs[argName] === "function") {
-                propSchema[argName] = additionalArgs[argName]
-            }
-        })
+        Object.assign(propSchema, additionalArgs)
     }
     return propSchema
 }

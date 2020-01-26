@@ -2,6 +2,7 @@ import { invariant, isModelSchema, processAdditionalPropArgs } from "../utils/ut
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import serialize from "../core/serialize"
 import { deserializeObjectWithSchema } from "../core/deserialize"
+import { ClazzOrModelSchema, AdditionalPropArgs, PropSchema } from "../api/types"
 
 /**
  * `object` indicates that this property contains an object that needs to be (de)serialized
@@ -32,20 +33,23 @@ import { deserializeObjectWithSchema } from "../core/deserialize"
  * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {PropSchema}
  */
-export default function object(modelSchema, additionalArgs) {
+export default function object(
+    modelSchema: ClazzOrModelSchema<any>,
+    additionalArgs?: AdditionalPropArgs
+): PropSchema {
     invariant(
         typeof modelSchema === "object" || typeof modelSchema === "function",
         "No modelschema provided. If you are importing it from another file be aware of circular dependencies."
     )
-    var result = {
+    let result: PropSchema = {
         serializer: function(item) {
-            modelSchema = getDefaultModelSchema(modelSchema)
+            modelSchema = getDefaultModelSchema(modelSchema)!
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
             if (item === null || item === undefined) return item
             return serialize(modelSchema, item)
         },
         deserializer: function(childJson, done, context) {
-            modelSchema = getDefaultModelSchema(modelSchema)
+            modelSchema = getDefaultModelSchema(modelSchema)!
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
             if (childJson === null || childJson === undefined) return void done(null, childJson)
             return void deserializeObjectWithSchema(
@@ -53,7 +57,7 @@ export default function object(modelSchema, additionalArgs) {
                 modelSchema,
                 childJson,
                 done,
-                additionalArgs
+                undefined
             )
         }
     }
