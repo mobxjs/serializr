@@ -1,4 +1,4 @@
-import {invariant, processAdditionalPropArgs} from "../utils/utils"
+import { invariant, processAdditionalPropArgs } from "../utils/utils"
 import { isPrimitive } from "../utils/utils"
 
 /**
@@ -17,11 +17,11 @@ import { isPrimitive } from "../utils/utils"
  */
 export default function primitive(additionalArgs) {
     var result = {
-        serializer: function (value) {
+        serializer: function(value) {
             invariant(isPrimitive(value), "this value is not primitive: " + value)
             return value
         },
-        deserializer: function (jsonValue, done) {
+        deserializer: function(jsonValue, done) {
             if (!isPrimitive(jsonValue))
                 return void done("[serializr] this value is not primitive: " + jsonValue)
             return void done(null, jsonValue)

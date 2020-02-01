@@ -16,10 +16,13 @@ import { _defaultPrimitiveProp, SKIP } from "../constants"
  * @returns {PropSchema}
  */
 export default function optional(name, propSchema) {
-    propSchema = (!propSchema || propSchema === true)  ? _defaultPrimitiveProp : propSchema
+    propSchema = !propSchema || propSchema === true ? _defaultPrimitiveProp : propSchema
     invariant(isPropSchema(propSchema), "expected prop schema as second argument")
     const propSerializer = propSchema.serializer
-    invariant(typeof propSerializer === "function", "expected prop schema to have a callable serializer")
+    invariant(
+        typeof propSerializer === "function",
+        "expected prop schema to have a callable serializer"
+    )
     function serializer(...args) {
         const result = propSerializer(...args)
         if (result === undefined) {
@@ -27,5 +30,5 @@ export default function optional(name, propSchema) {
         }
         return result
     }
-    return Object.assign({}, propSchema, {serializer})
+    return Object.assign({}, propSchema, { serializer })
 }

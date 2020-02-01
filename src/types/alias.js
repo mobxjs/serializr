@@ -1,4 +1,9 @@
-import { invariant, isPropSchema, isAliasedPropSchema, isIdentifierPropSchema } from "../utils/utils"
+import {
+    invariant,
+    isPropSchema,
+    isAliasedPropSchema,
+    isIdentifierPropSchema
+} from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 
 /**
@@ -19,7 +24,7 @@ import { _defaultPrimitiveProp } from "../constants"
  */
 export default function alias(name, propSchema) {
     invariant(name && typeof name === "string", "expected prop name as first argument")
-    propSchema = (!propSchema || propSchema === true)  ? _defaultPrimitiveProp : propSchema
+    propSchema = !propSchema || propSchema === true ? _defaultPrimitiveProp : propSchema
     invariant(isPropSchema(propSchema), "expected prop schema as second argument")
     invariant(!isAliasedPropSchema(propSchema), "provided prop is already aliased")
     return {

@@ -14,7 +14,10 @@ export default function invariant(condition, message) {
         var variablesToLog = []
 
         var index = 0
-        var formattedMessage = message.replace(/%([a-zA-Z%])/g, function messageFormatter(match, format) {
+        var formattedMessage = message.replace(/%([a-zA-Z%])/g, function messageFormatter(
+            match,
+            format
+        ) {
             if (match === "%%") return match
 
             var formatter = formatters[format]

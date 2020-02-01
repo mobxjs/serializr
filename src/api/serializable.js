@@ -5,24 +5,30 @@ import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import createModelSchema from "../api/createModelSchema"
 
 // Ugly way to get the parameter names since they aren't easily retrievable via reflection
-var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/mg
+var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm
 var ARGUMENT_NAMES = /([^\s,]+)/g
 
 function getParamNames(func) {
     var fnStr = func.toString().replace(STRIP_COMMENTS, "")
-    var result = fnStr.slice(fnStr.indexOf("(")+1, fnStr.indexOf(")")).match(ARGUMENT_NAMES)
-    if(result === null)
-        result = []
+    var result = fnStr.slice(fnStr.indexOf("(") + 1, fnStr.indexOf(")")).match(ARGUMENT_NAMES)
+    if (result === null) result = []
     return result
 }
 
 function serializableDecorator(propSchema, target, propName, descriptor) {
-    invariant(arguments.length >= 2, "too few arguments. Please use @serializable as property decorator")
+    invariant(
+        arguments.length >= 2,
+        "too few arguments. Please use @serializable as property decorator"
+    )
     // Fix for @serializable used in class constructor params (typescript)
     var factory
-    if (propName === undefined && typeof target === "function"
-        && target.prototype
-        && descriptor !== undefined && typeof descriptor === "number") {
+    if (
+        propName === undefined &&
+        typeof target === "function" &&
+        target.prototype &&
+        descriptor !== undefined &&
+        typeof descriptor === "number"
+    ) {
         invariant(isPropSchema(propSchema), "Constructor params must use alias(name)")
         invariant(propSchema.jsonname, "Constructor params must use alias(name)")
         var paramNames = getParamNames(target)
@@ -35,7 +41,7 @@ function serializableDecorator(propSchema, target, propName, descriptor) {
             factory = function(context) {
                 var params = []
                 for (var i = 0; i < target.constructor.length; i++) {
-                    Object.keys(context.modelSchema.props).forEach(function (key) {
+                    Object.keys(context.modelSchema.props).forEach(function(key) {
                         var prop = context.modelSchema.props[key]
                         if (prop.paramNumber === i) {
                             params[i] = context.json[prop.jsonname]
@@ -43,7 +49,10 @@ function serializableDecorator(propSchema, target, propName, descriptor) {
                     })
                 }
 
-                return new (Function.prototype.bind.apply(target.constructor, [null].concat(params)))
+                return new (Function.prototype.bind.apply(
+                    target.constructor,
+                    [null].concat(params)
+                ))()
             }
         }
     }
@@ -57,8 +66,7 @@ function serializableDecorator(propSchema, target, propName, descriptor) {
         info = createModelSchema(target.constructor, {}, factory)
     info.props[propName] = propSchema
     // MWE: why won't babel work without?
-    if (descriptor && !descriptor.get && !descriptor.set)
-        descriptor.writable = true
+    if (descriptor && !descriptor.get && !descriptor.set) descriptor.writable = true
     return descriptor
 }
 
