@@ -15,7 +15,8 @@ import {
     deserialize,
     serializeAll,
     getDefaultModelSchema,
-    custom
+    custom,
+    AdditionalPropArgs
 } from "../../"
 
 import { observable, autorun } from "mobx"
@@ -422,7 +423,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
         }
     }
 
-    const replaceValueOpts = {
+    const replaceValueOpts: AdditionalPropArgs = {
         beforeDeserialize: function(callback, jsonValue, jsonParentValue, propNameOrIndex) {
             const jsonAttrName = propNameOrIndex + "1"
             jsonValue = (jsonValue || jsonParentValue[jsonAttrName]) + " hee"
@@ -437,7 +438,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             propNameOrIndex,
             context,
             propDef,
-            numRetry
+            numRetry?
         ) {
             let err = null
             if (numRetry === 0) {
@@ -458,7 +459,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
         }
     }
 
-    const removeInvalidItemsOpts = {
+    const removeInvalidItemsOpts: AdditionalPropArgs = {
         /**
          * remove all invalid objects in lists and maps,
          * also does this for reference objects asynchronously
@@ -493,7 +494,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
                         } else {
                             onItemCallback(new Error("not a valid item"))
                         }
-                    } else if (propNameOrIndex.indexOf("Ref") >= 0) {
+                    } else if (("" + propNameOrIndex).indexOf("Ref") >= 0) {
                         context.rootContext.await(
                             getDefaultModelSchema(SubData),
                             inputValue,
@@ -534,7 +535,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             propNameOrIndex,
             context,
             propDef,
-            numRetry
+            numRetry?
         ) {
             if (error && error.itemKey) {
                 if (Array.isArray(jsonValue)) {
