@@ -10,3 +10,4 @@ coverage
 test/typescript/ts.js
 test/babel/babel-compiled.js
 .nyc_output
+out

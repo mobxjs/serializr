@@ -81,24 +81,20 @@ function serializableDecorator(
  *
  * @example
  * class Todo {
- *     @serializable(primitive())
- *     title; // shorthand for primitves
+ *     \@serializable(primitive())
+ *     title // shorthand for primitves
  *
- *     @serializable done;
+ *     \@serializable
+ *     done
  *
  *     constructor(title, done) {
- *         this.title = title;
- *         this.done = done;
+ *         this.title = title
+ *         this.done = done
  *     }
  * }
  *
- * const json = serialize(new Todo('Test', false));
- * const todo = deserialize(Todo, json);
- *
- * @param arg1
- * @param arg2
- * @param arg3
- * @returns {PropertyDescriptor}
+ * const json = serialize(new Todo('Test', false))
+ * const todo = deserialize(Todo, json)
  */
 export default function serializable(
     propSchema: PropDef

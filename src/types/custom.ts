@@ -27,37 +27,28 @@ import { SKIP } from "../constants"
  * ([contextObj reference](https://github.com/mobxjs/serializr#deserialization-context)).
  *
  * @example
- * const schemaDefault = _.createSimpleSchema({
- *     a: _.custom(
- *         function(v) {
- *             return v + 2;
- *         },
- *         function(v) {
- *             return v - 2;
- *         }
- *     ),
- * });
- * t.deepEqual(_.serialize(schemaDefault, { a: 4 }), { a: 6 });
- * t.deepEqual(_.deserialize(schemaDefault, { a: 6 }), { a: 4 });
+ * const schemaDefault = createSimpleSchema({
+ *     a: custom(
+ *         v => v + 2,
+ *         v => v - 2
+ *     )
+ * })
+ * serialize(schemaDefault, { a: 4 }) // { "a": 6 }
+ * deserialize(schemaDefault, { "a": 6 }) // { a: 4 }
  *
- * const schemaWithAsyncProps = _.createSimpleSchema({
- *     a: _.customAsync(
- *         function(v) {
- *             return v + 2;
- *         },
- *         function(v, context, oldValue, callback) {
- *             somePromise(v, context, oldValue).then((result) => {
- *                 callback(null, result - 2)
- *             }.catch((err) => {
- *                 callback(err)
- *             }
- *         }
- *     ),
- * });
- * t.deepEqual(_.serialize(schemaWithAsyncProps, { a: 4 }), { a: 6 });
- * _.deserialize(schemaWithAsyncProps, { a: 6 }, (err, res) => {
- *   t.deepEqual(res.a, 4)
- * };
+ * const schemaWithAsyncProps = createSimpleSchema({
+ *     a: custom(
+ *         v => v + 2,
+ *         (v, context, oldValue, callback) =>
+ *             somePromise(v, context, oldValue)
+ *                 .then(result => callback(null, result - 2))
+ *                 .catch(err => callback(err))
+ *     )
+ * })
+ * serialize(schemaWithAsyncProps, { a: 4 }) // { "a": 6 }
+ * deserialize(schemaWithAsyncProps, { "a": 6 }, (err, res) => {
+ *   res // { a: 4 }
+ * }
 
  *
  * @param {function} serializer function that takes a model value and turns it into a json value

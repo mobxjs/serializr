@@ -16,18 +16,18 @@ import { ClazzOrModelSchema, AdditionalPropArgs, PropSchema } from "../api/types
  *
  * createModelSchema(SubTask, {
  *     title: true,
- * });
+ * })
  * createModelSchema(Todo, {
  *     title: true,
  *     subTask: object(SubTask),
- * });
+ * })
  *
  * const todo = deserialize(Todo, {
  *     title: 'Task',
  *     subTask: {
  *         title: 'Sub task',
  *     },
- * });
+ * })
  *
  * @param {ModelSchema} modelSchema to be used to (de)serialize the object
  * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers

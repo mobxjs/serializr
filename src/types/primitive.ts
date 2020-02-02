@@ -7,10 +7,9 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  * @example
  * createModelSchema(Todo, {
  *     title: primitive(),
- * });
+ * })
  *
- * console.dir(serialize(new Todo('test')));
- * // outputs: { title : "test" }
+ * serialize(new Todo('test')) // { "title": "test" }
  *
  * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {ModelSchema}

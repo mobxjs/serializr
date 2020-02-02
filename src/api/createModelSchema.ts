@@ -10,17 +10,17 @@ import { ModelSchema, Clazz, Props, Factory, ClazzOrModelSchema } from "./types"
  *
  * @example
  * function Todo(title, done) {
- *     this.title = title;
- *     this.done = done;
+ *     this.title = title
+ *     this.done = done
  * }
  *
  * createModelSchema(Todo, {
  *     title: true,
  *     done: true,
- * });
+ * })
  *
- * const json = serialize(new Todo('Test', false));
- * const todo = deserialize(Todo, json);
+ * const json = serialize(new Todo('Test', false))
+ * const todo = deserialize(Todo, json)
  *
  * @param {constructor|class} clazz class or constructor function
  * @param {object} props property mapping

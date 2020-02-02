@@ -11,31 +11,34 @@ import { _defaultPrimitiveProp } from "../constants"
  * or complex properties with a name matching a `pattern`, should be serialized automatically.
  *
  * @example
- * @serializeAll class Store {
- *     a = 3;
- *     b;
+ * \@serializeAll
+ * class Store {
+ *     a = 3
+ *     b
  * }
  *
- * const store = new Store();
- * store.c = 5;
- * store.d = {};
- * t.deepEqual(serialize(store), { c: 5 });
+ * const store = new Store()
+ * store.c = 5
+ * store.d = {}
+ * serialize(store) // { "c": 5 }
  *
  * @example
  * class DataType {
- *     @serializable
- *     x;
- *     @serializable
- *     y;
- * }
- * @serializeAll(/^[a-z]$/, DataType) class ComplexStore {
+ *     \@serializable
+ *     x
+ *     \@serializable
+ *     y
  * }
  *
- * const store = new ComplexStore();
- * store.a = {x: 1, y: 2};
- * store.b = {};
- * store.somethingElse = 5;
- * t.deepEqual(serialize(store), { a: {x: 1, y: 2}, b: { x: undefined, y: undefined } });
+ * \@serializeAll(/^[a-z]$/, DataType)
+ * class ComplexStore {
+ * }
+ *
+ * const store = new ComplexStore()
+ * store.a = {x: 1, y: 2}
+ * store.b = {}
+ * store.somethingElse = 5
+ * serialize(store) // { a: {x: 1, y: 2}, b: { x: undefined, y: undefined } }
  */
 export default function serializeAll<T>(clazz: Clazz<T>): Clazz<T>
 export default function serializeAll(

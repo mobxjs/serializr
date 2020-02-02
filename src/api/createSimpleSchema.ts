@@ -8,10 +8,10 @@ import { Props, ModelSchema } from "./types"
  * const todoSchema = createSimpleSchema({
  *     title: true,
  *     done: true,
- * });
+ * })
  *
- * const json = serialize(todoSchema, { title: 'Test', done: false });
- * const todo = deserialize(todoSchema, json);
+ * const json = serialize(todoSchema, { title: 'Test', done: false })
+ * const todo = deserialize(todoSchema, json)
  *
  * @param {object} props property mapping,
  * @returns {object} model schema
