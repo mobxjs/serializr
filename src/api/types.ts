@@ -23,7 +23,7 @@ export interface PropSchema {
     beforeDeserialize?: BeforeDeserializeFunc
     afterDeserialize?: AfterDeserializeFunc
     /**
-     * Filter properties to which this schema applies. Used with ModelSchema.props["*"].
+     * Filter properties to which this schema applies. Used with `ModelSchema.props["*"]`.
      */
     pattern?: { test: (propName: string) => boolean }
     jsonname?: string

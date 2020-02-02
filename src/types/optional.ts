@@ -8,10 +8,9 @@ import { PropSchema } from "../api/types"
  * @example
  * createModelSchema(Todo, {
  *     title: optional(primitive()),
- * });
+ * })
  *
- * console.dir(serialize(new Todo()));
- * // {}
+ * serialize(new Todo()) // {}
  *
  * @param {PropSchema} propSchema propSchema to (de)serialize the contents of this field
  * @returns {PropSchema}

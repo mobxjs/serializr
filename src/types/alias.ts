@@ -14,10 +14,9 @@ import { PropSchema, PropDef } from "../api/types"
  * @example
  * createModelSchema(Todo, {
  *     title: alias('task', primitive()),
- * });
+ * })
  *
- * console.dir(serialize(new Todo('test')));
- * // { task : "test" }
+ * serialize(new Todo('test')) // { "task": "test" }
  *
  * @param {string} name name of the json field to be used for this property
  * @param {PropSchema} propSchema propSchema to (de)serialize the contents of this field

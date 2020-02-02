@@ -8,10 +8,10 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  * @example
  * createModelSchema(Model, {
  *     rawData: raw(),
- * });
+ * })
  *
- * console.dir(serialize(new Model({ rawData: { a: 1, b: [], c: {} } } })));
- * // outputs: { rawData: { a: 1, b: [], c: {} } } }
+ * serialize(new Model({ rawData: { a: 1, b: [], c: {} } } }))
+ * // { "rawData": { a: 1, b: [], c: {} } } }
  *
  * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  * @returns {ModelSchema}

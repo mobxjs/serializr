@@ -18,23 +18,23 @@ const defaultRegisterFunction: RegisterFunction = (id, value, context) => {
  * have been deserialized yet.
  *
  * @example
- * const todos = {};
+ * const todos = {}
  *
- * const s = _.createSimpleSchema({
- *     id: _.identifier((id, object) => (todos[id] = object)),
+ * const s = createSimpleSchema({
+ *     id: identifier((id, object) => (todos[id] = object)),
  *     title: true,
- * });
+ * })
  *
- * _.deserialize(s, {
+ * deserialize(s, {
  *     id: 1,
  *     title: 'test0',
- * });
- * _.deserialize(s, [{ id: 2, title: 'test2' }, { id: 1, title: 'test1' }]);
+ * })
+ * deserialize(s, [{ id: 2, title: 'test2' }, { id: 1, title: 'test1' }])
  *
  * t.deepEqual(todos, {
  *     1: { id: 1, title: 'test1' },
  *     2: { id: 2, title: 'test2' },
- * });
+ * })
  *
  * @param { RegisterFunction | AdditionalPropArgs } arg1 optional registerFn: function to register this object during creation.
  * @param {AdditionalPropArgs} arg2 optional object that contains beforeDeserialize and/or afterDeserialize handlers

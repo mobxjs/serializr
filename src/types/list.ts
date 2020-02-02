@@ -21,11 +21,11 @@ import { AdditionalPropArgs, PropSchema } from "../api/types"
  *
  * createModelSchema(SubTask, {
  *     title: true,
- * });
+ * })
  * createModelSchema(Todo, {
  *     title: true,
  *     subTask: list(object(SubTask)),
- * });
+ * })
  *
  * const todo = deserialize(Todo, {
  *     title: 'Task',
@@ -34,7 +34,7 @@ import { AdditionalPropArgs, PropSchema } from "../api/types"
  *             title: 'Sub task 1',
  *         },
  *     ],
- * });
+ * })
  *
  * @param {PropSchema} propSchema to be used to (de)serialize the contents of the array
  * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers

@@ -49,19 +49,19 @@ function createDefaultRefLookup(modelSchema: ModelSchema<any>) {
  * createModelSchema(User, {
  *     uuid: identifier(),
  *     displayname: primitive(),
- * });
+ * })
  *
  * createModelSchema(Post, {
  *     author: reference(User, findUserById),
  *     message: primitive(),
- * });
+ * })
  *
  * function findUserById(uuid, callback) {
  *     fetch('http://host/user/' + uuid)
  *         .then(userData => {
- *             deserialize(User, userData, callback);
+ *             deserialize(User, userData, callback)
  *         })
- *         .catch(callback);
+ *         .catch(callback)
  * }
  *
  * deserialize(
@@ -71,9 +71,9 @@ function createDefaultRefLookup(modelSchema: ModelSchema<any>) {
  *         author: 234,
  *     },
  *     (err, post) => {
- *         console.log(post);
+ *         console.log(post)
  *     }
- * );
+ * )
  *
  * @param target: ModelSchema or string
  * @param {RefLookupFunction | AdditionalPropArgs} lookupFn optional function or additionalArgs object
