@@ -49,6 +49,8 @@
         "@babel/plugin-proposal-class-properties": "^7.3.0",
         "@babel/plugin-proposal-decorators": "^7.3.0",
         "@babel/preset-env": "^7.3.1",
+        "@rollup/plugin-commonjs": "^11.0.2",
+        "@rollup/plugin-node-resolve": "^7.1.0",
         "@types/tape": "^4.2.33",
         "babel-eslint": "^10.0.1",
         "coveralls": "^3.0.2",
@@ -62,11 +64,10 @@
         "prettier": "^1.19.1",
         "rimraf": "^3.0.1",
         "rollup": "^1.1.2",
-        "rollup-plugin-commonjs": "^9.2.0",
-        "rollup-plugin-node-resolve": "^4.0.0",
-        "rollup-plugin-terser": "^4.0.4",
+        "rollup-plugin-terser": "^5.2.0",
         "rollup-plugin-typescript2": "^0.25.3",
         "tape": "^4.9.2",
         "typescript": "^3.3.3"
-    }
+    },
+    "dependencies": {}
 }
