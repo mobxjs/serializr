@@ -26,6 +26,7 @@ function config(format /* : "umd" | "es" */, compress /*: boolean */) {
                 typescript,
                 tsconfig: __dirname + "/tsconfig.json",
                 abortOnError: false,
+                exclude: [], // don't exclude .d.ts files
                 tsconfigOverride: {
                     compilerOptions: {
                         resolveJsonModule: false,

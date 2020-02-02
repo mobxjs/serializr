@@ -73,13 +73,13 @@ function deserializeStarProps(
  *   example, stores.
  * @returns {object|array} deserialized object, possibly incomplete.
  */
-export function deserialize<T>(
+export default function deserialize<T>(
     modelschema: ClazzOrModelSchema<T>,
     jsonArray: any[],
     callback?: (err: any, result: T[]) => void,
     customArgs?: any
 ): T[]
-export function deserialize<T>(
+export default function deserialize<T>(
     modelschema: ClazzOrModelSchema<T>,
     json: any,
     callback?: (err: any, result: T) => void,
@@ -117,9 +117,6 @@ export default function deserialize<T>(
     }
 }
 
-/**
- * @internal
- */
 export function deserializeObjectWithSchema(
     parentContext: Context<any> | undefined,
     modelSchema: ModelSchema<any>,

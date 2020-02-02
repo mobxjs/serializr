@@ -1,19 +1,25 @@
 import Context from "../core/Context"
+import { SKIP } from "../constants"
 
 export interface AdditionalPropArgs {
     beforeDeserialize?: BeforeDeserializeFunc
     afterDeserialize?: AfterDeserializeFunc
     pattern?: { test: (propName: string) => boolean }
 }
-
+export type PropSerializer = (
+    sourcePropertyValue: any,
+    key: string | number | symbol,
+    sourceObject: any
+) => any | SKIP
+export type PropDeserializer = (
+    jsonValue: any,
+    callback: (err?: any, targetPropertyValue?: any | SKIP) => void,
+    context: Context,
+    currentPropertyValue?: any
+) => void
 export interface PropSchema {
-    serializer(sourcePropertyValue: any, key: string, sourceObject: any): any
-    deserializer(
-        jsonValue: any,
-        callback: (err?: any, targetPropertyValue?: any) => void,
-        context: Context,
-        currentPropertyValue?: any
-    ): void
+    serializer: PropSerializer
+    deserializer: PropDeserializer
     beforeDeserialize?: BeforeDeserializeFunc
     afterDeserialize?: AfterDeserializeFunc
     /**

@@ -102,14 +102,14 @@ function serializableDecorator(
  */
 export default function serializable(
     propSchema: PropDef
-): (target: Object, key: string, baseDescriptor: PropertyDescriptor) => void
+): (target: any, key: string, baseDescriptor?: PropertyDescriptor) => void
 export default function serializable(
-    target: Object,
+    target: any,
     key: string,
     baseDescriptor?: PropertyDescriptor
 ): void
 export default function serializable(
-    targetOrPropSchema: Object | PropDef,
+    targetOrPropSchema: any | PropDef,
     key?: string,
     baseDescriptor?: PropertyDescriptor
 ) {

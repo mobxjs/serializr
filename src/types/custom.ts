@@ -1,5 +1,5 @@
 import { invariant, processAdditionalPropArgs } from "../utils/utils"
-import { AdditionalPropArgs, PropSchema } from "../api/types"
+import { AdditionalPropArgs, PropSchema, PropSerializer } from "../api/types"
 import { SKIP } from "../constants"
 
 /**
@@ -68,8 +68,25 @@ import { SKIP } from "../constants"
  * afterDeserialize handlers
  * @returns {PropSchema}
  */
+// Two function declarations, otherwise TypeScript has trouble inferring the argument types of the
+// deserializer function.
 export default function custom(
-    serializer: PropSchema["serializer"],
+    serializer: PropSerializer,
+    deserializer: (jsonValue: any, context: any, oldValue: any) => any | SKIP,
+    additionalArgs?: AdditionalPropArgs
+): PropSchema
+export default function custom(
+    serializer: PropSerializer,
+    deserializer: (
+        jsonValue: any,
+        context: any,
+        oldValue: any,
+        callback: (err: any, result: any | SKIP) => void
+    ) => void,
+    additionalArgs?: AdditionalPropArgs
+): PropSchema
+export default function custom(
+    serializer: PropSerializer,
     deserializer:
         | ((jsonValue: any, context: any, oldValue: any) => any | SKIP)
         | ((
