@@ -15,7 +15,7 @@
     "build-test-ts": "tsc -p test/typescript",
     "build-test-babel": "babel test/babel/babel.js -o test/babel/babel-compiled.js",
     "coverage": "npm run build-test && istanbul cover tape test/*.js",
-    "prettier": "prettier --write src/**/*"
+     "prettier": "prettier --write {src,test}/**/*.{ts,js}"
   },
   "keywords": [
     "serialize",

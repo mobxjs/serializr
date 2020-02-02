@@ -41,7 +41,7 @@ test("schema's can be defined on constructors", t => {
             jsonlist[1].otherProp = "should not serialize"
 
             t3.throws(() => {
-                _.serialize(jsonlist);
+                _.serialize(jsonlist)
             }, /Failed to find default schema/)
 
             _.serialize(Todo, jsonlist).forEach((serialized, i) => {
@@ -58,9 +58,9 @@ test("schema's can be defined on constructors", t => {
         var source2 = {
             title: "test",
             otherProp: "should not serialize"
-        };
+        }
         t2.throws(() => {
-            _.serialize(source2);
+            _.serialize(source2)
         }, /Failed to find default schema/)
 
         t.deepEqual(_.serialize(Todo, source2), json)
@@ -70,7 +70,7 @@ test("schema's can be defined on constructors", t => {
         t.equal(res2 instanceof Todo, true)
 
         t2.end()
-    });
+    })
 
     t.end()
 })
@@ -116,7 +116,8 @@ test("complex async schema", t => {
         var c1 = new Comment(2, "World")
         var serialized = _.serialize(c1)
         t2.deepEqual(serialized, {
-            __id: 2, message: "World"
+            __id: 2,
+            message: "World"
         })
         t2.deepEqual(_.serialize(_.deserialize(Comment, serialized)), serialized)
         t2.end()
@@ -130,10 +131,12 @@ test("complex async schema", t => {
 
         var serialized = _.serialize(p)
         t2.deepEqual(serialized, {
-            id: 1, message: "Hello", comments: [2, 3]
+            id: 1,
+            message: "Hello",
+            comments: [2, 3]
         })
 
-        var clone = _.deserialize(Post, serialized, function (err, r) {
+        var clone = _.deserialize(Post, serialized, function(err, r) {
             t2.notOk(err)
             t2.ok(clone === r)
             t2.equal(r.comments.length, 2)
@@ -154,17 +157,13 @@ test("complex async schema", t => {
 })
 
 test("it should handle not yet defined modelschema's for classes", t => {
-    function Message() {
-
-    }
+    function Message() {}
     _.createModelSchema(Message, {
         child: _.list(_.object(Comment)), // model for Comment not defined yet!
         ref: _.reference(Comment)
     })
 
-    function Comment() {
-
-    }
+    function Comment() {}
     _.createModelSchema(Comment, {
         id: _.identifier(),
         "*": true
@@ -174,7 +173,7 @@ test("it should handle not yet defined modelschema's for classes", t => {
         ref: 1,
         child: [
             { id: 2, title: "foo" },
-            { id: 1, title: "bar "}
+            { id: 1, title: "bar " }
         ]
     }
     var m = _.deserialize(Message, json)
@@ -201,14 +200,16 @@ test("test context and factories", t => {
     var theMessage = null
     var json = {
         title: "bloopie",
-        comments: [{
-            title: "42"
-        }]
+        comments: [
+            {
+                title: "42"
+            }
+        ]
     }
     var mContext
 
     var commentModel = {
-        factory: (context) => {
+        factory: context => {
             t.deepEqual(context.json, json.comments[0])
             t.deepEqual(context.parentContext, mContext)
             t.deepEqual(context.parentContext.target, theMessage)
@@ -222,7 +223,7 @@ test("test context and factories", t => {
     }
 
     var messageModel = {
-        factory: (context) => {
+        factory: context => {
             mContext = context
             t.deepEqual(context.json, json)
             t.deepEqual(context.parentContext, null)
@@ -236,11 +237,16 @@ test("test context and factories", t => {
         }
     }
 
-    var res = _.deserialize(messageModel, json, (err, message) => {
-        t.ok(message === theMessage)
-        t.notOk(err)
-        t.deepEqual(_.serialize(messageModel, message), json)
-    }, myArgs)
+    var res = _.deserialize(
+        messageModel,
+        json,
+        (err, message) => {
+            t.ok(message === theMessage)
+            t.notOk(err)
+            t.deepEqual(_.serialize(messageModel, message), json)
+        },
+        myArgs
+    )
 
     t.ok(res === theMessage)
     t.end()
@@ -249,15 +255,15 @@ test("test context and factories", t => {
 test("sync error handling", t => {
     var sub = _.createSimpleSchema({
         id: true
-    });
+    })
 
     var parent = _.createSimpleSchema({
-        r: _.list(_.ref("id", (id, cb) => {
-            if (id === 42)
-                cb("oops")
-            else
-                cb(null, null)
-        }))
+        r: _.list(
+            _.ref("id", (id, cb) => {
+                if (id === 42) cb("oops")
+                else cb(null, null)
+            })
+        )
     })
 
     t.throws(() => {
@@ -273,24 +279,21 @@ test("async error handling without handler", t => {
     })
 
     var parent = _.createSimpleSchema({
-        r: _.list(_.ref("id", (id, cb) => {
-            if (id === 42)
-                setImmediate(() => {
-                    // normally this error would be ungarded, killing the app
-                    t.throws(
-                        () => cb("oops"),
-                        /oops/
-                    )
-                    t.end()
-                })
-            else
-                setImmediate(() => cb(null, null))
-        }))
+        r: _.list(
+            _.ref("id", (id, cb) => {
+                if (id === 42)
+                    setImmediate(() => {
+                        // normally this error would be ungarded, killing the app
+                        t.throws(() => cb("oops"), /oops/)
+                        t.end()
+                    })
+                else setImmediate(() => cb(null, null))
+            })
+        )
     })
 
     var a = _.deserialize(parent, { r: [1, 42] })
 })
-
 
 test("async error handling with handler", t => {
     var sub = _.createSimpleSchema({
@@ -298,14 +301,15 @@ test("async error handling with handler", t => {
     })
 
     var parent = _.createSimpleSchema({
-        r: _.list(_.ref("id", (id, cb) => {
-            if (id === 42)
-                setImmediate(() => {
-                    cb("oops")
-                })
-            else
-                setImmediate(() => cb(null, null))
-        }))
+        r: _.list(
+            _.ref("id", (id, cb) => {
+                if (id === 42)
+                    setImmediate(() => {
+                        cb("oops")
+                    })
+                else setImmediate(() => cb(null, null))
+            })
+        )
     })
 
     var a = _.deserialize(parent, { r: [1, 42] }, (err, res) => {
@@ -324,9 +328,7 @@ test("default reference resolving", t => {
     function Box(id) {
         this.id = id
     }
-    function Arrow(from, to) {
-
-    }
+    function Arrow(from, to) {}
     _.createModelSchema(Box, {
         id: _.identifier()
     })
@@ -341,7 +343,7 @@ test("default reference resolving", t => {
 
     test("it should resolve references", t => {
         var s = _.deserialize(Store, {
-            boxes : [ { id: 1 }, { id: 2 }],
+            boxes: [{ id: 1 }, { id: 2 }],
             arrows: [
                 { from: 1, to: 2 },
                 { from: 2, to: 2 }
@@ -366,7 +368,7 @@ test("default reference resolving", t => {
                 { from: 1, to: 2 },
                 { from: 2, to: 2 }
             ],
-            boxes : [ { id: 1 }, { id: 2 }]
+            boxes: [{ id: 1 }, { id: 2 }]
         })
         t.equal(s.boxes.length, 2)
         t.equal(s.arrows.length, 2)
@@ -375,14 +377,13 @@ test("default reference resolving", t => {
         t.ok(s.arrows[1].from === s.boxes[1])
         t.ok(s.arrows[1].to === s.boxes[1])
         t.end()
-
     })
 
     test("it should throw on missing references", t2 => {
         _.deserialize(
             Store,
             {
-                boxes : [ { id: 1 }, { id: 2 }],
+                boxes: [{ id: 1 }, { id: 2 }],
                 arrows: [
                     { from: 1, to: 4 },
                     { from: 3, to: 2 }
@@ -390,7 +391,7 @@ test("default reference resolving", t => {
             },
             (err, res) => {
                 t2.notOk(res)
-                t2.equal("" + err, "Error: Unresolvable references in json: \"3\", \"4\"")
+                t2.equal("" + err, 'Error: Unresolvable references in json: "3", "4"')
                 t2.end()
             }
         )
@@ -411,9 +412,7 @@ test("it should hand to handle colliding references", t => {
     function Circle(id) {
         this.id = id
     }
-    function Arrow(from, to) {
-
-    }
+    function Arrow(from, to) {}
     _.createModelSchema(Box, {
         id: _.identifier()
     })
@@ -453,16 +452,12 @@ test("it should handle refs to subtypes", t => {
     function Box(id) {
         this.id = id
     }
-    function Circle(id) {
-    }
-    function Arrow(from, to) {
-
-    }
+    function Circle(id) {}
+    function Arrow(from, to) {}
     _.createModelSchema(Box, {
         id: _.identifier()
     })
-    _.createModelSchema(Circle, {
-    })
+    _.createModelSchema(Circle, {})
     _.getDefaultModelSchema(Circle).extends = _.getDefaultModelSchema(Box)
 
     _.createModelSchema(Arrow, {
@@ -490,16 +485,13 @@ test("it should handle refs to subtypes", t => {
     })
 
     test("it should not find supertypes", t2 => {
-        t2.throws(
-            () => {
-                _.deserialize(Store, {
-                    boxes: [{ id: 1 }, { id: 2}],
-                    arrows: [{ from: 1, to: 2 }], // to should be Circle, not a Box
-                    circles: [{ id: 3 }]
-                })
-            },
-            /Error: Unresolvable references in json: "2"/
-        )
+        t2.throws(() => {
+            _.deserialize(Store, {
+                boxes: [{ id: 1 }, { id: 2 }],
+                arrows: [{ from: 1, to: 2 }], // to should be Circle, not a Box
+                circles: [{ id: 3 }]
+            })
+        }, /Error: Unresolvable references in json: "2"/)
         t2.end()
     })
 
@@ -510,12 +502,13 @@ test("identifier can register themselves", t => {
     var todos = {}
 
     var s = _.createSimpleSchema({
-        id: _.identifier((id, object) => todos[id] = object),
+        id: _.identifier((id, object) => (todos[id] = object)),
         title: true
     })
 
     _.deserialize(s, {
-        id: 1, title: "test0"
+        id: 1,
+        title: "test0"
     })
     _.deserialize(s, [
         { id: 2, title: "test2" },

@@ -1,17 +1,30 @@
-import {serializable, primitive, serialize, deserialize, list, object, reference, identifier, serializeAll} from "../../"
-import {observable, autorun} from "mobx"
+import {
+    serializable,
+    primitive,
+    serialize,
+    deserialize,
+    list,
+    object,
+    reference,
+    identifier,
+    serializeAll
+} from "../../"
+import { observable, autorun } from "mobx"
 
 const test = require("tape")
 
 test("should work in babel", t => {
     class A {
-        @serializable @observable
+        @serializable
+        @observable
         w
 
-        @serializable @observable
+        @serializable
+        @observable
         x = 3
 
-        @observable @serializable(primitive())
+        @observable
+        @serializable(primitive())
         y = 4
 
         @serializable(true)
@@ -28,20 +41,20 @@ test("should work in babel", t => {
     })
 
     t.equal(called, 1)
-    t.deepEqual(res, { w: undefined, x: 3, y: 4, z: 5})
+    t.deepEqual(res, { w: undefined, x: 3, y: 4, z: 5 })
     a.z++ // no autorun
     t.equal(a.z, 6)
 
     a.y++
     t.equal(called, 2)
-    t.deepEqual(res, { w: undefined, x: 3, y: 5, z: 6})
+    t.deepEqual(res, { w: undefined, x: 3, y: 5, z: 6 })
 
     a.x++
     t.equal(called, 3)
-    t.deepEqual(res, { w: undefined, x: 4, y: 5, z: 6})
+    t.deepEqual(res, { w: undefined, x: 4, y: 5, z: 6 })
 
-    const b = deserialize(A, { x: 1, y: 2, z: 3})
-    t.deepEqual(serialize(b), {w: undefined, x: 1, y: 2, z: 3})
+    const b = deserialize(A, { x: 1, y: 2, z: 3 })
+    t.deepEqual(serialize(b), { w: undefined, x: 1, y: 2, z: 3 })
     t.ok(b instanceof A)
 
     t.end()
@@ -59,17 +72,19 @@ test("[babel] it should handle prototypes", t => {
     }
 
     t.deepEqual(serialize(new A()), {
-        a: "hoi", a2: "oeps"
+        a: "hoi",
+        a2: "oeps"
     })
 
     t.deepEqual(serialize(new B()), {
-        a: "hoi", a2: "oeps",
-        b: "boe", b2: "oef"
+        a: "hoi",
+        a2: "oeps",
+        b: "boe",
+        b2: "oef"
     })
 
     t.end()
 })
-
 
 test.skip("[ts] it should handle not yet defined modelschema's for classes", t => {
     // classes are declared as var, not as function, so aren't hoisted :'(
@@ -89,7 +104,7 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
         ref: 1,
         child: [
             { id: 2, title: "foo" },
-            { id: 1, title: "bar "}
+            { id: 1, title: "bar " }
         ]
     }
     const m = deserialize(Message, json)
@@ -137,7 +152,6 @@ test("issue 10", t => {
     t.end()
 })
 
-
 test("[babel] @serializeAll", t => {
     @serializeAll
     class Store {
@@ -145,13 +159,13 @@ test("[babel] @serializeAll", t => {
         b
     }
 
-    const store = new Store
+    const store = new Store()
     store.c = 5
     store.d = {}
 
-    t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5})
+    t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5 })
 
-    const store2 = deserialize(Store, { a: 2, b: 3, c: 4})
+    const store2 = deserialize(Store, { a: 2, b: 3, c: 4 })
     t.equal(store2.a, 2)
     t.equal(store2.b, 3)
     t.equal(store2.c, 4)

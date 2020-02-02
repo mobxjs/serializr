@@ -24,7 +24,8 @@ test("it should serialize simple object", t1 => {
         var d = { x: 1 }
         update(schema, a, d)
         t.deepEqual(a, {
-            y: 1337, x: 1
+            y: 1337,
+            x: 1
         })
 
         test("it should skip missing attrs", t3 => {
@@ -50,7 +51,8 @@ test("it should serialize simple object", t1 => {
         var d = { x: 1 }
         update(schema, a, d)
         t.deepEqual(a, {
-            y: 1337, x: 1
+            y: 1337,
+            x: 1
         })
 
         test("it should skip missing attrs", t3 => {
@@ -66,7 +68,7 @@ test("it should serialize simple object", t1 => {
     })
 
     test("it should (de)serialize arrays", t => {
-        var data = [ { x: 1 }, { x: 2}]
+        var data = [{ x: 1 }, { x: 2 }]
 
         t.deepEqual(serialize(schema, data), data)
         t.deepEqual(deserialize(schema, data), data)
@@ -83,57 +85,74 @@ test("it should support 'false' and 'true' propSchemas", t => {
         y: false
     })
 
-    var a = { x: 1, y : 2}
+    var a = { x: 1, y: 2 }
     t.deepEqual(_.serialize(s, a), { x: 1 })
 
-    _.update(s, a, { x: 4, y : 3})
+    _.update(s, a, { x: 4, y: 3 })
     t.equal(a.x, 4)
     t.equal(a.y, 2)
     t.end()
 })
 
 test("it should respect `*` : true (primitive) prop schemas", t => {
-    var s = _.createSimpleSchema({ "*" : true })
+    var s = _.createSimpleSchema({ "*": true })
     t.deepEqual(_.serialize(s, { a: 42, b: 17 }), { a: 42, b: 17 })
     t.deepEqual(_.deserialize(s, { a: 42, b: 17 }), { a: 42, b: 17 })
 
     t.deepEqual(_.serialize(s, { a: new Date(), d: 2 }), { d: 2 })
-    t.deepEqual(_.serialize(s, { a: {}, d: 2 }), { d: 2})
+    t.deepEqual(_.serialize(s, { a: {}, d: 2 }), { d: 2 })
 
-    t.throws(() => _.deserialize(s, { a: new Date() }), /encountered non primitive value while deserializing/)
-    t.throws(() => _.deserialize(s, { a: {} }), /encountered non primitive value while deserializing/)
+    t.throws(
+        () => _.deserialize(s, { a: new Date() }),
+        /encountered non primitive value while deserializing/
+    )
+    t.throws(
+        () => _.deserialize(s, { a: {} }),
+        /encountered non primitive value while deserializing/
+    )
     var s2 = _.createSimpleSchema({
-        "*" : true,
+        "*": true,
         a: _.date()
     })
     t.doesNotThrow(() => _.serialize(s2, { a: new Date(), d: 2 }))
     t.deepEqual(_.serialize(s2, { c: {}, d: 2 }), { a: undefined, d: 2 })
 
     t.doesNotThrow(() => _.deserialize(s2, { a: new Date().getTime() }), /bla/)
-    t.throws(() => _.deserialize(s2, { c: {}, d: 2 }), /encountered non primitive value while deserializing/)
+    t.throws(
+        () => _.deserialize(s2, { c: {}, d: 2 }),
+        /encountered non primitive value while deserializing/
+    )
 
     // don't assign aliased attrs
     var s3 = _.createSimpleSchema({
         a: _.alias("b", true),
-        "*" : true,
+        "*": true
     })
-    t.deepEqual(_.deserialize(s3, { b: 4, a: 5}), { a: 4 })
-
+    t.deepEqual(_.deserialize(s3, { b: 4, a: 5 }), { a: 4 })
 
     t.end()
 })
 
 test("it should respect `*` : schema prop schemas", t => {
-    var schema = Object.assign(_.createSimpleSchema({
-            x: optional(primitive()),
-        }), { pattern: /^\d.\d+$/ })
+    var schema = Object.assign(
+        _.createSimpleSchema({
+            x: optional(primitive())
+        }),
+        { pattern: /^\d.\d+$/ }
+    )
 
-    var s = _.createSimpleSchema({ "*" : schema} )
-    t.deepEqual(_.serialize(s, { "1.0": {x: 42}, "2.10": {x: 17 } }), { "1.0": {x: 42}, "2.10": {x: 17 } })
-    t.deepEqual(_.deserialize(s, { "1.0": {x: 42}, "2.10": {x: 17 } }), { "1.0": {x: 42}, "2.10": {x: 17 } })
+    var s = _.createSimpleSchema({ "*": schema })
+    t.deepEqual(_.serialize(s, { "1.0": { x: 42 }, "2.10": { x: 17 } }), {
+        "1.0": { x: 42 },
+        "2.10": { x: 17 }
+    })
+    t.deepEqual(_.deserialize(s, { "1.0": { x: 42 }, "2.10": { x: 17 } }), {
+        "1.0": { x: 42 },
+        "2.10": { x: 17 }
+    })
 
     t.deepEqual(_.serialize(s, { a: new Date(), d: 2 }), {})
-    t.deepEqual(_.serialize(s, { a: {}, "2.10": {x: 17 } }), { "2.10": {x: 17 }})
+    t.deepEqual(_.serialize(s, { a: {}, "2.10": { x: 17 } }), { "2.10": { x: 17 } })
 
     // deserialize silently ignores properties that aren't objects:
     //     if (json === null || json === undefined || typeof json !== "object")
@@ -141,19 +160,18 @@ test("it should respect `*` : schema prop schemas", t => {
     t.deepEqual(_.deserialize(s, { "1.0": "not an object" }), {})
 
     var s2 = _.createSimpleSchema({
-        "*" : schema,
+        "*": schema,
         "1.0": _.date()
     })
     t.doesNotThrow(() => _.serialize(s2, { "1.0": new Date(), d: 2 }))
-    t.deepEqual(_.serialize(s2, { c: {}, "2.0": {x: 2} }), { "1.0": undefined, "2.0": {x: 2} })
+    t.deepEqual(_.serialize(s2, { c: {}, "2.0": { x: 2 } }), { "1.0": undefined, "2.0": { x: 2 } })
 
     // don't assign aliased attrs
     var s3 = _.createSimpleSchema({
         a: _.alias("1.0", true),
-        "*" : schema,
+        "*": schema
     })
-    t.deepEqual(_.deserialize(s3, { b: 4, "1.0": 5,  "2.0": {x: 2}}), { a: 5,  "2.0": {x: 2}})
-
+    t.deepEqual(_.deserialize(s3, { b: 4, "1.0": 5, "2.0": { x: 2 } }), { a: 5, "2.0": { x: 2 } })
 
     t.end()
 })
@@ -161,8 +179,12 @@ test("it should respect `*` : schema prop schemas", t => {
 test("it should respect custom schemas", t => {
     var s = _.createSimpleSchema({
         a: _.custom(
-            function(v) { return v + 2 },
-            function(v) { return v - 2 }
+            function(v) {
+                return v + 2
+            },
+            function(v) {
+                return v - 2
+            }
         )
     })
     t.deepEqual(_.serialize(s, { a: 4 }), { a: 6 })
@@ -174,21 +196,29 @@ test("it should not set values for custom serializers/deserializer that return S
     t.equal(typeof _.SKIP, "symbol")
     var s = _.createSimpleSchema({
         a: _.custom(
-            function(v) { return v },
-            function() { return _.SKIP }
+            function(v) {
+                return v
+            },
+            function() {
+                return _.SKIP
+            }
         )
     })
 
     t.deepEqual(_.serialize(s, { a: 4 }), { a: 4 })
-    t.deepEqual(_.deserialize(s, { a: 4 }), { })
+    t.deepEqual(_.deserialize(s, { a: 4 }), {})
 
     s = _.createSimpleSchema({
         a: _.custom(
-            function() { return _.SKIP },
-            function() { return undefined }
+            function() {
+                return _.SKIP
+            },
+            function() {
+                return undefined
+            }
         )
     })
-    t.deepEqual(_.serialize(s, { a: 4 }), { })
+    t.deepEqual(_.serialize(s, { a: 4 }), {})
     t.deepEqual(_.deserialize(s, { a: 4 }), { a: undefined })
 
     t.end()
@@ -205,14 +235,15 @@ test("it should not serialize values for optional properties", t => {
     var a = { y: 1337 }
     var s = serialize(schema, a)
 
-    t.deepEqual(s, {requiredProp: undefined})
+    t.deepEqual(s, { requiredProp: undefined })
     // Note that this behavior is only one-way: it doesn't set props as undefined on the deserialized object.
     t.deepEqual(deserialize(schema, s), {})
 
     var d = { optionalProp: 1 }
     update(schema, a, d)
     t.deepEqual(a, {
-        y: 1337, optionalProp: 1
+        y: 1337,
+        optionalProp: 1
     })
 
     test("it should skip missing attrs", t3 => {
@@ -231,8 +262,12 @@ test("it should pass key and object to custom schemas", t => {
     var s = _.createSimpleSchema({
         a: primitive(),
         b: _.custom(
-            function(v, k, obj) { return k + String(v * obj.b) },
-            function(v) { return v }
+            function(v, k, obj) {
+                return k + String(v * obj.b)
+            },
+            function(v) {
+                return v
+            }
         )
     })
     t.deepEqual(_.serialize(s, { a: 2, b: 4 }), { a: 2, b: "b16" })
@@ -244,8 +279,12 @@ test("it should pass context to custom schemas", t => {
     var s = _.createSimpleSchema({
         a: primitive(),
         b: _.custom(
-            function(v) { return v },
-            function(v, context) { return context.json.a }
+            function(v) {
+                return v
+            },
+            function(v, context) {
+                return context.json.a
+            }
         )
     })
     t.deepEqual(_.serialize(s, { a: 4, b: 2 }), { a: 4, b: 2 })
@@ -262,8 +301,8 @@ test("it should respect extends", t => {
     })
     subSchema.extends = superSchema
 
-    var source = { x: 7, y: 8}
-    var json = { x: 7, z: 8}
+    var source = { x: 7, y: 8 }
+    var json = { x: 7, z: 8 }
     t.deepEqual(serialize(subSchema, source), json)
     t.deepEqual(deserialize(subSchema, json), source)
 
@@ -276,18 +315,17 @@ test("it should respect aliases", t => {
         y: _.alias("z", primitive())
     })
 
-    var source = { x: 7, y: 8}
-    var json = { x: 7, z: 8}
+    var source = { x: 7, y: 8 }
+    var json = { x: 7, z: 8 }
     t.deepEqual(serialize(schema, source), json)
     t.deepEqual(deserialize(schema, json), source)
 
     t.end()
 })
 
-
 test("it should respect lists", t => {
     var schema = _.createSimpleSchema({
-        x: _.list(primitive()),
+        x: _.list(primitive())
     })
 
     var source = { x: [7, 8, 9] }
@@ -346,7 +384,7 @@ test("it should respect refs", t => {
     t.end()
 })
 
-test("it should respect raw", (t) => {
+test("it should respect raw", t => {
     var rawData = {
         a: 1,
         b: [],
@@ -383,8 +421,8 @@ test("it should support maps", t => {
     t.deepEqual(deserialize(schema, json), source)
 
     // recycle objects if possible
-    update(schema, source, { x: { bar: 3, baz: 4 }})
-    t.deepEqual(source, { x: { bar: 3, baz: 4 }})
+    update(schema, source, { x: { bar: 3, baz: 4 } })
+    t.deepEqual(source, { x: { bar: 3, baz: 4 } })
 
     t.end()
 })
@@ -417,8 +455,8 @@ test("it should support ES6 maps", t => {
 
     // recycle objects if possible
     var m = source.x
-    update(schema, source, { x: { bar: 3, baz: 4 }})
-    t.deepEqual(serialize(schema, source), { x: { bar: 3, baz: 4 }})
+    update(schema, source, { x: { bar: 3, baz: 4 } })
+    t.deepEqual(serialize(schema, source), { x: { bar: 3, baz: 4 } })
     t.ok(source.x === m)
     t.ok(source.x instanceof Map)
 
@@ -443,17 +481,22 @@ test("it should support mapAsArray", t => {
     }
 
     var source = factory()
-    source.x.set(1, {id: 1, name: "Darth Vader"})
-    source.x.set(2, {id: 2, name: "Leia"})
-    var json = {x: [{id: 1, name: "Darth Vader"}, {id: 2, name: "Leia"}]}
+    source.x.set(1, { id: 1, name: "Darth Vader" })
+    source.x.set(2, { id: 2, name: "Leia" })
+    var json = {
+        x: [
+            { id: 1, name: "Darth Vader" },
+            { id: 2, name: "Leia" }
+        ]
+    }
 
     t.deepEqual(serialize(schema, source), json)
     t.deepEqual(deserialize(schema, json), source)
 
     //recycle objects if possible
     var m = source.x
-    update(schema, source, { x: [{id: 3, name: "Luke"}] })
-    t.deepEqual(serialize(schema, source), { x: [{id: 3, name: "Luke"}] })
+    update(schema, source, { x: [{ id: 3, name: "Luke" }] })
+    t.deepEqual(serialize(schema, source), { x: [{ id: 3, name: "Luke" }] })
     t.ok(source.x === m)
     t.ok(source.x instanceof Map)
 
