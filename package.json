@@ -6,15 +6,15 @@
     "module": "lib/es/serializr.js",
     "typings": "lib/serializr.d.ts",
     "scripts": {
-        "test": "npm run build-test && node test/index",
+        "test": "yarn run build-test && node test/index",
         "lint": "eslint src",
-        "prepare": "npm run build && npm run build-docs",
+        "prepare": "yarn run build && yarn run build-docs",
         "build": "rollup --config --no-treeshake",
         "build-docs": "documentation readme src/serializr.js --github --section API",
-        "build-test": "npm run build-test-babel && npm run build-test-ts",
+        "build-test": "yarn run build-test-babel && yarn run build-test-ts",
         "build-test-ts": "tsc -p test/typescript",
         "build-test-babel": "babel test/babel/babel.js -o test/babel/babel-compiled.js",
-        "coverage": "npm run build-test && istanbul cover tape test/*.js",
+        "coverage": "yarn run build-test && istanbul cover tape test/*.js",
         "prettier": "prettier --write {src,test}/**/*.{ts,js}"
     },
     "keywords": [
