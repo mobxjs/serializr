@@ -154,10 +154,7 @@ test("it should respect `*` : schema prop schemas", t => {
     t.deepEqual(_.serialize(s, { a: new Date(), d: 2 }), {})
     t.deepEqual(_.serialize(s, { a: {}, "2.10": { x: 17 } }), { "2.10": { x: 17 } })
 
-    // deserialize silently ignores properties that aren't objects:
-    //     if (json === null || json === undefined || typeof json !== "object")
-    //         return void callback(null, null)
-    t.deepEqual(_.deserialize(s, { "1.0": "not an object" }), {})
+    t.deepEqual(_.deserialize(s, { "1.0": "not an object" }), { "1.0": null })
 
     var s2 = _.createSimpleSchema({
         "*": starPropSchema,

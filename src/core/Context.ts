@@ -1,20 +1,8 @@
-import { GUARDED_NOOP, once, invariant, isAssignableTo } from "../utils/utils"
-import { ClazzOrModelSchema, ModelSchema } from "../api/types"
+import { once, invariant, isAssignableTo } from "../utils/utils"
+import { ModelSchema } from "../api/types"
 
 const rootContextCache = new WeakMap()
 
-// export interface Context {
-//     json: any
-//     target: any
-//     parentContext: Context
-//     args: any
-//     await(
-//         modelschema: ClazzOrModelSchema<any>,
-//         id: string,
-//         callback?: (err: any, result: any) => void
-//     ): any
-//     rootContext: Context
-// }
 export default class Context<T = any> {
     private isRoot: boolean
     private pendingCallbacks: number
