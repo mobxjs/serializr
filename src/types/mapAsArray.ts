@@ -12,10 +12,8 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  * allowed to have non-string keys in the map. The serialized json also may be slightly more
  * compact.
  *
- * @param {any} propSchema
- * @param {string} keyPropertyName - the property of stored objects used as key in the map
- * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
- * @returns {PropSchema}
+ * @param keyPropertyName - the property of stored objects used as key in the map
+ * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
 export default function mapAsArray(
     propSchema: PropSchema,

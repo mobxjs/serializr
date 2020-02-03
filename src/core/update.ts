@@ -13,12 +13,12 @@ import { ClazzOrModelSchema } from "../api/types"
  * Properties will always updated entirely, but properties not present in the json will be kept as is.
  * Further this method behaves similar to deserialize.
  *
- * @param {object} modelSchema, optional if it can be inferred from the instance type
- * @param {object} target target instance to update
- * @param {object} json the json to deserialize
- * @param {function} callback the callback to invoke once deserialization has completed.
- * @param {*} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
- * @returns {object|array} deserialized object, possibly incomplete.
+ * @param modelSchema, optional if it can be inferred from the instance type
+ * @param target target instance to update
+ * @param json the json to deserialize
+ * @param callback the callback to invoke once deserialization has completed.
+ * @param customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
+ * @returns deserialized object, possibly incomplete.
  */
 export function update<T>(
     modelschema: ClazzOrModelSchema<T>,

@@ -13,8 +13,8 @@ import { Props, ModelSchema } from "./types"
  * const json = serialize(todoSchema, { title: 'Test', done: false })
  * const todo = deserialize(todoSchema, json)
  *
- * @param {object} props property mapping,
- * @returns {object} model schema
+ * @param props property mapping,
+ * @returns model schema
  */
 export default function createSimpleSchema<T extends Object>(props: Props): ModelSchema<T> {
     return {

@@ -4,8 +4,6 @@ import { ModelSchema, Clazz } from "./types"
 /**
  * Returns the standard model schema associated with a class / constructor function
  *
- * @param {object} thing
- * @returns {ModelSchema} model schema
  */
 export default function getDefaultModelSchema<T>(thing: any): ModelSchema<T> | undefined {
     if (!thing) return undefined

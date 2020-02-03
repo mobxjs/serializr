@@ -36,9 +36,8 @@ import { AdditionalPropArgs, PropSchema } from "../api/types"
  *     ],
  * })
  *
- * @param {PropSchema} propSchema to be used to (de)serialize the contents of the array
- * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
- * @returns {PropSchema}
+ * @param propSchema to be used to (de)serialize the contents of the array
+ * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
 export default function list(
     propSchema: PropSchema,
