@@ -63,15 +63,15 @@ function deserializeStarProps(
  * lookup function). The function returns an object (or array of objects), but the returned object
  * might be incomplete until the callback has fired as well (which might happen immediately)
  *
- * @param {object|array} schema to use for deserialization
- * @param {json} json data to deserialize
- * @param {function} callback node style callback that is invoked once the deserialization has
+ * @param schema to use for deserialization
+ * @param json data to deserialize
+ * @param callback node style callback that is invoked once the deserialization has
  *   finished. First argument is the optional error, second argument is the deserialized object
  *   (same as the return value)
- * @param {*} customArgs custom arguments that are available as `context.args` during the
+ * @param customArgs custom arguments that are available as `context.args` during the
  *   deserialization process. This can be used as dependency injection mechanism to pass in, for
  *   example, stores.
- * @returns {object|array} deserialized object, possibly incomplete.
+ * @returns deserialized object, possibly incomplete.
  */
 export default function deserialize<T>(
     modelschema: ClazzOrModelSchema<T>,

@@ -10,7 +10,7 @@ import { ClazzOrModelSchema, PropSchema, ModelSchema, PropDef } from "../api/typ
  *
  * @param arg1 class or modelschema to use. Optional
  * @param arg2 object(s) to serialize
- * @returns {object} serialized representation of the object
+ * @returns serialized representation of the object
  */
 export default function serialize<T>(modelSchema: ClazzOrModelSchema<T>, instance: T): any
 export default function serialize<T>(instance: T): any

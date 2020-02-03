@@ -18,9 +18,8 @@ import { PropSchema, PropDef } from "../api/types"
  *
  * serialize(new Todo('test')) // { "task": "test" }
  *
- * @param {string} name name of the json field to be used for this property
- * @param {PropSchema} propSchema propSchema to (de)serialize the contents of this field
- * @returns {PropSchema}
+ * @param name name of the json field to be used for this property
+ * @param propSchema propSchema to (de)serialize the contents of this field
  */
 export default function alias(name: string, propSchema?: PropDef): PropSchema {
     invariant(name && typeof name === "string", "expected prop name as first argument")

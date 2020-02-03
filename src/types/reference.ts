@@ -76,9 +76,8 @@ function createDefaultRefLookup(modelSchema: ModelSchema<any>) {
  * )
  *
  * @param target: ModelSchema or string
- * @param {RefLookupFunction | AdditionalPropArgs} lookupFn optional function or additionalArgs object
- * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
- * @returns {PropSchema}
+ * @param lookupFn optional function or additionalArgs object
+ * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
 export default function reference(
     modelSchema: ClazzOrModelSchema<any>,

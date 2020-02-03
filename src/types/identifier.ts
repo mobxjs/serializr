@@ -36,10 +36,9 @@ const defaultRegisterFunction: RegisterFunction = (id, value, context) => {
  *     2: { id: 2, title: 'test2' },
  * })
  *
- * @param { RegisterFunction | AdditionalPropArgs } arg1 optional registerFn: function to register this object during creation.
- * @param {AdditionalPropArgs} arg2 optional object that contains beforeDeserialize and/or afterDeserialize handlers
+ * @param arg1 optional registerFn: function to register this object during creation.
+ * @param arg2 optional object that contains beforeDeserialize and/or afterDeserialize handlers
  *
- * @returns {PropSchema}
  */
 export function identifier(
     registerFn?: RegisterFunction,

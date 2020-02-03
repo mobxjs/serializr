@@ -22,10 +22,10 @@ import { ModelSchema, Clazz, Props, Factory, ClazzOrModelSchema } from "./types"
  * const json = serialize(new Todo('Test', false))
  * const todo = deserialize(Todo, json)
  *
- * @param {constructor|class} clazz class or constructor function
- * @param {object} props property mapping
- * @param {function} factory optional custom factory. Receives context as first arg
- * @returns {object} model schema
+ * @param clazz class or constructor function
+ * @param props property mapping
+ * @param factory optional custom factory. Receives context as first arg
+ * @returns model schema
  */
 export default function createModelSchema<T extends Object>(
     clazz: Clazz<T>,

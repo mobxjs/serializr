@@ -13,8 +13,7 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  * serialize(new Model({ rawData: { a: 1, b: [], c: {} } } }))
  * // { "rawData": { a: 1, b: [], c: {} } } }
  *
- * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
- * @returns {ModelSchema}
+ * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
 export default function raw(additionalArgs: AdditionalPropArgs) {
     let result: PropSchema = {

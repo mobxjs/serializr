@@ -11,8 +11,7 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  *
  * serialize(new Todo('test')) // { "title": "test" }
  *
- * @param {AdditionalPropArgs} additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
- * @returns {ModelSchema}
+ * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
 export default function primitive(additionalArgs?: AdditionalPropArgs): PropSchema {
     let result: PropSchema = {
