@@ -6,7 +6,7 @@
     "module": "lib/es/serializr.js",
     "typings": "lib/serializr.d.ts",
     "scripts": {
-        "test": "nyc --reporter lcov tape --require source-map-support/register test/*.js",
+        "test": "nyc --reporter text tape test/*.js",
         "lint": "eslint src",
         "prepare": "yarn run build && yarn run build-docs",
         "build": "rollup --config",
@@ -66,7 +66,6 @@
         "rollup-plugin-node-resolve": "^4.0.0",
         "rollup-plugin-terser": "^4.0.4",
         "rollup-plugin-typescript2": "^0.25.3",
-        "source-map-support": "^0.5.16",
         "tape": "^4.9.2",
         "typescript": "^3.3.3"
     }
