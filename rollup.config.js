@@ -29,11 +29,6 @@ function config(format /* : "umd" | "es" */, compress /*: boolean */) {
                 exclude: [], // don't exclude .d.ts files
                 tsconfigOverride: {
                     compilerOptions: {
-                        resolveJsonModule: false,
-                        module: "esnext",
-                        moduleResolution: "node",
-                        sourceRoot: null,
-                        declarationMap: true
                     }
                 },
                 useTsconfigDeclarationDir: true

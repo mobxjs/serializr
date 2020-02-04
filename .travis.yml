@@ -1,6 +1,6 @@
 language: node_js
-script: npm run coverage
+script: yarn build-test && yarn test &&  git diff --exit-code
 after_success:
-  - cat ./coverage/lcov.info|./node_modules/coveralls/bin/coveralls.js
+    - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 node_js:
-  - "10"
+    - "10"
