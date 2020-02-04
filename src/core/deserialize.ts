@@ -5,20 +5,33 @@ import { invariant, isPrimitive, isModelSchema, parallel, GUARDED_NOOP } from ".
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import { SKIP, _defaultPrimitiveProp } from "../constants"
 import Context from "./Context"
-import { checkStarSchemaInvariant } from "./serialize"
+import {
+    ClazzOrModelSchema,
+    AfterDeserializeFunc,
+    BeforeDeserializeFunc,
+    PropSchema,
+    ModelSchema,
+    PropDef
+} from "../api/types"
 
-function schemaHasAlias(schema, name) {
-    for (var key in schema.props)
-        if (typeof schema.props[key] === "object" && schema.props[key].jsonname === name)
-            return true
+function schemaHasAlias(schema: ModelSchema<any>, name: string) {
+    for (const key in schema.props) {
+        const propSchema = schema.props[key]
+        if (typeof propSchema === "object" && propSchema.jsonname === name) return true
+    }
     return false
 }
 
-function deserializeStarProps(context, schema, propDef, obj, json) {
-    checkStarSchemaInvariant(propDef)
-    for (var key in json)
+function deserializeStarProps(
+    context: Context,
+    schema: ModelSchema<any>,
+    propDef: PropDef,
+    obj: any,
+    json: any
+) {
+    for (const key in json)
         if (!(key in schema.props) && !schemaHasAlias(schema, key)) {
-            var jsonValue = json[key]
+            const jsonValue = json[key]
             if (propDef === true) {
                 // when deserializing we don't want to silently ignore 'unparseable data' to avoid
                 // confusing bugs
@@ -30,34 +43,15 @@ function deserializeStarProps(context, schema, propDef, obj, json) {
                         jsonValue
                 )
                 obj[key] = jsonValue
-            } else if (propDef.pattern.test(key)) {
-                if (propDef.factory) {
-                    var resultValue = deserializeObjectWithSchema(
-                        context,
-                        propDef,
-                        jsonValue,
-                        context.callback || GUARDED_NOOP,
-                        {}
-                    )
-                    // deserializeObjectWithSchema returns undefined on error
-                    if (resultValue !== undefined) {
-                        obj[key] = resultValue
-                    }
-                } else {
-                    function setValue(resultValue) {
-                        if (resultValue !== SKIP) {
-                            obj[key] = resultValue
-                        }
-                    }
-                    propDef.deserializer(
-                        jsonValue,
-                        // for individual props, use root context based callbacks
-                        // this allows props to complete after completing the object itself
-                        // enabling reference resolving and such
-                        context.rootContext.createCallback(setValue),
-                        context
-                    )
-                }
+            } else if (propDef && (!propDef.pattern || propDef.pattern.test(key))) {
+                propDef.deserializer(
+                    jsonValue,
+                    // for individual props, use root context based callbacks
+                    // this allows props to complete after completing the object itself
+                    // enabling reference resolving and such
+                    context.rootContext.createCallback(r => r !== SKIP && (obj[key] = r)),
+                    context
+                )
             }
         }
 }
@@ -79,17 +73,34 @@ function deserializeStarProps(context, schema, propDef, obj, json) {
  *   example, stores.
  * @returns {object|array} deserialized object, possibly incomplete.
  */
-export default function deserialize(schema, json, callback, customArgs) {
+export default function deserialize<T>(
+    modelschema: ClazzOrModelSchema<T>,
+    jsonArray: any[],
+    callback?: (err: any, result: T[]) => void,
+    customArgs?: any
+): T[]
+export default function deserialize<T>(
+    modelschema: ClazzOrModelSchema<T>,
+    json: any,
+    callback?: (err: any, result: T) => void,
+    customArgs?: any
+): T
+export default function deserialize<T>(
+    clazzOrModelSchema: ClazzOrModelSchema<T>,
+    json: any | any[],
+    callback: (err?: any, result?: T | T[]) => void = GUARDED_NOOP,
+    customArgs?: any
+): T | T[] {
     invariant(arguments.length >= 2, "deserialize expects at least 2 arguments")
-    schema = getDefaultModelSchema(schema)
+    const schema = getDefaultModelSchema(clazzOrModelSchema)
     invariant(isModelSchema(schema), "first argument should be model schema")
     if (Array.isArray(json)) {
-        var items = []
+        const items: any[] = []
         parallel(
             json,
             function(childJson, itemDone) {
-                var instance = deserializeObjectWithSchema(
-                    null,
+                const instance = deserializeObjectWithSchema(
+                    undefined,
                     schema,
                     childJson,
                     itemDone,
@@ -98,48 +109,49 @@ export default function deserialize(schema, json, callback, customArgs) {
                 // instance is created synchronously so can be pushed
                 items.push(instance)
             },
-            callback || GUARDED_NOOP
+            callback
         )
         return items
-    } else return deserializeObjectWithSchema(null, schema, json, callback, customArgs)
+    } else {
+        return deserializeObjectWithSchema(undefined, schema, json, callback, customArgs)
+    }
 }
 
 export function deserializeObjectWithSchema(
-    parentContext,
-    modelSchema,
-    json,
-    callback,
-    customArgs
+    parentContext: Context<any> | undefined,
+    modelSchema: ModelSchema<any>,
+    json: any,
+    callback: (err?: any, value?: any) => void,
+    customArgs: any
 ) {
     if (json === null || json === undefined || typeof json !== "object")
         return void callback(null, null)
-    var context = new Context(parentContext, modelSchema, json, callback, customArgs)
-    var target = modelSchema.factory(context)
+    const context = new Context(parentContext, modelSchema, json, callback, customArgs)
+    const target = modelSchema.factory(context)
     // todo async invariant
     invariant(!!target, "No object returned from factory")
     // TODO: make invariant?            invariant(schema.extends ||
     // !target.constructor.prototype.constructor.serializeInfo, "object has a serializable
     // supertype, but modelschema did not provide extends clause")
     context.setTarget(target)
-    var lock = context.createCallback(GUARDED_NOOP)
+    const lock = context.createCallback(GUARDED_NOOP)
     deserializePropsWithSchema(context, modelSchema, json, target)
     lock()
     return target
 }
 
-export function deserializePropsWithSchema(context, modelSchema, json, target) {
+export function deserializePropsWithSchema<T>(
+    context: Context<T>,
+    modelSchema: ModelSchema<T>,
+    json: any,
+    target: T
+) {
     if (modelSchema.extends) deserializePropsWithSchema(context, modelSchema.extends, json, target)
 
-    function deserializeProp(propDef, jsonValue, propName) {
-        function setValue(value) {
-            if (value !== SKIP) {
-                target[propName] = value
-            }
-        }
-
-        function preProcess(resultCallback) {
-            return function(err, newValue) {
-                function finalCallback(errPreliminary, finalOrRetryValue) {
+    function deserializeProp(propDef: PropSchema, jsonValue: object, propName: keyof T) {
+        function preProcess(resultCallback: (err: any, result: any) => void) {
+            return function(err: any, newValue: any) {
+                function finalCallback(errPreliminary: any, finalOrRetryValue: any) {
                     if (
                         errPreliminary &&
                         finalOrRetryValue !== undefined &&
@@ -174,40 +186,51 @@ export function deserializePropsWithSchema(context, modelSchema, json, target) {
             // for individual props, use root context based callbacks
             // this allows props to complete after completing the object itself
             // enabling reference resolving and such
-            preProcess(context.rootContext.createCallback(setValue)),
+            preProcess(
+                context.rootContext.createCallback(r => r !== SKIP && (target[propName] = r))
+            ),
             context,
             target[propName] // initial value
         )
     }
 
-    Object.keys(modelSchema.props).forEach(function(propName) {
-        var propDef = modelSchema.props[propName]
+    for (const key of Object.keys(modelSchema.props) as (keyof T)[]) {
+        let propDef: PropDef = modelSchema.props[key]
+        if (!propDef) return
 
-        function callbackDeserialize(err, jsonValue) {
-            if (!err && jsonValue !== undefined) {
-                deserializeProp(propDef, jsonValue, propName)
-            }
-        }
-        if (propName === "*") {
+        if (key === "*") {
             deserializeStarProps(context, modelSchema, propDef, target, json)
             return
         }
         if (propDef === true) propDef = _defaultPrimitiveProp
-        if (propDef === false) return
-        var jsonAttr = propDef.jsonname || propName
-        var jsonValue = json[jsonAttr]
-        onBeforeDeserialize(callbackDeserialize, jsonValue, json, jsonAttr, context, propDef)
-    })
+        const jsonAttr = propDef.jsonname ?? key
+        invariant("symbol" !== typeof jsonAttr, "You must alias symbol properties. prop = %l", key)
+        const jsonValue = json[jsonAttr]
+        const propSchema = propDef
+        const callbackDeserialize = (err: any, jsonValue: any) => {
+            if (!err && jsonValue !== undefined) {
+                deserializeProp(propSchema, jsonValue, key)
+            }
+        }
+        onBeforeDeserialize(
+            callbackDeserialize,
+            jsonValue,
+            json,
+            jsonAttr as string | number,
+            context,
+            propDef
+        )
+    }
 }
 
-export function onBeforeDeserialize(
+export const onBeforeDeserialize: BeforeDeserializeFunc = (
     callback,
     jsonValue,
     jsonParentValue,
     propNameOrIndex,
     context,
     propDef
-) {
+) => {
     if (propDef && typeof propDef.beforeDeserialize === "function") {
         propDef.beforeDeserialize(
             callback,
@@ -222,7 +245,7 @@ export function onBeforeDeserialize(
     }
 }
 
-export function onAfterDeserialize(
+export const onAfterDeserialize: AfterDeserializeFunc = (
     callback,
     err,
     newValue,
@@ -231,7 +254,7 @@ export function onAfterDeserialize(
     propNameOrIndex,
     context,
     propDef
-) {
+) => {
     if (propDef && typeof propDef.afterDeserialize === "function") {
         propDef.afterDeserialize(
             callback,

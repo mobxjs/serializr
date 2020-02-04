@@ -1,6 +1,7 @@
 import { invariant } from "../utils/utils"
 import getDefaultModelSchema from "./getDefaultModelSchema"
 import setDefaultModelSchema from "./setDefaultModelSchema"
+import { ModelSchema, Clazz, Props, Factory, ClazzOrModelSchema } from "./types"
 
 /**
  * Creates a model schema that (de)serializes an object created by a constructor function (class).
@@ -18,18 +19,22 @@ import setDefaultModelSchema from "./setDefaultModelSchema"
  *     done: true,
  * });
  *
- * var json = serialize(new Todo('Test', false));
- * var todo = deserialize(Todo, json);
+ * const json = serialize(new Todo('Test', false));
+ * const todo = deserialize(Todo, json);
  *
  * @param {constructor|class} clazz class or constructor function
  * @param {object} props property mapping
  * @param {function} factory optional custom factory. Receives context as first arg
  * @returns {object} model schema
  */
-export default function createModelSchema(clazz, props, factory) {
-    invariant(clazz !== Object, "one cannot simply put define a model schema for Object")
+export default function createModelSchema<T extends Object>(
+    clazz: Clazz<T>,
+    props: Props,
+    factory?: Factory<T>
+): ModelSchema<T> {
+    invariant(clazz !== (Object as any), "one cannot simply put define a model schema for Object")
     invariant(typeof clazz === "function", "expected constructor function")
-    var model = {
+    const model: ModelSchema<any> = {
         targetClass: clazz,
         factory:
             factory ||
@@ -40,9 +45,10 @@ export default function createModelSchema(clazz, props, factory) {
     }
     // find super model
     if (clazz.prototype.constructor !== Object) {
-        var s = getDefaultModelSchema(clazz.prototype.constructor)
+        const s = getDefaultModelSchema(clazz.prototype.constructor)
         if (s && s.targetClass !== clazz) model.extends = s
     }
     setDefaultModelSchema(clazz, model)
     return model
 }
+const x: Clazz<any> = Object

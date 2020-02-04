@@ -1,11 +1,13 @@
-import { invariant } from "../utils/utils"
+import { invariant, isPropSchema } from "../utils/utils"
 import createModelSchema from "../api/createModelSchema"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import setDefaultModelSchema from "../api/setDefaultModelSchema"
 import object from "../types/object"
+import { Clazz, ModelSchema, PropDef } from "../api/types"
+import { _defaultPrimitiveProp } from "../constants"
 
 /**
- * The `serializeAll` decorator can may used on a class to signal that all primitive properties,
+ * The `serializeAll` decorator can used on a class to signal that all primitive properties,
  * or complex properties with a name matching a `pattern`, should be serialized automatically.
  *
  * @example
@@ -35,43 +37,44 @@ import object from "../types/object"
  * store.somethingElse = 5;
  * t.deepEqual(serialize(store), { a: {x: 1, y: 2}, b: { x: undefined, y: undefined } });
  */
-export default function serializeAll(targetOrPattern, clazzOrSchema) {
-    let propSchema
-    let invokeImmediately = false
+export default function serializeAll<T>(clazz: Clazz<T>): Clazz<T>
+export default function serializeAll(
+    pattern: RegExp,
+    propertyType: PropDef | Clazz<any>
+): (clazz: Clazz<any>) => Clazz<any>
+export default function serializeAll(
+    targetOrPattern: Clazz<any> | RegExp,
+    propertyType?: PropDef | Clazz<any>
+) {
+    let propSchema: PropDef
     if (arguments.length === 1) {
-        invariant(
-            typeof targetOrPattern === "function",
-            "@serializeAll can only be used as class decorator"
-        )
         propSchema = true
-        invokeImmediately = true
+        return decorator(targetOrPattern as Clazz<any>)
     } else {
         invariant(
             typeof targetOrPattern === "object" && targetOrPattern.test,
             "@serializeAll pattern doesn't have test"
         )
-        if (typeof clazzOrSchema === "function") {
-            clazzOrSchema = object(clazzOrSchema)
+        if (typeof propertyType === "function") {
+            propertyType = object(propertyType)
         }
-        invariant(
-            typeof clazzOrSchema === "object" && clazzOrSchema.serializer,
-            "couldn't resolve schema"
-        )
-        propSchema = Object.assign({}, clazzOrSchema, {
+        if (true === propertyType) {
+            propertyType = _defaultPrimitiveProp
+        }
+        invariant(isPropSchema(propertyType), "couldn't resolve schema")
+        propSchema = Object.assign({}, propertyType, {
             pattern: targetOrPattern
         })
     }
-    function result(target) {
-        var info = getDefaultModelSchema(target)
-        if (!info || !target.hasOwnProperty("serializeInfo")) {
+    function decorator(target: Clazz<any>) {
+        invariant(typeof target === "function", "@serializeAll can only be used as class decorator")
+        let info: ModelSchema<any> | undefined = getDefaultModelSchema(target)
+        if (!info) {
             info = createModelSchema(target, {})
             setDefaultModelSchema(target, info)
         }
-        getDefaultModelSchema(target).props["*"] = propSchema
+        info.props["*"] = propSchema
         return target
     }
-    if (invokeImmediately) {
-        return result(targetOrPattern)
-    }
-    return result
+    return decorator
 }

@@ -15,13 +15,13 @@ import {
     deserialize,
     serializeAll,
     getDefaultModelSchema,
-    custom
+    custom,
+    AdditionalPropArgs
 } from "../../"
 
 import { observable, autorun } from "mobx"
 
-declare var require
-const test = require("tape")
+import test = require("tape")
 
 test("should work in typescript", t => {
     class A {
@@ -417,15 +417,15 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
 
     const renameOpts = {
         beforeDeserialize: function(callback, jsonValue, jsonParentValue, propNameOrIndex) {
-            var jsonAttrName = propNameOrIndex + "1"
+            const jsonAttrName = propNameOrIndex + "1"
             jsonValue = jsonValue || jsonParentValue[jsonAttrName]
             callback(null, jsonValue)
         }
     }
 
-    const replaceValueOpts = {
+    const replaceValueOpts: AdditionalPropArgs = {
         beforeDeserialize: function(callback, jsonValue, jsonParentValue, propNameOrIndex) {
-            var jsonAttrName = propNameOrIndex + "1"
+            const jsonAttrName = propNameOrIndex + "1"
             jsonValue = (jsonValue || jsonParentValue[jsonAttrName]) + " hee"
             callback(null, jsonValue)
         },
@@ -438,9 +438,9 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             propNameOrIndex,
             context,
             propDef,
-            numRetry
+            numRetry?
         ) {
-            var err = null
+            let err = null
             if (numRetry === 0) {
                 err = new Error("retry once more")
             }
@@ -450,7 +450,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
 
     const resumeOnErrorOpts = {
         beforeDeserialize: function(callback, jsonValue, jsonParentValue, propNameOrIndex) {
-            var jsonAttrName = propNameOrIndex + "1"
+            const jsonAttrName = propNameOrIndex + "1"
             jsonValue = jsonValue || jsonParentValue[jsonAttrName]
             callback(null, jsonValue)
         },
@@ -459,16 +459,16 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
         }
     }
 
-    const removeInvalidItemsOpts = {
+    const removeInvalidItemsOpts: AdditionalPropArgs = {
         /**
          * remove all invalid objects in lists and maps,
          * also does this for reference objects asynchronously
          */
         beforeDeserialize(callback, jsonValue, jsonParentValue, propNameOrIndex, context, propDef) {
-            var numItemsWaiting = 0
-            var jsonAttrName = propNameOrIndex + "1"
+            let numItemsWaiting = 0
+            const jsonAttrName = propNameOrIndex + "1"
             jsonValue = jsonValue || jsonParentValue[jsonAttrName]
-            var result = jsonValue
+            let result = jsonValue
 
             function getValidItem(inputValue, nameOrIndex) {
                 function onItemCallback(err) {
@@ -494,7 +494,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
                         } else {
                             onItemCallback(new Error("not a valid item"))
                         }
-                    } else if (propNameOrIndex.indexOf("Ref") >= 0) {
+                    } else if (("" + propNameOrIndex).indexOf("Ref") >= 0) {
                         context.rootContext.await(
                             getDefaultModelSchema(SubData),
                             inputValue,
@@ -516,7 +516,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
                 })
             } else if (typeof jsonValue === "object") {
                 result = {}
-                var keys = Object.keys(jsonValue)
+                const keys = Object.keys(jsonValue)
                 numItemsWaiting = keys.length
                 keys.forEach(key => {
                     getValidItem(jsonValue[key], key)
@@ -535,14 +535,14 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             propNameOrIndex,
             context,
             propDef,
-            numRetry
+            numRetry?
         ) {
             if (error && error.itemKey) {
                 if (Array.isArray(jsonValue)) {
-                    var nextArray = jsonValue.splice(error.itemKey, 1)
+                    const nextArray = jsonValue.splice(error.itemKey, 1)
                     callback(error, nextArray)
                 } else {
-                    var nextObj = Object.assign({}, jsonValue)
+                    const nextObj = Object.assign({}, jsonValue)
                     delete nextObj[error.itemKey]
                     callback(error, nextObj)
                 }

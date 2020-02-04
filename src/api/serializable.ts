@@ -1,27 +1,32 @@
-import { invariant, isPropSchema } from "../utils/utils"
+import { invariant, isPropSchema, isAliasedPropSchema } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import primitive from "../types/primitive"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import createModelSchema from "../api/createModelSchema"
+import { PropSchema, ModelSchema, PropDef } from "./types"
+import Context from "../core/Context"
 
 // Ugly way to get the parameter names since they aren't easily retrievable via reflection
-var STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm
-var ARGUMENT_NAMES = /([^\s,]+)/g
+const STRIP_COMMENTS = /((\/\/.*$)|(\/\*[\s\S]*?\*\/))/gm
+const ARGUMENT_NAMES = /([^\s,]+)/g
 
-function getParamNames(func) {
-    var fnStr = func.toString().replace(STRIP_COMMENTS, "")
-    var result = fnStr.slice(fnStr.indexOf("(") + 1, fnStr.indexOf(")")).match(ARGUMENT_NAMES)
-    if (result === null) result = []
-    return result
+function getParamNames(func: Function) {
+    const fnStr = func.toString().replace(STRIP_COMMENTS, "")
+    return fnStr.slice(fnStr.indexOf("(") + 1, fnStr.indexOf(")")).match(ARGUMENT_NAMES) ?? []
 }
 
-function serializableDecorator(propSchema, target, propName, descriptor) {
+function serializableDecorator(
+    propSchema: PropSchema,
+    target: any,
+    propName: string,
+    descriptor: PropertyDescriptor | undefined
+) {
     invariant(
         arguments.length >= 2,
         "too few arguments. Please use @serializable as property decorator"
     )
     // Fix for @serializable used in class constructor params (typescript)
-    var factory
+    let factory
     if (
         propName === undefined &&
         typeof target === "function" &&
@@ -30,34 +35,31 @@ function serializableDecorator(propSchema, target, propName, descriptor) {
         typeof descriptor === "number"
     ) {
         invariant(isPropSchema(propSchema), "Constructor params must use alias(name)")
-        invariant(propSchema.jsonname, "Constructor params must use alias(name)")
-        var paramNames = getParamNames(target)
+        invariant(isAliasedPropSchema(propSchema), "Constructor params must use alias(name)")
+        const paramNames = getParamNames(target)
         if (paramNames.length >= descriptor) {
             propName = paramNames[descriptor]
             propSchema.paramNumber = descriptor
             descriptor = undefined
             target = target.prototype
             // Create a factory so the constructor is called properly
-            factory = function(context) {
-                var params = []
-                for (var i = 0; i < target.constructor.length; i++) {
+            factory = function(context: Context) {
+                const params: any = []
+                for (let i = 0; i < target.constructor.length; i++) {
                     Object.keys(context.modelSchema.props).forEach(function(key) {
-                        var prop = context.modelSchema.props[key]
-                        if (prop.paramNumber === i) {
-                            params[i] = context.json[prop.jsonname]
+                        const prop = context.modelSchema.props[key]
+                        if ((prop as PropSchema).paramNumber === i) {
+                            params[i] = context.json[(prop as PropSchema).jsonname!]
                         }
                     })
                 }
 
-                return new (Function.prototype.bind.apply(
-                    target.constructor,
-                    [null].concat(params)
-                ))()
+                return target.constructor.bind(undefined, ...params)
             }
         }
     }
     invariant(typeof propName === "string", "incorrect usage of @serializable decorator")
-    var info = getDefaultModelSchema(target)
+    let info: ModelSchema<any> | undefined = getDefaultModelSchema(target)
 
     if (!info || !target.constructor.hasOwnProperty("serializeInfo"))
         info = createModelSchema(target.constructor, {}, factory)
@@ -90,22 +92,40 @@ function serializableDecorator(propSchema, target, propName, descriptor) {
  *     }
  * }
  *
- * var json = serialize(new Todo('Test', false));
- * var todo = deserialize(Todo, json);
+ * const json = serialize(new Todo('Test', false));
+ * const todo = deserialize(Todo, json);
  *
  * @param arg1
  * @param arg2
  * @param arg3
  * @returns {PropertyDescriptor}
  */
-export default function serializable(arg1, arg2, arg3) {
-    if (arguments.length === 1) {
+export default function serializable(
+    propSchema: PropDef
+): (target: any, key: string, baseDescriptor?: PropertyDescriptor) => void
+export default function serializable(
+    target: any,
+    key: string,
+    baseDescriptor?: PropertyDescriptor
+): void
+export default function serializable(
+    targetOrPropSchema: any | PropDef,
+    key?: string,
+    baseDescriptor?: PropertyDescriptor
+) {
+    if (!key) {
         // decorated with propSchema
-        var propSchema = arg1 === true ? _defaultPrimitiveProp : arg1
+        const propSchema =
+            targetOrPropSchema === true ? _defaultPrimitiveProp : (targetOrPropSchema as PropSchema)
         invariant(isPropSchema(propSchema), "@serializable expects prop schema")
-        return serializableDecorator.bind(null, propSchema)
+        const result: (
+            target: Object,
+            key: string,
+            baseDescriptor: PropertyDescriptor
+        ) => void = serializableDecorator.bind(null, propSchema)
+        return result
     } else {
         // decorated without arguments, treat as primitive
-        return serializableDecorator(primitive(), arg1, arg2, arg3)
+        serializableDecorator(primitive(), targetOrPropSchema, key, baseDescriptor!)
     }
 }

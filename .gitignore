@@ -9,3 +9,4 @@ coverage
 .DS_Store
 test/typescript/ts.js
 test/babel/babel-compiled.js
+.nyc_output

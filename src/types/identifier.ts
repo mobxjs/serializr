@@ -1,7 +1,8 @@
 import { invariant, processAdditionalPropArgs } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
+import { AdditionalPropArgs, PropSchema, RegisterFunction } from "../api/types"
 
-function defaultRegisterFunction(id, value, context) {
+const defaultRegisterFunction: RegisterFunction = (id, value, context) => {
     context.rootContext.resolve(context.modelSchema, id, context.target)
 }
 
@@ -17,9 +18,9 @@ function defaultRegisterFunction(id, value, context) {
  * have been deserialized yet.
  *
  * @example
- * var todos = {};
+ * const todos = {};
  *
- * var s = _.createSimpleSchema({
+ * const s = _.createSimpleSchema({
  *     id: _.identifier((id, object) => (todos[id] = object)),
  *     title: true,
  * });
@@ -40,8 +41,17 @@ function defaultRegisterFunction(id, value, context) {
  *
  * @returns {PropSchema}
  */
-export default function identifier(arg1, arg2) {
-    var registerFn, additionalArgs
+export function identifier(
+    registerFn?: RegisterFunction,
+    additionalArgs?: AdditionalPropArgs
+): PropSchema
+export function identifier(additionalArgs: AdditionalPropArgs): PropSchema
+export default function identifier(
+    arg1?: RegisterFunction | AdditionalPropArgs,
+    arg2?: AdditionalPropArgs
+) {
+    let registerFn: RegisterFunction
+    let additionalArgs: AdditionalPropArgs | undefined
     if (typeof arg1 === "function") {
         registerFn = arg1
         additionalArgs = arg2
@@ -52,15 +62,19 @@ export default function identifier(arg1, arg2) {
         !additionalArgs || typeof additionalArgs === "object",
         "Additional property arguments should be an object, register function should be omitted or a funtion"
     )
-    var result = {
+    let result: PropSchema = {
         identifier: true,
         serializer: _defaultPrimitiveProp.serializer,
         deserializer: function(jsonValue, done, context) {
-            _defaultPrimitiveProp.deserializer(jsonValue, function(err, id) {
-                defaultRegisterFunction(id, context.target, context)
-                if (registerFn) registerFn(id, context.target, context)
-                done(err, id)
-            })
+            _defaultPrimitiveProp.deserializer(
+                jsonValue,
+                function(err, id) {
+                    defaultRegisterFunction(id, context.target, context)
+                    if (registerFn) registerFn(id, context.target, context)
+                    done(err, id)
+                },
+                context
+            )
         }
     }
     result = processAdditionalPropArgs(result, additionalArgs)

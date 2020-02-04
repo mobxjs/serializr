@@ -6,6 +6,7 @@ import { invariant, isModelSchema, GUARDED_NOOP } from "../utils/utils"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import Context from "./Context"
 import { deserializePropsWithSchema } from "./deserialize"
+import { ClazzOrModelSchema } from "../api/types"
 
 /**
  * Similar to deserialize, but updates an existing object instance.
@@ -19,8 +20,27 @@ import { deserializePropsWithSchema } from "./deserialize"
  * @param {*} customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
  * @returns {object|array} deserialized object, possibly incomplete.
  */
-export default function update(modelSchema, target, json, callback, customArgs) {
-    var inferModelSchema = arguments.length === 2 || typeof arguments[2] === "function" // only target and json // callback as third arg
+export function update<T>(
+    modelschema: ClazzOrModelSchema<T>,
+    instance: T,
+    json: any,
+    callback?: (err: any, result: T) => void,
+    customArgs?: any
+): void
+export function update<T>(
+    instance: T,
+    json: any,
+    callback?: (err: any, result: T) => void,
+    customArgs?: any
+): void
+export default function update(
+    modelSchema: any,
+    target: any,
+    json: any,
+    callback: any,
+    customArgs?: any
+) {
+    const inferModelSchema = arguments.length === 2 || typeof arguments[2] === "function" // only target and json // callback as third arg
 
     if (inferModelSchema) {
         target = arguments[0]
@@ -36,10 +56,10 @@ export default function update(modelSchema, target, json, callback, customArgs) 
         typeof target === "object" && target && !Array.isArray(target),
         "update needs an object"
     )
-    var context = new Context(null, modelSchema, json, callback, customArgs)
+    const context = new Context(undefined, modelSchema, json, callback || GUARDED_NOOP, customArgs)
     context.setTarget(target)
-    var lock = context.createCallback(GUARDED_NOOP)
-    var result = deserializePropsWithSchema(context, modelSchema, json, target)
+    const lock = context.createCallback(GUARDED_NOOP)
+    const result = deserializePropsWithSchema(context, modelSchema, json, target)
     lock()
     return result
 }

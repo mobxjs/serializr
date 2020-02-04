@@ -214,7 +214,7 @@ test("test context and factories", t => {
             t.deepEqual(context.parentContext, mContext)
             t.deepEqual(context.parentContext.target, theMessage)
             t.deepEqual(context.args, myArgs)
-            t.deepEqual(context.target, null) // only available after factory has been invoked
+            t.deepEqual(context.target, undefined) // only available after factory has been invoked
             return new Comment()
         },
         props: {
@@ -226,9 +226,9 @@ test("test context and factories", t => {
         factory: context => {
             mContext = context
             t.deepEqual(context.json, json)
-            t.deepEqual(context.parentContext, null)
+            t.deepEqual(context.parentContext, undefined)
             t.deepEqual(context.args, myArgs)
-            t.deepEqual(context.target, null) // only available after factory has been invoked
+            t.deepEqual(context.target, undefined) // only available after factory has been invoked
             return (theMessage = new Message())
         },
         props: {

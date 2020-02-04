@@ -54,6 +54,7 @@ export { default as createModelSchema } from "./api/createModelSchema"
 export { default as getDefaultModelSchema } from "./api/getDefaultModelSchema"
 export { default as setDefaultModelSchema } from "./api/setDefaultModelSchema"
 export { default as serializable } from "./api/serializable"
+export * from "./api/types"
 
 /*
  * ## Serialization and deserialization
