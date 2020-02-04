@@ -6,7 +6,7 @@
     "module": "lib/es/serializr.js",
     "typings": "lib/serializr.d.ts",
     "scripts": {
-        "test": "nyc --reporter text tape test/*.js",
+        "test": "nyc --reporter lcov tape test/*.js",
         "lint": "eslint src",
         "prepare": "yarn run build && yarn run build-docs",
         "build": "rollup --config",
