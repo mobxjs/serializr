@@ -1,6 +1,11 @@
 import Context from "../core/Context"
 import { SKIP } from "../constants"
 
+/**
+ * JSON is just an alias of `any`, it is used in function signatures to make clear which arguments expected to be JSON.
+ */
+export type JSON = any
+
 export interface AdditionalPropArgs {
     beforeDeserialize?: BeforeDeserializeFunc
     afterDeserialize?: AfterDeserializeFunc
@@ -10,9 +15,9 @@ export type PropSerializer = (
     sourcePropertyValue: any,
     key: string | number | symbol,
     sourceObject: any
-) => any | SKIP
+) => JSON | SKIP
 export type PropDeserializer = (
-    jsonValue: any,
+    jsonValue: JSON,
     callback: (err?: any, targetPropertyValue?: any | SKIP) => void,
     context: Context,
     currentPropertyValue?: any
@@ -35,8 +40,8 @@ export type AfterDeserializeFunc = (
     callback: (err: any, value: any) => void,
     err: any,
     newValue: any,
-    jsonValue: any,
-    jsonParentValue: any,
+    jsonValue: JSON,
+    jsonParentValue: JSON,
     propNameOrIndex: string | number | symbol,
     context: Context,
     propDef: PropSchema
@@ -44,8 +49,8 @@ export type AfterDeserializeFunc = (
 
 export type BeforeDeserializeFunc = (
     callback: (err: any, value: any) => void,
-    jsonValue: any,
-    jsonParentValue: any,
+    jsonValue: JSON,
+    jsonParentValue: JSON,
     propNameOrIndex: string | number,
     context: Context,
     propDef: PropSchema

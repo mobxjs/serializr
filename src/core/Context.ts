@@ -28,7 +28,7 @@ export default class Context<T = any> {
     constructor(
         readonly parentContext: Context<any> | undefined,
         readonly modelSchema: ModelSchema<T>,
-        readonly json: any,
+        readonly json: JSON,
         private readonly onReadyCb: (err?: any, value?: T) => void,
         customArgs?: any[]
     ) {

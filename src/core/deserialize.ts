@@ -11,7 +11,8 @@ import {
     BeforeDeserializeFunc,
     PropSchema,
     ModelSchema,
-    PropDef
+    PropDef,
+    JSON
 } from "../api/types"
 
 function schemaHasAlias(schema: ModelSchema<any>, name: string) {
@@ -27,7 +28,7 @@ function deserializeStarProps(
     schema: ModelSchema<any>,
     propDef: PropDef,
     obj: any,
-    json: any
+    json: JSON
 ) {
     for (const key in json)
         if (!(key in schema.props) && !schemaHasAlias(schema, key)) {
@@ -75,19 +76,19 @@ function deserializeStarProps(
  */
 export default function deserialize<T>(
     modelschema: ClazzOrModelSchema<T>,
-    jsonArray: any[],
+    jsonArray: JSON[],
     callback?: (err: any, result: T[]) => void,
     customArgs?: any
 ): T[]
 export default function deserialize<T>(
     modelschema: ClazzOrModelSchema<T>,
-    json: any,
+    json: JSON,
     callback?: (err: any, result: T) => void,
     customArgs?: any
 ): T
 export default function deserialize<T>(
     clazzOrModelSchema: ClazzOrModelSchema<T>,
-    json: any | any[],
+    json: JSON | JSON[],
     callback: (err?: any, result?: T | T[]) => void = GUARDED_NOOP,
     customArgs?: any
 ): T | T[] {
@@ -95,7 +96,7 @@ export default function deserialize<T>(
     const schema = getDefaultModelSchema(clazzOrModelSchema)
     invariant(isModelSchema(schema), "first argument should be model schema")
     if (Array.isArray(json)) {
-        const items: any[] = []
+        const items: JSON[] = []
         parallel(
             json,
             function(childJson, itemDone) {
@@ -120,7 +121,7 @@ export default function deserialize<T>(
 export function deserializeObjectWithSchema(
     parentContext: Context<any> | undefined,
     modelSchema: ModelSchema<any>,
-    json: any,
+    json: JSON,
     callback: (err?: any, value?: any) => void,
     customArgs: any
 ) {
@@ -143,7 +144,7 @@ export function deserializeObjectWithSchema(
 export function deserializePropsWithSchema<T>(
     context: Context<T>,
     modelSchema: ModelSchema<T>,
-    json: any,
+    json: JSON,
     target: T
 ) {
     if (modelSchema.extends) deserializePropsWithSchema(context, modelSchema.extends, json, target)

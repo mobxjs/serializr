@@ -6,7 +6,7 @@ import { invariant, isModelSchema, GUARDED_NOOP } from "../utils/utils"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import Context from "./Context"
 import { deserializePropsWithSchema } from "./deserialize"
-import { ClazzOrModelSchema } from "../api/types"
+import { ClazzOrModelSchema, JSON } from "../api/types"
 
 /**
  * Similar to deserialize, but updates an existing object instance.
@@ -23,20 +23,20 @@ import { ClazzOrModelSchema } from "../api/types"
 export function update<T>(
     modelschema: ClazzOrModelSchema<T>,
     instance: T,
-    json: any,
+    json: JSON,
     callback?: (err: any, result: T) => void,
     customArgs?: any
 ): void
 export function update<T>(
     instance: T,
-    json: any,
+    json: JSON,
     callback?: (err: any, result: T) => void,
     customArgs?: any
 ): void
 export default function update(
     modelSchema: any,
     target: any,
-    json: any,
+    json: JSON,
     callback: any,
     customArgs?: any
 ) {
