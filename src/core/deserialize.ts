@@ -124,20 +124,6 @@ export function deserializeObjectWithSchema(
     callback: (err?: any, value?: any) => void,
     customArgs: any
 ) {
-    if (json === null || json === undefined || typeof json !== "object")
-        return void callback(null, null)
-    const context = new Context(parentContext, modelSchema, json, callback, customArgs)
-    const target = modelSchema.factory(context)
-    // todo async invariant
-    invariant(!!target, "No object returned from factory")
-    // TODO: make invariant?            invariant(schema.extends ||
-    // !target.constructor.prototype.constructor.serializeInfo, "object has a serializable
-    // supertype, but modelschema did not provide extends clause")
-    context.setTarget(target)
-    const lock = context.createCallback(GUARDED_NOOP)
-    deserializePropsWithSchema(context, modelSchema, json, target)
-    lock()
-    return target
 }
 
 export function deserializePropsWithSchema<T>(

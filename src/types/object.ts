@@ -3,6 +3,7 @@ import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import serialize from "../core/serialize"
 import { deserializeObjectWithSchema } from "../core/deserialize"
 import { ClazzOrModelSchema, AdditionalPropArgs, PropSchema } from "../api/types"
+import Context from "../core/Context"
 
 /**
  * `object` indicates that this property contains an object that needs to be (de)serialized
@@ -48,15 +49,30 @@ export default function object(
             if (item === null || item === undefined) return item
             return serialize(modelSchema, item)
         },
-        deserializer: function(childJson, done, context) {
+        deserializer: function(jsonValue, callback, parentContext) {
             modelSchema = getDefaultModelSchema(modelSchema)!
+
+            if (jsonValue === null || jsonValue === undefined || typeof jsonValue !== "object")
+                return void callback(null, null)
+            const context = new Context(parentContext, modelSchema, jsonValue, callback, customArgs)
+            const target = modelSchema.factory(context)
+            // todo async invariant
+            invariant(!!target, "No object returned from factory")
+            // TODO: make invariant?            invariant(schema.extends ||
+            // !target.constructor.prototype.constructor.serializeInfo, "object has a serializable
+            // supertype, but modelschema did not provide extends clause")
+            context.setTarget(target)
+            const lock = context.createCallback(GUARDED_NOOP)
+            deserializePropsWithSchema(context, modelSchema, jsonValue, target)
+            lock()
+            return target
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
-            if (childJson === null || childJson === undefined) return void done(null, childJson)
+            if (jsonValue === null || jsonValue === undefined) return void callback(null, jsonValue)
             return void deserializeObjectWithSchema(
-                context,
+                parentContext,
                 modelSchema,
-                childJson,
-                done,
+                jsonValue,
+                callback,
                 undefined
             )
         }

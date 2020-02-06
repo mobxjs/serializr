@@ -15,7 +15,8 @@ export type PropDeserializer = (
     jsonValue: any,
     callback: (err?: any, targetPropertyValue?: any | SKIP) => void,
     context: Context,
-    currentPropertyValue?: any
+    currentPropertyValue?: any,
+    customArg?: any
 ) => void
 export interface PropSchema {
     serializer: PropSerializer
