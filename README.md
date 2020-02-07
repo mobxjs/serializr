@@ -326,7 +326,7 @@ const myHandler = {
      }  
   },
   afterDeserialize: function (callback, error, newValue, jsonValue, jsonParentValue, propNameOrIndex, context,
-                                                                  propDef, numRetry) {
+                                                                  propDef) {
      if (!error && newValue !== 'needs change') {
        callback(null, newValue)
      } else if (!error && newValue === 'needs change') {
