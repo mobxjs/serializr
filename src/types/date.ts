@@ -1,14 +1,14 @@
 import { invariant, processAdditionalPropArgs } from "../utils/utils"
-import { PropSchema, AdditionalPropArgs } from "../api/types"
+import { Schema, AdditionalPropArgs } from "../api/types"
 
 /**
  * Similar to primitive, serializes instances of Date objects
  *
  * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
-export default function date(additionalArgs?: AdditionalPropArgs): PropSchema {
+export default function date(additionalArgs?: AdditionalPropArgs): Schema {
     // TODO: add format option?
-    let result: PropSchema = {
+    let result: Schema = {
         serializer: function(value) {
             if (value === null || value === undefined) return value
             invariant(value instanceof Date, "Expected Date object")

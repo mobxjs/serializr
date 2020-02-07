@@ -8,7 +8,7 @@ import {
 } from "../utils/utils"
 import { onAfterDeserialize, onBeforeDeserialize } from "../core/deserialize"
 import { _defaultPrimitiveProp } from "../constants"
-import { AdditionalPropArgs, PropSchema } from "../api/types"
+import { AdditionalPropArgs, Schema } from "../api/types"
 
 /**
  * List indicates that this property contains a list of things.
@@ -39,17 +39,14 @@ import { AdditionalPropArgs, PropSchema } from "../api/types"
  * @param propSchema to be used to (de)serialize the contents of the array
  * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
-export default function list(
-    propSchema: PropSchema,
-    additionalArgs?: AdditionalPropArgs
-): PropSchema {
+export default function list(propSchema: Schema, additionalArgs?: AdditionalPropArgs): Schema {
     propSchema = propSchema || _defaultPrimitiveProp
     invariant(isPropSchema(propSchema), "expected prop schema as first argument")
     invariant(
         !isAliasedPropSchema(propSchema),
         "provided prop is aliased, please put aliases first"
     )
-    let result: PropSchema = {
+    let result: Schema = {
         serializer: function(ar) {
             if (ar === undefined) {
                 return SKIP

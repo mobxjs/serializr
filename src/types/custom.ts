@@ -1,5 +1,5 @@
 import { invariant, processAdditionalPropArgs } from "../utils/utils"
-import { AdditionalPropArgs, PropSchema, PropSerializer } from "../api/types"
+import { AdditionalPropArgs, Schema, PropSerializer } from "../api/types"
 import { SKIP } from "../constants"
 
 /**
@@ -64,7 +64,7 @@ export default function custom(
     serializer: PropSerializer,
     deserializer: (jsonValue: any, context: any, oldValue: any) => any | SKIP,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): Schema
 export default function custom(
     serializer: PropSerializer,
     deserializer: (
@@ -74,7 +74,7 @@ export default function custom(
         callback: (err: any, result: any | SKIP) => void
     ) => void,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): Schema
 export default function custom(
     serializer: PropSerializer,
     deserializer:
@@ -86,10 +86,10 @@ export default function custom(
               callback: (err: any, result: any | SKIP) => void
           ) => void),
     additionalArgs?: AdditionalPropArgs
-): PropSchema {
+): Schema {
     invariant(typeof serializer === "function", "first argument should be function")
     invariant(typeof deserializer === "function", "second argument should be a function or promise")
-    let result: PropSchema = {
+    let result: Schema = {
         serializer: serializer,
         deserializer: function(jsonValue, done, context, oldValue) {
             const result = deserializer(jsonValue, context, oldValue, done)

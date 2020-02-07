@@ -4,13 +4,10 @@ import { ModelSchema } from "../api/types"
 const rootContextCache = new WeakMap()
 
 export default class Context<T = any> {
-    private isRoot: boolean
     private pendingCallbacks: number
     private pendingRefsCount: number
     public target: any
     private hasError: boolean
-    public rootContext: Context<any>
-    private args: any
     private pendingRefs!: {
         [uuid: string]: {
             modelSchema: ModelSchema<any>
@@ -26,29 +23,20 @@ export default class Context<T = any> {
     }
 
     constructor(
-        readonly parentContext: Context<any> | undefined,
         readonly modelSchema: ModelSchema<T>,
         readonly json: any,
         private readonly onReadyCb: (err?: any, value?: T) => void,
-        customArgs?: any[]
+        private readonly args?: any
     ) {
-        this.isRoot = !parentContext
         this.pendingCallbacks = 0
         this.pendingRefsCount = 0
         this.target = undefined // always set this property using setTarget
         this.hasError = false
-        if (!parentContext) {
-            this.rootContext = this
-            this.args = customArgs
-            this.pendingRefs = {}
-            this.resolvedRefs = {}
-        } else {
-            this.rootContext = parentContext.rootContext
-            this.args = parentContext.args
-        }
+        this.pendingRefs = {}
+        this.resolvedRefs = {}
     }
 
-    createCallback(fn: (value: T) => void) {
+    createCallback(fn: (value: any) => void) {
         this.pendingCallbacks++
         // once: defend against user-land calling 'done' twice
         return once((err?: any, value?: T) => {
@@ -85,7 +73,6 @@ export default class Context<T = any> {
     // given an object with uuid, modelSchema, callback, awaits until the given uuid is available
     // resolve immediately if possible
     await(modelSchema: ModelSchema<any>, uuid: string, callback: (err?: any, value?: any) => void) {
-        invariant(this.isRoot, "await can only be called on the root context")
         if (uuid in this.resolvedRefs) {
             const match = this.resolvedRefs[uuid].filter(function(resolved) {
                 return isAssignableTo(resolved.modelSchema, modelSchema)
@@ -103,7 +90,6 @@ export default class Context<T = any> {
 
     // given a model schema, uuid and value, resolve all references that were looking for this object
     resolve(modelSchema: ModelSchema<any>, uuid: string, value: any) {
-        invariant(this.isRoot, "resolve can only called on the root context")
         if (!this.resolvedRefs[uuid]) this.resolvedRefs[uuid] = []
         this.resolvedRefs[uuid].push({
             modelSchema: modelSchema,
@@ -123,7 +109,7 @@ export default class Context<T = any> {
 
     // set target and update root context cache
     setTarget(target: T) {
-        if (this.isRoot && this.target) {
+        if (this.target) {
             rootContextCache.delete(this.target)
         }
         this.target = target
@@ -132,7 +118,6 @@ export default class Context<T = any> {
 
     // call all remaining reference lookup callbacks indicating an error during ref resolution
     cancelAwaits() {
-        invariant(this.isRoot, "cancelAwaits can only be called on the root context")
         const self = this
         Object.keys(this.pendingRefs).forEach(function(uuid) {
             self.pendingRefs[uuid].forEach(function(refOpts) {

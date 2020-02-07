@@ -1,9 +1,9 @@
 import { invariant, processAdditionalPropArgs } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
-import { AdditionalPropArgs, PropSchema, RegisterFunction } from "../api/types"
+import { AdditionalPropArgs, Schema, RegisterFunction } from "../api/types"
 
 const defaultRegisterFunction: RegisterFunction = (id, value, context) => {
-    context.rootContext.resolve(context.modelSchema, id, context.target)
+    context.resolve(context.modelSchema, id, context.target)
 }
 
 /**
@@ -43,8 +43,8 @@ const defaultRegisterFunction: RegisterFunction = (id, value, context) => {
 export function identifier(
     registerFn?: RegisterFunction,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
-export function identifier(additionalArgs: AdditionalPropArgs): PropSchema
+): Schema
+export function identifier(additionalArgs: AdditionalPropArgs): Schema
 export default function identifier(
     arg1?: RegisterFunction | AdditionalPropArgs,
     arg2?: AdditionalPropArgs
@@ -61,7 +61,7 @@ export default function identifier(
         !additionalArgs || typeof additionalArgs === "object",
         "Additional property arguments should be an object, register function should be omitted or a funtion"
     )
-    let result: PropSchema = {
+    let result: Schema = {
         identifier: true,
         serializer: _defaultPrimitiveProp.serializer,
         deserializer: function(jsonValue, done, context) {

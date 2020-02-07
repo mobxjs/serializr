@@ -3,7 +3,7 @@ import { _defaultPrimitiveProp } from "../constants"
 import primitive from "../types/primitive"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import createModelSchema from "../api/createModelSchema"
-import { PropSchema, ModelSchema, PropDef } from "./types"
+import { Schema, ModelSchema, PropDef } from "./types"
 import Context from "../core/Context"
 
 // Ugly way to get the parameter names since they aren't easily retrievable via reflection
@@ -16,7 +16,7 @@ function getParamNames(func: Function) {
 }
 
 function serializableDecorator(
-    propSchema: PropSchema,
+    propSchema: Schema,
     target: any,
     propName: string,
     descriptor: PropertyDescriptor | undefined
@@ -48,8 +48,8 @@ function serializableDecorator(
                 for (let i = 0; i < target.constructor.length; i++) {
                     Object.keys(context.modelSchema.props).forEach(function(key) {
                         const prop = context.modelSchema.props[key]
-                        if ((prop as PropSchema).paramNumber === i) {
-                            params[i] = context.json[(prop as PropSchema).jsonname!]
+                        if ((prop as Schema).paramNumber === i) {
+                            params[i] = context.json[(prop as Schema).jsonname!]
                         }
                     })
                 }
@@ -112,7 +112,7 @@ export default function serializable(
     if (!key) {
         // decorated with propSchema
         const propSchema =
-            targetOrPropSchema === true ? _defaultPrimitiveProp : (targetOrPropSchema as PropSchema)
+            targetOrPropSchema === true ? _defaultPrimitiveProp : (targetOrPropSchema as Schema)
         invariant(isPropSchema(propSchema), "@serializable expects prop schema")
         const result: (
             target: Object,

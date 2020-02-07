@@ -13,12 +13,12 @@ export type PropSerializer = (
 ) => any | SKIP
 export type PropDeserializer = (
     jsonValue: any,
-    callback: (err?: any, targetPropertyValue?: any | SKIP) => void,
+    callback: (err?: any, newValue?: any | SKIP) => void,
     context: Context,
     currentPropertyValue?: any,
     customArg?: any
 ) => void
-export interface PropSchema {
+export interface Schema {
     serializer: PropSerializer
     deserializer: PropDeserializer
     beforeDeserialize?: BeforeDeserializeFunc
@@ -40,7 +40,7 @@ export type AfterDeserializeFunc = (
     jsonParentValue: any,
     propNameOrIndex: string | number | symbol,
     context: Context,
-    propDef: PropSchema
+    propDef: Schema
 ) => void
 
 export type BeforeDeserializeFunc = (
@@ -49,7 +49,7 @@ export type BeforeDeserializeFunc = (
     jsonParentValue: any,
     propNameOrIndex: string | number,
     context: Context,
-    propDef: PropSchema
+    propDef: Schema
 ) => void
 
 export type Factory<T> = (context: Context) => T
@@ -61,7 +61,7 @@ export type Factory<T> = (context: Context) => T
 export type Props<T = any> = {
     [propName in keyof T]: PropDef
 }
-export type PropDef = PropSchema | boolean | undefined
+export type PropDef = Schema | boolean | undefined
 
 export interface ModelSchema<T> {
     targetClass?: Clazz<any>
