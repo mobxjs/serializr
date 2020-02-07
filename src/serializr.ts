@@ -77,6 +77,7 @@ export { default as list } from "./types/list"
 export { default as map } from "./types/map"
 export { default as mapAsArray } from "./types/mapAsArray"
 export { default as raw } from "./types/raw"
+export { default as poly } from "./types/poly"
 
 export { SKIP } from "./constants"
 

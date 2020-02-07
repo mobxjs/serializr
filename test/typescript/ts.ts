@@ -16,7 +16,8 @@ import {
     serializeAll,
     getDefaultModelSchema,
     custom,
-    AdditionalPropArgs
+    AdditionalPropArgs,
+    createSimpleSchema
 } from "../../"
 
 import { observable, autorun } from "mobx"
@@ -699,4 +700,38 @@ test("[ts] tests from serializeAll documentation", t => {
     t.deepEqual(serialize(complexStore), { a: { x: 1, y: 2 }, b: { x: undefined } })
 
     t.end()
+})
+test("poly", t => {
+    class Animal {
+        @serialize
+        public heightInCm: number
+
+        constructor(heightInCm: number) {
+            this.heightInCm = heightInCm
+        }
+    }
+    class Dog extends Animal {
+        @serialize
+        public name: string
+
+        constructor(name: string) {
+            this.name = name
+        }
+    }
+    class Cat extends Animal {
+        @serialize
+        public name: string
+
+        constructor(name: string) {
+            this.name = name
+        }
+    }
+
+    const petHolderSchema = createSimpleSchema({ pet: poly([Dog, Cat]) })
+
+    const petHolderJson = {
+        pet: { $class: "Dog", heightInCm: 12, name: "13" }
+    }
+    t.deepEqual(serialize(petHolderSchema, { pet: new Dog(12, 13) }), petHolderJson)
+    t.ok(deserialize(petHolderSchema, petHolderJson).pet instanceof Dog, "pet instanceof Dog")
 })
