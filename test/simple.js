@@ -134,14 +134,14 @@ test("it should respect `*` : true (primitive) prop schemas", t => {
 })
 
 test("it should respect `*` : schema prop schemas", t => {
-    var starPropSchema = _.object(
+    var starSchema = _.object(
         _.createSimpleSchema({
             x: optional(primitive())
         }),
         { pattern: /^\d.\d+$/ }
     )
 
-    var s = _.createSimpleSchema({ "*": starPropSchema })
+    var s = _.createSimpleSchema({ "*": starSchema })
     t.deepEqual(_.serialize(s, { "1.0": { x: 42 }, "2.10": { x: 17 } }), {
         "1.0": { x: 42 },
         "2.10": { x: 17 }
@@ -157,7 +157,7 @@ test("it should respect `*` : schema prop schemas", t => {
     t.deepEqual(_.deserialize(s, { "1.0": "not an object" }), { "1.0": null })
 
     var s2 = _.createSimpleSchema({
-        "*": starPropSchema,
+        "*": starSchema,
         "1.0": _.date()
     })
     t.doesNotThrow(() => _.serialize(s2, { "1.0": new Date(), d: 2 }))
@@ -166,7 +166,7 @@ test("it should respect `*` : schema prop schemas", t => {
     // don't assign aliased attrs
     var s3 = _.createSimpleSchema({
         a: _.alias("1.0", true),
-        "*": starPropSchema
+        "*": starSchema
     })
     t.deepEqual(_.deserialize(s3, { b: 4, "1.0": 5, "2.0": { x: 2 } }), { a: 5, "2.0": { x: 2 } })
 

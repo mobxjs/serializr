@@ -80,6 +80,7 @@ export default function object(
             return target
         }
     }
+    result = Object.assign(modelSchema, result)
     result = processAdditionalPropArgs(result, additionalArgs)
     return result
 }
@@ -168,7 +169,7 @@ export function deserializePropsWithSchema<T>(
     context: Context<T>,
     modelSchema: ModelSchema<T>,
     json: any,
-    target: T
+    target: any
 ) {
     if (modelSchema.extends) deserializePropsWithSchema(context, modelSchema.extends, json, target)
 
@@ -186,10 +187,16 @@ export function deserializePropsWithSchema<T>(
         const jsonValue = json[jsonAttr]
         const propSchema = propDef
         doDeserialize(
-            context.createCallback(r => r !== SKIP && (target[propName] = r)),
+            context.createCallback(r => {
+                if (r === SKIP) return
+                target[key] = r
+                if (propSchema.identifier) {
+                    context.resolve(modelSchema, r, target)
+                }
+            }),
             jsonValue,
             json,
-            jsonAttr,
+            jsonAttr as string | number,
             context,
             propSchema
         )

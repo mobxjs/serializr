@@ -1,13 +1,13 @@
 import {
     invariant,
-    isAliasedPropSchema,
-    isPropSchema,
+    isAliasedSchema,
+    isSchema,
     isMapLike,
     processAdditionalPropArgs
 } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import list from "./list"
-import { PropSchema, AdditionalPropArgs } from "../api/types"
+import { Schema, AdditionalPropArgs } from "../api/types"
 
 /**
  * Similar to list, but map represents a string keyed dynamic collection.
@@ -16,17 +16,11 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  *
  * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
-export default function map(
-    propSchema: PropSchema,
-    additionalArgs?: AdditionalPropArgs
-): PropSchema {
+export default function map(propSchema: Schema, additionalArgs?: AdditionalPropArgs): Schema {
     propSchema = propSchema || _defaultPrimitiveProp
-    invariant(isPropSchema(propSchema), "expected prop schema as first argument")
-    invariant(
-        !isAliasedPropSchema(propSchema),
-        "provided prop is aliased, please put aliases first"
-    )
-    let result: PropSchema = {
+    invariant(isSchema(propSchema), "expected prop schema as first argument")
+    invariant(!isAliasedSchema(propSchema), "provided prop is aliased, please put aliases first")
+    let result: Schema = {
         serializer: function(m: Map<any, any> | { [key: string]: any }) {
             invariant(m && typeof m === "object", "expected object or Map")
             const result: { [key: string]: any } = {}

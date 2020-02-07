@@ -2,6 +2,7 @@ import { invariant } from "../utils/utils"
 import getDefaultModelSchema from "./getDefaultModelSchema"
 import setDefaultModelSchema from "./setDefaultModelSchema"
 import { ModelSchema, Clazz, Props, Factory, ClazzOrModelSchema } from "./types"
+import object from "../types/object"
 
 /**
  * Creates a model schema that (de)serializes an object created by a constructor function (class).
@@ -49,6 +50,6 @@ export default function createModelSchema<T extends Object>(
         if (s && s.targetClass !== clazz) model.extends = s
     }
     setDefaultModelSchema(clazz, model)
-    return model
+    return object(model)
 }
 const x: Clazz<any> = Object

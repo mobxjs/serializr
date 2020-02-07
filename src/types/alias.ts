@@ -1,9 +1,4 @@
-import {
-    invariant,
-    isPropSchema,
-    isAliasedPropSchema,
-    isIdentifierPropSchema
-} from "../utils/utils"
+import { invariant, isSchema, isAliasedSchema, isIdentifierSchema } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import { Schema, PropDef } from "../api/types"
 
@@ -24,13 +19,13 @@ import { Schema, PropDef } from "../api/types"
 export default function alias(name: string, propSchema?: PropDef): Schema {
     invariant(name && typeof name === "string", "expected prop name as first argument")
     propSchema = !propSchema || propSchema === true ? _defaultPrimitiveProp : propSchema
-    invariant(isPropSchema(propSchema), "expected prop schema as second argument")
-    invariant(!isAliasedPropSchema(propSchema), "provided prop is already aliased")
+    invariant(isSchema(propSchema), "expected prop schema as second argument")
+    invariant(!isAliasedSchema(propSchema), "provided prop is already aliased")
     return {
         jsonname: name,
         serializer: propSchema.serializer,
         deserializer: propSchema.deserializer,
-        identifier: isIdentifierPropSchema(propSchema) || undefined,
+        identifier: isIdentifierSchema(propSchema) || undefined,
         beforeDeserialize: propSchema.beforeDeserialize,
         afterDeserialize: propSchema.afterDeserialize
     }

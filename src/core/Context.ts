@@ -23,7 +23,6 @@ export default class Context<T = any> {
     }
 
     constructor(
-        readonly modelSchema: ModelSchema<T>,
         readonly json: any,
         private readonly onReadyCb: (err?: any, value?: T) => void,
         private readonly args?: any

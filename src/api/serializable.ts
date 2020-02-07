@@ -1,4 +1,4 @@
-import { invariant, isPropSchema, isAliasedPropSchema } from "../utils/utils"
+import { invariant, isSchema, isAliasedSchema } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import primitive from "../types/primitive"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
@@ -34,8 +34,8 @@ function serializableDecorator(
         descriptor !== undefined &&
         typeof descriptor === "number"
     ) {
-        invariant(isPropSchema(propSchema), "Constructor params must use alias(name)")
-        invariant(isAliasedPropSchema(propSchema), "Constructor params must use alias(name)")
+        invariant(isSchema(propSchema), "Constructor params must use alias(name)")
+        invariant(isAliasedSchema(propSchema), "Constructor params must use alias(name)")
         const paramNames = getParamNames(target)
         if (paramNames.length >= descriptor) {
             propName = paramNames[descriptor]
@@ -46,12 +46,12 @@ function serializableDecorator(
             factory = function(context: Context) {
                 const params: any = []
                 for (let i = 0; i < target.constructor.length; i++) {
-                    Object.keys(context.modelSchema.props).forEach(function(key) {
+                    for (const key of Object.keys(context.modelSchema.props)) {
                         const prop = context.modelSchema.props[key]
                         if ((prop as Schema).paramNumber === i) {
                             params[i] = context.json[(prop as Schema).jsonname!]
                         }
-                    })
+                    }
                 }
 
                 return target.constructor.bind(undefined, ...params)
@@ -105,15 +105,15 @@ export default function serializable(
     baseDescriptor?: PropertyDescriptor
 ): void
 export default function serializable(
-    targetOrPropSchema: any | PropDef,
+    targetOrSchema: any | PropDef,
     key?: string,
     baseDescriptor?: PropertyDescriptor
 ) {
     if (!key) {
         // decorated with propSchema
         const propSchema =
-            targetOrPropSchema === true ? _defaultPrimitiveProp : (targetOrPropSchema as Schema)
-        invariant(isPropSchema(propSchema), "@serializable expects prop schema")
+            targetOrSchema === true ? _defaultPrimitiveProp : (targetOrSchema as Schema)
+        invariant(isSchema(propSchema), "@serializable expects prop schema")
         const result: (
             target: Object,
             key: string,
@@ -122,6 +122,6 @@ export default function serializable(
         return result
     } else {
         // decorated without arguments, treat as primitive
-        serializableDecorator(primitive(), targetOrPropSchema, key, baseDescriptor!)
+        serializableDecorator(primitive(), targetOrSchema, key, baseDescriptor!)
     }
 }

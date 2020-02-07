@@ -33,6 +33,7 @@ export default function serialize<T>(modelSchemaOrInstance: ClazzOrModelSchema<T
     }
     const foundSchema = schema
     invariant(foundSchema, "Failed to find default schema for " + modelSchemaOrInstance)
-    if (Array.isArray(instance)) return instance.map(item => serializeWithSchema(foundSchema, item))
-    return serializeWithSchema(foundSchema, instance)
+    if (Array.isArray(instance))
+        return instance.map((item, index) => foundSchema.serializer(item, index, instance))
+    return foundSchema.serializer(instance, undefined, undefined)
 }

@@ -53,25 +53,26 @@ export default function deserialize<T>(
     const schema = getDefaultModelSchema(clazzOrModelSchema)
     invariant(isModelSchema(schema), "first argument should be model schema")
     if (Array.isArray(json)) {
-        const items: any[] = []
+        const result: any[] = new Array(json.length)
         parallel(
             json,
-            function(childJson, itemDone) {
-                const instance = deserializeObjectWithSchema(
-                    undefined,
-                    schema,
-                    childJson,
-                    itemDone,
-                    customArgs
-                )
+            (childJson, itemDone, idx) => {
+                const instance = deserializeWithSchema(schema, childJson, itemDone, customArgs)
                 // instance is created synchronously so can be pushed
-                items.push(instance)
+                result[idx] = instance
             },
             callback
         )
-        return items
+        return result
     } else {
-        return deserializeWithSchema(schema, json, callback, customArgs)
+        let result: T | T[] = undefined!
+        deserializeWithSchema(
+            schema,
+            json,
+            (err, value) => ((result = value), callback(err, value)),
+            customArgs
+        )
+        return result
     }
 }
 
@@ -81,14 +82,14 @@ export function deserializeWithSchema(
     callback: (err?: any, value?: any) => void,
     customArgs: any
 ) {
-    const context = new Context(schema, jsonValue, callback, customArgs)
+    const context = new Context(jsonValue, callback, customArgs)
     doDeserialize(callback, jsonValue, undefined, undefined, context, schema)
 }
 export function doDeserialize(
     callback: (err?: any, value?: any) => void,
     jsonValue: any,
     jsonParentValue: any,
-    jsonPropNameOrIndex: symbol | number | string,
+    jsonPropNameOrIndex: number | string | undefined,
     context: Context,
     schema: Schema
 ) {
@@ -97,7 +98,7 @@ export function doDeserialize(
             preprocessedJsonValue,
             schema.afterDeserialize
                 ? (err, newValue) =>
-                      schema.afterDeserialize(
+                      schema.afterDeserialize!(
                           callback,
                           err,
                           newValue,

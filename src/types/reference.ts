@@ -9,7 +9,7 @@ import {
     ClazzOrModelSchema,
     RefLookupFunction,
     AdditionalPropArgs,
-    PropSchema,
+    Schema,
     ModelSchema
 } from "../api/types"
 import Context from "../core/Context"
@@ -20,7 +20,7 @@ function createDefaultRefLookup(modelSchema: ModelSchema<any>) {
         cb: (err?: any, result?: any) => any,
         context: Context<any>
     ) {
-        context.rootContext.await(modelSchema, uuid, cb)
+        context.await(modelSchema, uuid, cb)
     }
 }
 
@@ -83,16 +83,16 @@ export default function reference(
     modelSchema: ClazzOrModelSchema<any>,
     lookupFn?: RefLookupFunction,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): Schema
 export default function reference(
     modelSchema: ClazzOrModelSchema<any>,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): Schema
 export default function reference(
     identifierAttr: string,
     lookupFn: RefLookupFunction,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): Schema
 export default function reference(
     target: ClazzOrModelSchema<any> | string,
     lookupFnOrAdditionalPropArgs?: RefLookupFunction | AdditionalPropArgs,
@@ -137,7 +137,7 @@ export default function reference(
             )
         }
     }
-    let result: PropSchema = {
+    let result: Schema = {
         serializer: function(item) {
             if (!initialized) initialize()
             return item ? item[childIdentifierAttribute!] : null

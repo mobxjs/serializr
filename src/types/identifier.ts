@@ -2,10 +2,6 @@ import { invariant, processAdditionalPropArgs } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import { AdditionalPropArgs, Schema, RegisterFunction } from "../api/types"
 
-const defaultRegisterFunction: RegisterFunction = (id, value, context) => {
-    context.resolve(context.modelSchema, id, context.target)
-}
-
 /**
  *
  *
@@ -63,18 +59,9 @@ export default function identifier(
     )
     let result: Schema = {
         identifier: true,
+        // registerFn,
         serializer: _defaultPrimitiveProp.serializer,
-        deserializer: function(jsonValue, done, context) {
-            _defaultPrimitiveProp.deserializer(
-                jsonValue,
-                function(err, id) {
-                    defaultRegisterFunction(id, context.target, context)
-                    if (registerFn) registerFn(id, context.target, context)
-                    done(err, id)
-                },
-                context
-            )
-        }
+        deserializer: _defaultPrimitiveProp.deserializer
     }
     result = processAdditionalPropArgs(result, additionalArgs)
     return result

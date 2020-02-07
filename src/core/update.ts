@@ -5,8 +5,9 @@
 import { invariant, isModelSchema, GUARDED_NOOP } from "../utils/utils"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import Context from "./Context"
-import { deserializePropsWithSchema } from "./deserialize"
 import { ClazzOrModelSchema } from "../api/types"
+import { deserializePropsWithSchema } from "../types/object"
+import { doDeserialize } from "./deserialize"
 
 /**
  * Similar to deserialize, but updates an existing object instance.
@@ -36,7 +37,7 @@ export function update<T>(
 export default function update(
     modelSchema: any,
     target: any,
-    json: any,
+    jsonValue: any,
     callback: any,
     customArgs?: any
 ) {
@@ -45,7 +46,7 @@ export default function update(
     if (inferModelSchema) {
         target = arguments[0]
         modelSchema = getDefaultModelSchema(target)
-        json = arguments[1]
+        jsonValue = arguments[1]
         callback = arguments[2]
         customArgs = arguments[3]
     } else {
@@ -56,10 +57,10 @@ export default function update(
         typeof target === "object" && target && !Array.isArray(target),
         "update needs an object"
     )
-    const context = new Context(undefined, modelSchema, json, callback || GUARDED_NOOP, customArgs)
+    const context = new Context(modelSchema, jsonValue, callback || GUARDED_NOOP, customArgs)
     context.setTarget(target)
     const lock = context.createCallback(GUARDED_NOOP)
-    const result = deserializePropsWithSchema(context, modelSchema, json, target)
+    doDeserialize(callback, jsonValue, undefined, undefined, context, modelSchema)
     lock()
-    return result
+    return target
 }
