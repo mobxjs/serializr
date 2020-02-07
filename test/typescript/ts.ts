@@ -438,13 +438,8 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             propNameOrIndex,
             context,
             propDef,
-            numRetry?
         ) {
-            let err = null
-            if (numRetry === 0) {
-                err = new Error("retry once more")
-            }
-            callback(err, newValue + " haa")
+            callback(undefined, newValue + " haa")
         }
     }
 
@@ -535,7 +530,6 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             propNameOrIndex,
             context,
             propDef,
-            numRetry?
         ) {
             if (error && error.itemKey) {
                 if (Array.isArray(jsonValue)) {
