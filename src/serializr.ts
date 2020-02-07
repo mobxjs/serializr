@@ -31,8 +31,3 @@ export { default as mapAsArray } from "./types/mapAsArray"
 export { default as raw } from "./types/raw"
 
 export { SKIP } from "./constants"
-
-// deprecated
-export { default as child } from "./types/object"
-export { default as ref } from "./types/reference"
-// ~ deprecated

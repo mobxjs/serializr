@@ -98,7 +98,7 @@ test("complex async schema", t => {
     _.createModelSchema(Post, {
         id: true,
         message: true,
-        comments: _.list(_.ref(Comment, fetchComment))
+        comments: _.list(_.reference(Comment, fetchComment))
     })
 
     function fetchComment(id, cb) {
@@ -233,7 +233,7 @@ test("test context and factories", t => {
         },
         props: {
             title: true,
-            comments: _.list(_.child(commentModel))
+            comments: _.list(_.object(commentModel))
         }
     }
 
@@ -259,7 +259,7 @@ test("sync error handling", t => {
 
     var parent = _.createSimpleSchema({
         r: _.list(
-            _.ref("id", (id, cb) => {
+            _.reference("id", (id, cb) => {
                 if (id === 42) cb("oops")
                 else cb(null, null)
             })
@@ -280,7 +280,7 @@ test("async error handling without handler", t => {
 
     var parent = _.createSimpleSchema({
         r: _.list(
-            _.ref("id", (id, cb) => {
+            _.reference("id", (id, cb) => {
                 if (id === 42)
                     setImmediate(() => {
                         // normally this error would be ungarded, killing the app
@@ -302,7 +302,7 @@ test("async error handling with handler", t => {
 
     var parent = _.createSimpleSchema({
         r: _.list(
-            _.ref("id", (id, cb) => {
+            _.reference("id", (id, cb) => {
                 if (id === 42)
                     setImmediate(() => {
                         cb("oops")
@@ -333,12 +333,12 @@ test("default reference resolving", t => {
         id: _.identifier()
     })
     _.createModelSchema(Arrow, {
-        from: _.ref(Box),
-        to: _.ref(Box)
+        from: _.reference(Box),
+        to: _.reference(Box)
     })
     _.createModelSchema(Store, {
-        boxes: _.list(_.child(Box)),
-        arrows: _.list(_.child(Arrow))
+        boxes: _.list(_.object(Box)),
+        arrows: _.list(_.object(Arrow))
     })
 
     test("it should resolve references", t => {
@@ -360,8 +360,8 @@ test("default reference resolving", t => {
 
     test("it should resolve wrongly ordered references", t => {
         var swappedScheme = _.createModelSchema(Store, {
-            arrows: _.list(_.child(Arrow)),
-            boxes: _.list(_.child(Box))
+            arrows: _.list(_.object(Arrow)),
+            boxes: _.list(_.object(Box))
         })
         var s = _.deserialize(Store, {
             arrows: [
@@ -420,13 +420,13 @@ test("it should hand to handle colliding references", t => {
         id: _.identifier()
     })
     _.createModelSchema(Arrow, {
-        from: _.ref(Box),
-        to: _.ref(Circle)
+        from: _.reference(Box),
+        to: _.reference(Circle)
     })
     _.createModelSchema(Store, {
-        boxes: _.list(_.child(Box)),
-        arrows: _.list(_.child(Arrow)),
-        circles: _.list(_.child(Circle))
+        boxes: _.list(_.object(Box)),
+        arrows: _.list(_.object(Arrow)),
+        circles: _.list(_.object(Circle))
     })
 
     var s = _.deserialize(Store, {
@@ -443,7 +443,7 @@ test("it should hand to handle colliding references", t => {
     t.end()
 })
 
-test("it should handle refs to subtypes", t => {
+test("it should handle references to subtypes", t => {
     function Store() {
         this.boxes = []
         this.arrows = []
@@ -461,13 +461,13 @@ test("it should handle refs to subtypes", t => {
     _.getDefaultModelSchema(Circle).extends = _.getDefaultModelSchema(Box)
 
     _.createModelSchema(Arrow, {
-        from: _.ref(Box),
-        to: _.ref(Circle)
+        from: _.reference(Box),
+        to: _.reference(Circle)
     })
     _.createModelSchema(Store, {
-        boxes: _.list(_.child(Box)),
-        arrows: _.list(_.child(Arrow)),
-        circles: _.list(_.child(Circle))
+        boxes: _.list(_.object(Box)),
+        arrows: _.list(_.object(Arrow)),
+        circles: _.list(_.object(Circle))
     })
 
     test("it should accept subtypes", t2 => {

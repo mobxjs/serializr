@@ -437,7 +437,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             jsonParentValue,
             propNameOrIndex,
             context,
-            propDef,
+            propDef
         ) {
             callback(undefined, newValue + " haa")
         }
@@ -529,7 +529,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             jsonParentValue,
             propNameOrIndex,
             context,
-            propDef,
+            propDef
         ) {
             if (error && error.itemKey) {
                 if (Array.isArray(jsonValue)) {

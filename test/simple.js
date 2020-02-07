@@ -338,8 +338,8 @@ test("it should respect childs", t => {
         x: primitive()
     })
     var parentSchema = _.createSimpleSchema({
-        y: _.child(childSchema),
-        z: _.child(childSchema)
+        y: _.object(childSchema),
+        z: _.object(childSchema)
     })
 
     var source = {
@@ -354,7 +354,7 @@ test("it should respect childs", t => {
     t.end()
 })
 
-test("it should respect refs", t => {
+test("it should respect references", t => {
     var objects = {
         mars: { y: 42, uuid: "mars" },
         twix: { y: 42, uuid: "twix" }
@@ -365,7 +365,7 @@ test("it should respect refs", t => {
     }
 
     var schema = _.createSimpleSchema({
-        x: _.alias("z", _.list(_.ref("uuid", lookup)))
+        x: _.alias("z", _.list(_.reference("uuid", lookup)))
     })
 
     var source = {
