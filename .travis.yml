@@ -1,5 +1,5 @@
 language: node_js
-script: yarn build-test && yarn test &&  git diff --exit-code
+script: yarn build-test && yarn test && git diff --exit-code lib README.md
 after_success:
     - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 node_js:
