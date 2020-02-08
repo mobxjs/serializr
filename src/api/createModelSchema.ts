@@ -1,7 +1,8 @@
 import { invariant } from "../utils/utils"
 import getDefaultModelSchema from "./getDefaultModelSchema"
 import setDefaultModelSchema from "./setDefaultModelSchema"
-import { ModelSchema, Clazz, Props, Factory, ClazzOrModelSchema } from "./types"
+import { ModelSchema, Clazz, Props } from "./types"
+import Context from "../core/Context"
 
 /**
  * Creates a model schema that (de)serializes an object created by a constructor function (class).
@@ -30,7 +31,7 @@ import { ModelSchema, Clazz, Props, Factory, ClazzOrModelSchema } from "./types"
 export default function createModelSchema<T extends Object>(
     clazz: Clazz<T>,
     props: Props,
-    factory?: Factory<T>
+    factory?: (context: Context) => T
 ): ModelSchema<T> {
     invariant(clazz !== (Object as any), "one cannot simply put define a model schema for Object")
     invariant(typeof clazz === "function", "expected constructor function")

@@ -365,25 +365,17 @@ A more detailed example can be found in [test/typescript/ts.ts](test/typescript/
 API
 ---
 
-### _interface_ `AdditionalPropArgs`<sub><a href="src/api/types.ts#L4">src</a></sub>
-
-#### property `beforeDeserialize`?: [BeforeDeserializeFunc](#type-beforedeserializefunc--callback-err-any-value-any--void-jsonvalue-any-jsonparentvalue-any-propnameorindex-string--number-context-context-propdef-propschema--void-src)
-
-#### property `afterDeserialize`?: [AfterDeserializeFunc](#type-afterdeserializefunc--callback-err-any-value-any--void-err-any-newvalue-any-jsonvalue-any-jsonparentvalue-any-propnameorindex-string--number--symbol-context-context-propdef-propschema--void-src)
-
-#### property `pattern`?: undefined | { test: (_propName_: string) => boolean }
-
 ### _interface_ `ModelSchema`&lt;T&gt;<sub><a href="src/api/types.ts#L65">src</a></sub>
 
 #### property `targetClass`?: [Clazz](#type-clazzt----src)&lt;any&gt;
 
-#### property `factory`: [Factory](#type-factoryt--context-context--t-src)&lt;T&gt;
+#### property `factory`: (_context_: [Context](typedoc-id-undefined)) => T
 
 #### property `props`: [Props](#type-propst----src)&lt;T&gt;
 
 #### property `extends`?: [ModelSchema](#interface-modelschematsrc)&lt;any&gt;
 
-### _interface_ `PropSchema`<sub><a href="src/api/types.ts#L20">src</a></sub>
+### _interface_ `PropSchema`<sub><a href="src/api/types.ts#L22">src</a></sub>
 
 #### property `serializer`: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src)
 
@@ -403,25 +395,27 @@ Filter properties to which this schema applies. Used with `ModelSchema.props["*"
 
 #### property `paramNumber`?: undefined | number
 
-### _type_ `AfterDeserializeFunc` = (_callback_: (_err_: any, _value_: any) => void, _err_: any, _newValue_: any, _jsonValue_: any, _jsonParentValue_: any, _propNameOrIndex_: string | number | symbol, _context_: [Context](typedoc-id-undefined), _propDef_: [PropSchema](#interface-propschemasrc)) => void <sub><a href="src/api/types.ts#L34">src</a></sub>
+### _type_ `AdditionalPropArgs` = [Pick](typedoc-id-undefined)&lt;PropSchema, &gt; <sub><a href="src/api/types.ts#L7">src</a></sub>
 
-### _type_ `BeforeDeserializeFunc` = (_callback_: (_err_: any, _value_: any) => void, _jsonValue_: any, _jsonParentValue_: any, _propNameOrIndex_: string | number, _context_: [Context](typedoc-id-undefined), _propDef_: [PropSchema](#interface-propschemasrc)) => void <sub><a href="src/api/types.ts#L45">src</a></sub>
+Can be passed to function which create `PropSchema`s to set additional properties.
+
+### _type_ `AfterDeserializeFunc` = (_callback_: (_err_: any, _value_: any) => void, _err_: any, _newValue_: any, _jsonValue_: any, _jsonParentValue_: any, _propNameOrIndex_: string | number | symbol, _context_: [Context](typedoc-id-undefined), _propDef_: [PropSchema](#interface-propschemasrc)) => void <sub><a href="src/api/types.ts#L36">src</a></sub>
+
+### _type_ `BeforeDeserializeFunc` = (_callback_: (_err_: any, _value_: any) => void, _jsonValue_: any, _jsonParentValue_: any, _propNameOrIndex_: string | number, _context_: [Context](typedoc-id-undefined), _propDef_: [PropSchema](#interface-propschemasrc)) => void <sub><a href="src/api/types.ts#L47">src</a></sub>
 
 ### _type_ `Clazz`&lt;T&gt; = { } <sub><a href="src/api/types.ts#L72">src</a></sub>
 
 ### _type_ `ClazzOrModelSchema`&lt;T&gt; = [ModelSchema](#interface-modelschematsrc)&lt;T&gt; | [Clazz](#type-clazzt----src)&lt;T&gt; <sub><a href="src/api/types.ts#L73">src</a></sub>
 
-### _type_ `Factory`&lt;T&gt; = (_context_: [Context](typedoc-id-undefined)) => T <sub><a href="src/api/types.ts#L54">src</a></sub>
-
 ### _type_ `PropDef` = [PropSchema](#interface-propschemasrc) | boolean | undefined <sub><a href="src/api/types.ts#L63">src</a></sub>
 
-### _type_ `PropDeserializer` = (_jsonValue_: any, _callback_: (_err_?: any, _targetPropertyValue_?: any | typeof [SKIP](typedoc-id-undefined)) => void, _context_: [Context](typedoc-id-undefined), _currentPropertyValue_?: any) => void <sub><a href="src/api/types.ts#L14">src</a></sub>
+### _type_ `PropDeserializer` = (_jsonValue_: any, _callback_: (_err_?: any, _targetPropertyValue_?: any | typeof [SKIP](typedoc-id-undefined)) => void, _context_: [Context](typedoc-id-undefined), _currentPropertyValue_?: any) => void <sub><a href="src/api/types.ts#L16">src</a></sub>
 
-### _type_ `PropSerializer` = (_sourcePropertyValue_: any, _key_: string | number | symbol, _sourceObject_: any) => any | typeof [SKIP](typedoc-id-undefined) <sub><a href="src/api/types.ts#L9">src</a></sub>
+### _type_ `PropSerializer` = (_sourcePropertyValue_: any, _key_: string | number | symbol, _sourceObject_: any) => any | typeof [SKIP](typedoc-id-undefined) <sub><a href="src/api/types.ts#L11">src</a></sub>
 
 ### _type_ `Props`&lt;T&gt; = { } <sub><a href="src/api/types.ts#L60">src</a></sub>
 
-true is shorthand for primitive(). false/undefined will be ignored
+true is shorthand for `primitive().` false/undefined will be ignored
 
 ### _type_ `RefLookupFunction` = (_id_: string, _callback_: (_err_: any, _result_: any) => void, _context_: [Context](typedoc-id-undefined)) => void <sub><a href="src/api/types.ts#L75">src</a></sub>
 
@@ -479,7 +473,7 @@ serialize(new Todo('test')) // { "task": "test" }
 
 Cancels an asynchronous deserialization or update operation for the specified target object.
 
-### _function_ `createModelSchema`&lt;T&gt;(_clazz_: [Clazz](#type-clazzt----src)&lt;T&gt;, _props_: [Props](#type-propst----src), _factory_?: [Factory](#type-factoryt--context-context--t-src)&lt;T&gt;): [ModelSchema](#interface-modelschematsrc)&lt;T&gt; <sub><a href="src/api/createModelSchema.ts#L30">src</a></sub>
+### _function_ `createModelSchema`&lt;T&gt;(_clazz_: [Clazz](#type-clazzt----src)&lt;T&gt;, _props_: [Props](#type-propst----src), _factory_?: undefined | ((_context_: [Context](typedoc-id-undefined)) => T)): [ModelSchema](#interface-modelschematsrc)&lt;T&gt; <sub><a href="src/api/createModelSchema.ts#L31">src</a></sub>
 
 Creates a model schema that (de)serializes an object created by a constructor function (class). The created model schema is associated by the targeted type as default model schema, see setDefaultModelSchema. Its factory method is `() => new clazz()` (unless overriden, see third arg).
 
@@ -512,7 +506,7 @@ const json = serialize(todoSchema, { title: 'Test', done: false })
 const todo = deserialize(todoSchema, json)
 ```
 
-### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any) => any | typeof [SKIP](typedoc-id-undefined), _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L63">src</a></sub>
+### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any) => any | typeof [SKIP](typedoc-id-undefined), _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L63">src</a></sub>
 
 Can be used to create simple custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
 
@@ -553,9 +547,9 @@ deserialize(schemaWithAsyncProps, { "a": 6 }, (err, res) => {
 }
 ```
 
-### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any, _callback_: (_err_: any, _result_: any | typeof [SKIP](typedoc-id-undefined)) => void) => void, _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L68">src</a></sub>
+### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any, _callback_: (_err_: any, _result_: any | typeof [SKIP](typedoc-id-undefined)) => void) => void, _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L68">src</a></sub>
 
-### _function_ `date`(_additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/date.ts#L9">src</a></sub>
+### _function_ `date`(_additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/date.ts#L9">src</a></sub>
 
 Similar to primitive, serializes instances of Date objects
 
@@ -571,9 +565,9 @@ This process might be asynchronous (for example if there are references with an 
 
 Returns the standard model schema associated with a class / constructor function
 
-### _function_ `identifier`(_arg1_?: [RegisterFunction](#type-registerfunction--id-any-object-any-context-context--void-src) | [AdditionalPropArgs](#interface-additionalpropargssrc), _arg2_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/identifier.ts#L48">src</a></sub>
+### _function_ `identifier`(_arg1_?: [RegisterFunction](#type-registerfunction--id-any-object-any-context-context--void-src) | [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src), _arg2_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/identifier.ts#L48">src</a></sub>
 
-### _function_ `list`(_propSchema_: [PropSchema](#interface-propschemasrc), _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/list.ts#L42">src</a></sub>
+### _function_ `list`(_propSchema_: [PropSchema](#interface-propschemasrc), _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/list.ts#L42">src</a></sub>
 
 List indicates that this property contains a list of things. Accepts a sub model schema to serialize the contents
 
@@ -600,15 +594,15 @@ const todo = deserialize(Todo, {
 })
 ```
 
-### _function_ `map`(_propSchema_: [PropSchema](#interface-propschemasrc), _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/map.ts#L19">src</a></sub>
+### _function_ `map`(_propSchema_: [PropSchema](#interface-propschemasrc), _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/map.ts#L19">src</a></sub>
 
 Similar to list, but map represents a string keyed dynamic collection. This can be both plain objects (default) or ES6 Map like structures. This will be inferred from the initial value of the targetted attribute.
 
-### _function_ `mapAsArray`(_propSchema_: [PropSchema](#interface-propschemasrc), _keyPropertyName_: string, _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/mapAsArray.ts#L18">src</a></sub>
+### _function_ `mapAsArray`(_propSchema_: [PropSchema](#interface-propschemasrc), _keyPropertyName_: string, _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/mapAsArray.ts#L18">src</a></sub>
 
 Similar to map, mapAsArray can be used to serialize a map-like collection where the key is contained in the 'value object'. Example: consider Map<id: number, customer: Customer> where the Customer object has the id stored on itself. mapAsArray stores all values from the map into an array which is serialized. Deserialization returns a ES6 Map or plain object object where the `keyPropertyName` of each object is used for keys. For ES6 maps this has the benefit of being allowed to have non-string keys in the map. The serialized json also may be slightly more compact.
 
-### _function_ `object`(_modelSchema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;any&gt;, _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/object.ts#L35">src</a></sub>
+### _function_ `object`(_modelSchema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;any&gt;, _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/object.ts#L35">src</a></sub>
 
 `object` indicates that this property contains an object that needs to be (de)serialized using its own model schema.
 
@@ -646,7 +640,7 @@ createModelSchema(Todo, {
 serialize(new Todo()) // {}
 ```
 
-### _function_ `primitive`(_additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/primitive.ts#L16">src</a></sub>
+### _function_ `primitive`(_additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/primitive.ts#L16">src</a></sub>
 
 Indicates that this field contains a primitive value (or Date) which should be serialized literally to json.
 
@@ -658,7 +652,7 @@ createModelSchema(Todo, {
 serialize(new Todo('test')) // { "title": "test" }
 ```
 
-### _function_ `raw`(_additionalArgs_: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/raw.ts#L18">src</a></sub>
+### _function_ `raw`(_additionalArgs_: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/raw.ts#L18">src</a></sub>
 
 Indicates that this field is only need to putted in the serialized json or deserialized instance, without any transformations. Stay with its original value
 
@@ -671,7 +665,7 @@ serialize(new Model({ rawData: { a: 1, b: [], c: {} } } }))
 // { "rawData": { a: 1, b: [], c: {} } } }
 ```
 
-### _function_ `reference`(_modelSchema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;any&gt;, _lookupFn_?: [RefLookupFunction](#type-reflookupfunction--id-string-callback-err-any-result-any--void-context-context--void-src), _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/reference.ts#L82">src</a></sub>
+### _function_ `reference`(_modelSchema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;any&gt;, _lookupFn_?: [RefLookupFunction](#type-reflookupfunction--id-string-callback-err-any-result-any--void-context-context--void-src), _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/reference.ts#L82">src</a></sub>
 
 `reference` can be used to (de)serialize references that point to other models.
 
@@ -719,9 +713,9 @@ deserialize(
 )
 ```
 
-### _function_ `reference`(_modelSchema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;any&gt;, _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/reference.ts#L87">src</a></sub>
+### _function_ `reference`(_modelSchema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;any&gt;, _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/reference.ts#L87">src</a></sub>
 
-### _function_ `reference`(_identifierAttr_: string, _lookupFn_: [RefLookupFunction](#type-reflookupfunction--id-string-callback-err-any-result-any--void-context-context--void-src), _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/reference.ts#L91">src</a></sub>
+### _function_ `reference`(_identifierAttr_: string, _lookupFn_: [RefLookupFunction](#type-reflookupfunction--id-string-callback-err-any-result-any--void-context-context--void-src), _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema--src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/reference.ts#L91">src</a></sub>
 
 ### _function_ `serializable`(_propSchema_: [PropDef](#type-propdef--propschema--boolean--undefined-src)): (_target_: any, _key_: string, _baseDescriptor_?: [PropertyDescriptor](typedoc-id-undefined)) => void <sub><a href="src/api/serializable.ts#L99">src</a></sub>
 

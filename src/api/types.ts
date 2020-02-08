@@ -1,11 +1,13 @@
 import Context from "../core/Context"
 import { SKIP } from "../constants"
 
-export interface AdditionalPropArgs {
-    beforeDeserialize?: BeforeDeserializeFunc
-    afterDeserialize?: AfterDeserializeFunc
-    pattern?: { test: (propName: string) => boolean }
-}
+/**
+ * Can be passed to function which create `PropSchema`s to set additional properties.
+ */
+export type AdditionalPropArgs = Pick<
+    PropSchema,
+    "beforeDeserialize" | "afterDeserialize" | "pattern"
+>
 export type PropSerializer = (
     sourcePropertyValue: any,
     key: string | number | symbol,
@@ -51,10 +53,8 @@ export type BeforeDeserializeFunc = (
     propDef: PropSchema
 ) => void
 
-export type Factory<T> = (context: Context) => T
-
 /**
- * true is shorthand for primitive().
+ * true is shorthand for `primitive().`
  * false/undefined will be ignored
  */
 export type Props<T = any> = {
@@ -64,7 +64,7 @@ export type PropDef = PropSchema | boolean | undefined
 
 export interface ModelSchema<T> {
     targetClass?: Clazz<any>
-    factory: Factory<T>
+    factory: (context: Context) => T
     props: Props<T>
     extends?: ModelSchema<any>
 }
