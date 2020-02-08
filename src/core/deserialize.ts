@@ -149,27 +149,17 @@ export function deserializePropsWithSchema<T>(
     if (modelSchema.extends) deserializePropsWithSchema(context, modelSchema.extends, json, target)
 
     function deserializeProp(propDef: PropSchema, jsonValue: object, propName: keyof T) {
-        function preProcess(resultCallback: (err: any, result: any) => void) {
-            return function(err: any, newValue: any) {
-                function finalCallback(errPreliminary: any, finalOrRetryValue: any) {
-                    if (
-                        errPreliminary &&
-                        finalOrRetryValue !== undefined &&
-                        typeof propDef.afterDeserialize === "function"
-                    ) {
-                        propDef.deserializer(
-                            finalOrRetryValue,
-                            preProcess(resultCallback),
-                            context,
-                            target[propName]
-                        )
-                    } else {
-                        resultCallback(errPreliminary, finalOrRetryValue)
-                    }
-                }
-
+        const whenDone = context.rootContext.createCallback(
+            r => r !== SKIP && (target[propName] = r)
+        )
+        propDef.deserializer(
+            jsonValue,
+            // for individual props, use root context based callbacks
+            // this allows props to complete after completing the object itself
+            // enabling reference resolving and such
+            (err: any, newValue: any) =>
                 onAfterDeserialize(
-                    finalCallback,
+                    whenDone,
                     err,
                     newValue,
                     jsonValue,
@@ -177,18 +167,7 @@ export function deserializePropsWithSchema<T>(
                     propName,
                     context,
                     propDef
-                )
-            }
-        }
-
-        propDef.deserializer(
-            jsonValue,
-            // for individual props, use root context based callbacks
-            // this allows props to complete after completing the object itself
-            // enabling reference resolving and such
-            preProcess(
-                context.rootContext.createCallback(r => r !== SKIP && (target[propName] = r))
-            ),
+                ),
             context,
             target[propName] // initial value
         )

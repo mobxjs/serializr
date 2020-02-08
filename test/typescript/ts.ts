@@ -532,6 +532,8 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             propDef
         ) {
             if (error && error.itemKey) {
+                // TODO: put some code here which is actually used
+                throw new Error("this never gets run!")
                 if (Array.isArray(jsonValue)) {
                     const nextArray = jsonValue.splice(error.itemKey, 1)
                     callback(error, nextArray)

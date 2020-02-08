@@ -76,7 +76,7 @@ export default function list(
                 function deserializeDone(err: any, value: any) {
                     if (typeof propSchema.afterDeserialize === "function") {
                         onAfterDeserialize(
-                            callbackAfter,
+                            onItemDone,
                             err,
                             value,
                             jsonValue,
@@ -87,18 +87,6 @@ export default function list(
                         )
                     } else {
                         onItemDone(err, value)
-                    }
-                }
-
-                function callbackAfter(errPreliminary: any, finalOrRetryValue: any) {
-                    if (
-                        errPreliminary &&
-                        finalOrRetryValue !== undefined &&
-                        typeof propSchema.afterDeserialize === "function"
-                    ) {
-                        propSchema.deserializer(finalOrRetryValue, deserializeDone, context)
-                    } else {
-                        onItemDone(errPreliminary, finalOrRetryValue)
                     }
                 }
 
