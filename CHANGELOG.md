@@ -6,6 +6,8 @@
   have returned `{}`.
 * **BREAKING CHANGE**: Removed deprecated `ref` and `child` functions. Use `reference` and `object`
   instead.
+* BREAKING CHANGE: Removed undocumented and untested code which possibly retried deserialization on
+  error.
 * You can pass a `pattern` argument as `AdditionalPropArgs` instead of having to manually assign it
   to a PropSchema: `@serializeAll("*": list(primitive(), { pattern: /^_.*/ }))`. Note this only make
   sense together with the `"*"` property.
