@@ -209,6 +209,20 @@ function TypeParameters({ of: typeParameters }: { of: JSONOutput.TypeParameterRe
         </>
     )
 }
+function TypeArguments({ of: typeParameters }: { of: JSONOutput.TypeParameterReflection[] }) {
+    // tslint:disable-next-line:no-null-keyword react requires null return value
+    if (!typeParameters) return null
+    return (
+        <>
+            {"&lt;"}
+            {reactJoin(
+                typeParameters.map(t => <Type {...t} />),
+                ", "
+            )}
+            {"&gt;"}
+        </>
+    )
+}
 function Signature({
     of,
     prefix,
@@ -241,7 +255,7 @@ function Type(type: any) {
             return (
                 <>
                     <a href={"typedoc-id-" + type.id}>{type.name}</a>
-                    <TypeParameters of={type.typeArguments} />
+                    <TypeArguments of={type.typeArguments} />
                 </>
             )
         case "intrinsic":
