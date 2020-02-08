@@ -34,6 +34,5 @@ import primitive from "./types/primitive"
  * }
  */
 export const SKIP = typeof Symbol !== "undefined" ? Symbol("SKIP") : { SKIP: true }
-export type SKIP = typeof SKIP
 
 export const _defaultPrimitiveProp = primitive()

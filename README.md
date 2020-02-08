@@ -385,9 +385,9 @@ API
 
 ### _interface_ `PropSchema`<sub><a href="src/api/types.ts#L20">src</a></sub>
 
-#### property `serializer`: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--skip-src)
+#### property `serializer`: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src)
 
-#### property `deserializer`: [PropDeserializer](#type-propdeserializer--jsonvalue-any-callback-err-any-targetpropertyvalue-any--skip--void-context-context-currentpropertyvalue-any--void-src)
+#### property `deserializer`: [PropDeserializer](#type-propdeserializer--jsonvalue-any-callback-err-any-targetpropertyvalue-any--typeof-skip--void-context-context-currentpropertyvalue-any--void-src)
 
 #### property `beforeDeserialize`?: [BeforeDeserializeFunc](#type-beforedeserializefunc--callback-err-any-value-any--void-jsonvalue-any-jsonparentvalue-any-propnameorindex-string--number-context-context-propdef-propschema--void-src)
 
@@ -415,9 +415,9 @@ Filter properties to which this schema applies. Used with `ModelSchema.props["*"
 
 ### _type_ `PropDef` = [PropSchema](#interface-propschemasrc) | boolean | undefined <sub><a href="src/api/types.ts#L63">src</a></sub>
 
-### _type_ `PropDeserializer` = (_jsonValue_: any, _callback_: (_err_?: any, _targetPropertyValue_?: any | [SKIP](#const-skipsrc)) => void, _context_: [Context](typedoc-id-undefined), _currentPropertyValue_?: any) => void <sub><a href="src/api/types.ts#L14">src</a></sub>
+### _type_ `PropDeserializer` = (_jsonValue_: any, _callback_: (_err_?: any, _targetPropertyValue_?: any | typeof [SKIP](typedoc-id-undefined)) => void, _context_: [Context](typedoc-id-undefined), _currentPropertyValue_?: any) => void <sub><a href="src/api/types.ts#L14">src</a></sub>
 
-### _type_ `PropSerializer` = (_sourcePropertyValue_: any, _key_: string | number | symbol, _sourceObject_: any) => any | [SKIP](#const-skipsrc) <sub><a href="src/api/types.ts#L9">src</a></sub>
+### _type_ `PropSerializer` = (_sourcePropertyValue_: any, _key_: string | number | symbol, _sourceObject_: any) => any | typeof [SKIP](typedoc-id-undefined) <sub><a href="src/api/types.ts#L9">src</a></sub>
 
 ### _type_ `Props`&lt;T&gt; = { } <sub><a href="src/api/types.ts#L60">src</a></sub>
 
@@ -426,8 +426,6 @@ true is shorthand for primitive(). false/undefined will be ignored
 ### _type_ `RefLookupFunction` = (_id_: string, _callback_: (_err_: any, _result_: any) => void, _context_: [Context](typedoc-id-undefined)) => void <sub><a href="src/api/types.ts#L75">src</a></sub>
 
 ### _type_ `RegisterFunction` = (_id_: any, _object_: any, _context_: [Context](typedoc-id-undefined)) => void <sub><a href="src/api/types.ts#L80">src</a></sub>
-
-### _type_ `SKIP` = typeof [SKIP](#const-skipsrc) <sub><a href="src/constants.ts#L37">src</a></sub>
 
 ### _const_ `SKIP`<sub><a href="src/constants.ts#L36">src</a></sub>
 
@@ -508,7 +506,7 @@ const json = serialize(todoSchema, { title: 'Test', done: false })
 const todo = deserialize(todoSchema, json)
 ```
 
-### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any) => any | [SKIP](#const-skipsrc), _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L63">src</a></sub>
+### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any) => any | typeof [SKIP](typedoc-id-undefined), _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L63">src</a></sub>
 
 Can be used to create simple custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
 
@@ -549,7 +547,7 @@ deserialize(schemaWithAsyncProps, { "a": 6 }, (err, res) => {
 }
 ```
 
-### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any, _callback_: (_err_: any, _result_: any | [SKIP](#const-skipsrc)) => void) => void, _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L68">src</a></sub>
+### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any, _callback_: (_err_: any, _result_: any | typeof [SKIP](typedoc-id-undefined)) => void) => void, _additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L68">src</a></sub>
 
 ### _function_ `date`(_additionalArgs_?: [AdditionalPropArgs](#interface-additionalpropargssrc)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/date.ts#L9">src</a></sub>
 

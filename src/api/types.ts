@@ -10,10 +10,10 @@ export type PropSerializer = (
     sourcePropertyValue: any,
     key: string | number | symbol,
     sourceObject: any
-) => any | SKIP
+) => any | typeof SKIP
 export type PropDeserializer = (
     jsonValue: any,
-    callback: (err?: any, targetPropertyValue?: any | SKIP) => void,
+    callback: (err?: any, targetPropertyValue?: any | typeof SKIP) => void,
     context: Context,
     currentPropertyValue?: any
 ) => void

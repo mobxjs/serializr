@@ -62,7 +62,7 @@ import { SKIP } from "../constants"
 // deserializer function.
 export default function custom(
     serializer: PropSerializer,
-    deserializer: (jsonValue: any, context: any, oldValue: any) => any | SKIP,
+    deserializer: (jsonValue: any, context: any, oldValue: any) => any | typeof SKIP,
     additionalArgs?: AdditionalPropArgs
 ): PropSchema
 export default function custom(
@@ -71,19 +71,19 @@ export default function custom(
         jsonValue: any,
         context: any,
         oldValue: any,
-        callback: (err: any, result: any | SKIP) => void
+        callback: (err: any, result: any | typeof SKIP) => void
     ) => void,
     additionalArgs?: AdditionalPropArgs
 ): PropSchema
 export default function custom(
     serializer: PropSerializer,
     deserializer:
-        | ((jsonValue: any, context: any, oldValue: any) => any | SKIP)
+        | ((jsonValue: any, context: any, oldValue: any) => any | typeof SKIP)
         | ((
               jsonValue: any,
               context: any,
               oldValue: any,
-              callback: (err: any, result: any | SKIP) => void
+              callback: (err: any, result: any | typeof SKIP) => void
           ) => void),
     additionalArgs?: AdditionalPropArgs
 ): PropSchema {
