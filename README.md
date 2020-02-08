@@ -553,13 +553,13 @@ deserialize(schemaWithAsyncProps, { "a": 6 }, (err, res) => {
 
 Similar to primitive, serializes instances of Date objects
 
-### _function_ `deserialize`&lt;T&gt;(_modelschema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;T&gt;, _jsonArray_: any\[\], _callback_?: undefined | ((_err_: any, _result_: T\[\]) => void), _customArgs_?: any): T\[\] <sub><a href="src/core/deserialize.ts#L76">src</a></sub>
+### _function_ `deserialize`&lt;T&gt;(_modelschema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;T&gt;, _jsonArray_: any\[\], _customArgs_?: any, _callback_?: undefined | ((_err_: any, _result_: T\[\]) => void)): T\[\] <sub><a href="src/core/deserialize.ts#L76">src</a></sub>
 
 Deserializes a json structure into an object graph.
 
 This process might be asynchronous (for example if there are references with an asynchronous lookup function). The function returns an object (or array of objects), but the returned object might be incomplete until the callback has fired as well (which might happen immediately)
 
-### _function_ `deserialize`&lt;T&gt;(_modelschema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;T&gt;, _json_: any, _callback_?: undefined | ((_err_: any, _result_: T) => void), _customArgs_?: any): T <sub><a href="src/core/deserialize.ts#L82">src</a></sub>
+### _function_ `deserialize`&lt;T&gt;(_modelschema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;T&gt;, _json_: any, _customArgs_?: any, _callback_?: undefined | ((_err_: any, _result_: T) => void)): T <sub><a href="src/core/deserialize.ts#L82">src</a></sub>
 
 ### _function_ `getDefaultModelSchema`&lt;T&gt;(_thing_: any): [ModelSchema](#interface-modelschematsrc)&lt;T&gt; | undefined <sub><a href="src/api/getDefaultModelSchema.ts#L8">src</a></sub>
 
@@ -793,7 +793,9 @@ Sets the default model schema for class / constructor function. Everywhere where
 
 When passing an instance of this class to `serialize`, it is not required to pass the model schema as first argument anymore, because the default schema will be inferred from the instance type.
 
-### _function_ `update`(_modelSchema_: any, _target_: any, _json_: any, _callback_: any, _customArgs_?: any): void <sub><a href="src/core/update.ts#L36">src</a></sub><!-- END API AUTOGEN -->
+### _function_ `update`&lt;T&gt;(_target_: T, _json_: any, _modelSchema_?: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;T&gt;, _customArgs_?: any, _callback_?: any): void <sub><a href="src/core/update.ts#L23">src</a></sub>
+
+Similar to deserialize, but updates an existing object instance. Properties will always updated entirely, but properties not present in the json will be kept as is. Further this method behaves similar to deserialize.<!-- END API AUTOGEN -->
 
 # Recipes and examples
 

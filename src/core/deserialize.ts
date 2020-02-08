@@ -76,20 +76,20 @@ function deserializeStarProps(
 export default function deserialize<T>(
     modelschema: ClazzOrModelSchema<T>,
     jsonArray: any[],
-    callback?: (err: any, result: T[]) => void,
-    customArgs?: any
+    customArgs?: any,
+    callback?: (err: any, result: T[]) => void
 ): T[]
 export default function deserialize<T>(
     modelschema: ClazzOrModelSchema<T>,
     json: any,
-    callback?: (err: any, result: T) => void,
-    customArgs?: any
+    customArgs?: any,
+    callback?: (err: any, result: T) => void
 ): T
 export default function deserialize<T>(
     clazzOrModelSchema: ClazzOrModelSchema<T>,
     json: any | any[],
-    callback: (err?: any, result?: T | T[]) => void = GUARDED_NOOP,
-    customArgs?: any
+    customArgs?: any,
+    callback: (err?: any, result?: T | T[]) => void = GUARDED_NOOP
 ): T | T[] {
     invariant(arguments.length >= 2, "deserialize expects at least 2 arguments")
     const schema = getDefaultModelSchema(clazzOrModelSchema)
