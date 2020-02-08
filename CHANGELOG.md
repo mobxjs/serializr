@@ -1,3 +1,4 @@
+# 2.0.0
 * #117 TypeScript conversion. Type definitions should now match behavior exactly. By @NaridaL
 * **BREAKING CHANGE**: `@serializeAll("*": ModelSchema)` is no longer valid. Instead you should pass
   `@serializeAll("*": object(ModelSchema))`.
