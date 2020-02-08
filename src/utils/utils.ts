@@ -1,5 +1,5 @@
 import invariant from "./invariant"
-import { ModelSchema, AdditionalPropArgs, PropSchema } from "../api/types"
+import { ModelSchema, AdditionalPropArgs, Schema } from "../api/types"
 
 export function GUARDED_NOOP(err?: any) {
     if (err)
@@ -56,17 +56,15 @@ export function isModelSchema(thing: any): thing is ModelSchema<any> {
     return thing && thing.factory && thing.props
 }
 
-export function isPropSchema(thing: any): thing is PropSchema {
+export function isSchema(thing: any): thing is Schema {
     return thing && thing.serializer && thing.deserializer
 }
 
-export function isAliasedPropSchema(
-    propSchema: any
-): propSchema is PropSchema & { jsonname: string } {
+export function isAliasedSchema(propSchema: any): propSchema is Schema & { jsonname: string } {
     return typeof propSchema === "object" && "string" == typeof propSchema.jsonname
 }
 
-export function isIdentifierPropSchema(propSchema: any): propSchema is PropSchema {
+export function isIdentifierSchema(propSchema: any): propSchema is Schema {
     return typeof propSchema === "object" && propSchema.identifier === true
 }
 
@@ -89,18 +87,18 @@ export function getIdentifierProp(modelSchema: ModelSchema<any>): string | undef
     let currentModelSchema: ModelSchema<any> | undefined = modelSchema
     while (currentModelSchema) {
         for (const propName in currentModelSchema.props)
-            if (isIdentifierPropSchema(currentModelSchema.props[propName])) return propName
+            if (isIdentifierSchema(currentModelSchema.props[propName])) return propName
         currentModelSchema = currentModelSchema.extends
     }
     return undefined
 }
 
-export function processAdditionalPropArgs<T extends PropSchema>(
+export function processAdditionalPropArgs<T extends Schema>(
     propSchema: T,
     additionalArgs?: AdditionalPropArgs
 ) {
     if (additionalArgs) {
-        invariant(isPropSchema(propSchema), "expected a propSchema")
+        invariant(isSchema(propSchema), "expected a propSchema")
         Object.assign(propSchema, additionalArgs)
     }
     return propSchema

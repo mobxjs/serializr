@@ -1,5 +1,5 @@
 import { invariant, isPrimitive, processAdditionalPropArgs } from "../utils/utils"
-import { PropSchema, AdditionalPropArgs } from "../api/types"
+import { Schema, AdditionalPropArgs } from "../api/types"
 
 /**
  * Indicates that this field contains a primitive value (or Date) which should be serialized literally to json.
@@ -13,8 +13,8 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  *
  * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
-export default function primitive(additionalArgs?: AdditionalPropArgs): PropSchema {
-    let result: PropSchema = {
+export default function primitive(additionalArgs?: AdditionalPropArgs): Schema {
+    let result: Schema = {
         serializer: function(value) {
             invariant(isPrimitive(value), "this value is not primitive: " + value)
             return value

@@ -8,16 +8,35 @@ export interface AdditionalPropArgs {
 }
 export type PropSerializer = (
     sourcePropertyValue: any,
-    key: string | number | symbol,
+    key: string | number | symbol | undefined,
     sourceObject: any
 ) => any | SKIP
 export type PropDeserializer = (
     jsonValue: any,
-    callback: (err?: any, targetPropertyValue?: any | SKIP) => void,
+    callback: (err?: any, newValue?: any | SKIP) => void,
     context: Context,
-    currentPropertyValue?: any
+    currentPropertyValue?: any,
+    customArg?: any
 ) => void
-export interface PropSchema {
+export type AfterDeserializeFunc = (
+    callback: (err: any, value: any) => void,
+    err: any,
+    newValue: any,
+    jsonValue: any,
+    jsonParentValue: any,
+    jsonPropNameOrIndex: string | number | undefined,
+    context: Context,
+    propDef: Schema
+) => void
+export type BeforeDeserializeFunc = (
+    callback: (err: any, value: any) => void,
+    jsonValue: any,
+    jsonParentValue: any,
+    propNameOrIndex: string | number | undefined,
+    context: Context,
+    propDef: Schema
+) => void
+export interface Schema {
     serializer: PropSerializer
     deserializer: PropDeserializer
     beforeDeserialize?: BeforeDeserializeFunc
@@ -31,26 +50,6 @@ export interface PropSchema {
     paramNumber?: number
 }
 
-export type AfterDeserializeFunc = (
-    callback: (err: any, value: any) => void,
-    err: any,
-    newValue: any,
-    jsonValue: any,
-    jsonParentValue: any,
-    propNameOrIndex: string | number | symbol,
-    context: Context,
-    propDef: PropSchema
-) => void
-
-export type BeforeDeserializeFunc = (
-    callback: (err: any, value: any) => void,
-    jsonValue: any,
-    jsonParentValue: any,
-    propNameOrIndex: string | number,
-    context: Context,
-    propDef: PropSchema
-) => void
-
 export type Factory<T> = (context: Context) => T
 
 /**
@@ -60,9 +59,9 @@ export type Factory<T> = (context: Context) => T
 export type Props<T = any> = {
     [propName in keyof T]: PropDef
 }
-export type PropDef = PropSchema | boolean | undefined
+export type PropDef = Schema | boolean | undefined
 
-export interface ModelSchema<T> {
+export interface ModelSchema<T> extends Schema {
     targetClass?: Clazz<any>
     factory: Factory<T>
     props: Props<T>

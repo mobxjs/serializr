@@ -1,4 +1,4 @@
-import { invariant, isPropSchema } from "../utils/utils"
+import { invariant, isSchema } from "../utils/utils"
 import createModelSchema from "../api/createModelSchema"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import setDefaultModelSchema from "../api/setDefaultModelSchema"
@@ -64,7 +64,7 @@ export default function serializeAll(
         if (true === propertyType) {
             propertyType = _defaultPrimitiveProp
         }
-        invariant(isPropSchema(propertyType), "couldn't resolve schema")
+        invariant(isSchema(propertyType), "couldn't resolve schema")
         propSchema = Object.assign({}, propertyType, {
             pattern: targetOrPattern
         })

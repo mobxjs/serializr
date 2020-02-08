@@ -4,6 +4,8 @@
 * **BREAKING CHANGE**: `{"*": object(...)}` and `{"x": object(...)}` now behave the same when
   deserializing `{"x": "str_not_object"}` (result: `{x: null}`). Previously the `"*"` schema would
   have returned `{}`.
+* **BREAKING CHANGE**: Removed deprecated `ref` and `child` functions. Use `reference` and `object`
+  instead.
 * You can pass a `pattern` argument as `AdditionalPropArgs` instead of having to manually assign it
   to a PropSchema: `@serializeAll("*": list(primitive(), { pattern: /^_.*/ }))`. Note this only make
   sense together with the `"*"` property.

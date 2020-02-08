@@ -1,7 +1,7 @@
-import { invariant, isPropSchema, isMapLike, processAdditionalPropArgs } from "../utils/utils"
+import { invariant, isSchema, isMapLike, processAdditionalPropArgs } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import list from "./list"
-import { PropSchema, AdditionalPropArgs } from "../api/types"
+import { Schema, AdditionalPropArgs } from "../api/types"
 
 /**
  * Similar to map, mapAsArray can be used to serialize a map-like collection where the key is
@@ -16,14 +16,14 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
 export default function mapAsArray(
-    propSchema: PropSchema,
+    propSchema: Schema,
     keyPropertyName: string,
     additionalArgs?: AdditionalPropArgs
-): PropSchema {
+): Schema {
     propSchema = propSchema || _defaultPrimitiveProp
-    invariant(isPropSchema(propSchema), "expected prop schema as first argument")
+    invariant(isSchema(propSchema), "expected prop schema as first argument")
     invariant(!!keyPropertyName, "expected key property name as second argument")
-    let result: PropSchema = {
+    let result: Schema = {
         serializer: function(m) {
             invariant(m && typeof m === "object", "expected object or Map")
             const result = []
