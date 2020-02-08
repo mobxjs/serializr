@@ -447,15 +447,21 @@ deserialize(s, { "a": 4 }) // { a: 4 }
 
 class TodoState {
     // Todo.category is @serializable(reference(...))
+    @serializable(list(object(Todo)))
+    @observable
+    todos: Todo[]
+
+    // we want to serialize the categories, so that the references in
+    // this.todos can be resolved, but we don't want to set this property
+    @serializable(
+        list(object(TodoCategory),
+        { afterDeserialize: callback => callback(undefined, SKIP) }))
+    @computed
+    get categories() {
+        return this.todos.map(todo => todo.category)
+    }
+}
 ```
-
-@serializable(list(object(todo)))
-
-@observable todos: Todo\[\] // we want to serialize the categories, so that the references in // this.todos can be resolved, but we don't want to set this property
-
-@serializable( list(object(TodoCategory), { afterDeserialize: callback => callback(undefined, SKIP) }))
-
-@computed get categories() { return this.todos.map(todo => todo.category) } }
 
 ### _function_ `alias`(_name_: string, _propSchema_?: [PropDef](#type-propdef--propschema--boolean--undefined-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/alias.ts#L24">src</a></sub>
 

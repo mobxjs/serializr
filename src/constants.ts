@@ -18,16 +18,16 @@ import primitive from "./types/primitive"
  *
  * class TodoState {
  *     // Todo.category is @serializable(reference(...))
- *     @serializable(list(object(Todo)))
- *     @observable
+ *     \@serializable(list(object(Todo)))
+ *     \@observable
  *     todos: Todo[]
  *
  *     // we want to serialize the categories, so that the references in
  *     // this.todos can be resolved, but we don't want to set this property
- *     @serializable(
+ *     \@serializable(
  *         list(object(TodoCategory),
  *         { afterDeserialize: callback => callback(undefined, SKIP) }))
- *     @computed
+ *     \@computed
  *     get categories() {
  *         return this.todos.map(todo => todo.category)
  *     }
