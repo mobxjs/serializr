@@ -15,7 +15,7 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  *
  * @param additionalArgs optional object that contains beforeDeserialize and/or afterDeserialize handlers
  */
-export default function raw(additionalArgs: AdditionalPropArgs) {
+export default function raw(additionalArgs?: AdditionalPropArgs) {
     let result: PropSchema = {
         serializer: function(value) {
             return value

@@ -653,7 +653,7 @@ createModelSchema(Todo, {
 serialize(new Todo('test')) // { "title": "test" }
 ```
 
-### _function_ `raw`(_additionalArgs_: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/raw.ts#L18">src</a></sub>
+### _function_ `raw`(_additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/raw.ts#L18">src</a></sub>
 
 Indicates that this field is only need to putted in the serialized json or deserialized instance, without any transformations. Stay with its original value
 

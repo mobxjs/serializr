@@ -44,7 +44,7 @@ export function identifier(
     registerFn?: RegisterFunction,
     additionalArgs?: AdditionalPropArgs
 ): PropSchema
-export function identifier(additionalArgs: AdditionalPropArgs): PropSchema
+export function identifier(additionalArgs?: AdditionalPropArgs): PropSchema
 export default function identifier(
     arg1?: RegisterFunction | AdditionalPropArgs,
     arg2?: AdditionalPropArgs
