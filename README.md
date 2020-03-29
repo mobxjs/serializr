@@ -507,7 +507,7 @@ const json = serialize(todoSchema, { title: 'Test', done: false })
 const todo = deserialize(todoSchema, json)
 ```
 
-### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any) => any | typeof [SKIP](typedoc-id-undefined), _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L63">src</a></sub>
+### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: [Context](typedoc-id-undefined), _oldValue_: any, _callback_: (_err_: any, _result_: any | typeof [SKIP](typedoc-id-undefined)) => void) => void, _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L64">src</a></sub>
 
 Can be used to create simple custom propSchema. Multiple things can be done inside of a custom propSchema, like deserializing and serializing other (polymorphic) objects, skipping the serialization of something or checking the context of the obj being (de)serialized.
 
@@ -548,7 +548,7 @@ deserialize(schemaWithAsyncProps, { "a": 6 }, (err, res) => {
 }
 ```
 
-### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: any, _oldValue_: any, _callback_: (_err_: any, _result_: any | typeof [SKIP](typedoc-id-undefined)) => void) => void, _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L68">src</a></sub>
+### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: [Context](typedoc-id-undefined), _oldValue_: any) => any | typeof [SKIP](typedoc-id-undefined), _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L74">src</a></sub>
 
 ### _function_ `date`(_additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/date.ts#L9">src</a></sub>
 
