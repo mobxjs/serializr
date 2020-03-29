@@ -1,6 +1,7 @@
 import { invariant, processAdditionalPropArgs } from "../utils/utils"
 import { AdditionalPropArgs, PropSchema, PropSerializer } from "../api/types"
 import { SKIP } from "../constants"
+import Context from "../core/Context"
 
 /**
  * Can be used to create simple custom propSchema. Multiple things can be done inside of a custom
@@ -64,7 +65,7 @@ export default function custom(
     serializer: PropSerializer,
     deserializer: (
         jsonValue: any,
-        context: any,
+        context: Context,
         oldValue: any,
         callback: (err: any, result: any | typeof SKIP) => void
     ) => void,
@@ -72,16 +73,16 @@ export default function custom(
 ): PropSchema
 export default function custom(
     serializer: PropSerializer,
-    deserializer: (jsonValue: any, context: any, oldValue: any) => any | typeof SKIP,
+    deserializer: (jsonValue: any, context: Context, oldValue: any) => any | typeof SKIP,
     additionalArgs?: AdditionalPropArgs
 ): PropSchema
 export default function custom(
     serializer: PropSerializer,
     deserializer:
-        | ((jsonValue: any, context: any, oldValue: any) => any | typeof SKIP)
+        | ((jsonValue: any, context: Context, oldValue: any) => any | typeof SKIP)
         | ((
               jsonValue: any,
-              context: any,
+              context: Context,
               oldValue: any,
               callback: (err: any, result: any | typeof SKIP) => void
           ) => void),
