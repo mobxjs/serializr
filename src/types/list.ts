@@ -100,7 +100,15 @@ export default function list(
                 )
             }
 
-            parallel(jsonArray, processItem, done)
+            parallel(jsonArray, processItem, (err, result) => {
+                if (err) {
+                    return void done(err)
+                }
+                done(
+                    undefined,
+                    result!.filter(x => SKIP !== x)
+                )
+            })
         }
     }
     result = processAdditionalPropArgs(result, additionalArgs)

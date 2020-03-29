@@ -16,7 +16,8 @@ import {
     serializeAll,
     getDefaultModelSchema,
     custom,
-    AdditionalPropArgs
+    AdditionalPropArgs,
+    SKIP
 } from "../../"
 
 import { observable, autorun } from "mobx"
@@ -693,6 +694,24 @@ test("[ts] tests from serializeAll documentation", t => {
     complexStore.b = {}
     ;(complexStore as any).somethingElse = 5
     t.deepEqual(serialize(complexStore), { a: { x: 1, y: 2 }, b: { x: undefined } })
+
+    t.end()
+})
+
+test("list(custom(...)) with SKIP", t => {
+    class Store {
+        @serializable(
+            list(
+                custom(
+                    x => x,
+                    x => (2 === x ? SKIP : x)
+                )
+            )
+        )
+        list: number[]
+    }
+
+    t.deepEqual(deserialize(Store, { list: [1, 2, 3] }), { list: [1, 3] })
 
     t.end()
 })
