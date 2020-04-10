@@ -213,7 +213,7 @@ test("[ts] custom prop schemas", t => {
     }
     t.deepEqual(result, initial)
 
-    deserialize(A, updated, (err, resultObj) => {
+    deserialize(A, updated, undefined, (err, resultObj) => {
         err ? t.end(err) : null
         result = serialize(resultObj)
         t.deepEqual(result, updated)
@@ -574,7 +574,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
     }
 
     let resultIsFinal = false
-    const prelimResult = deserialize(FinalData, jsonInput, (err, result) => {
+    const prelimResult = deserialize(FinalData, jsonInput, undefined, (err, result) => {
         resultIsFinal = true
         err ? t.end(err) : null
         t.deepEqual(serialize(result), jsonResult)

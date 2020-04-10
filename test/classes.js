@@ -25,7 +25,7 @@ test("schema's can be defined on constructors", t => {
     })
     t.equal(res.title, "bloop")
 
-    _.update(Todo, res, {
+    _.update(res, {
         title: "bloop2"
     })
     t.equal(res.title, "bloop2")
@@ -136,7 +136,7 @@ test("complex async schema", t => {
             comments: [2, 3]
         })
 
-        var clone = _.deserialize(Post, serialized, function(err, r) {
+        var clone = _.deserialize(Post, serialized, undefined, function(err, r) {
             t2.notOk(err)
             t2.ok(clone === r)
             t2.equal(r.comments.length, 2)
@@ -237,16 +237,11 @@ test("test context and factories", t => {
         }
     }
 
-    var res = _.deserialize(
-        messageModel,
-        json,
-        (err, message) => {
-            t.ok(message === theMessage)
-            t.notOk(err)
-            t.deepEqual(_.serialize(messageModel, message), json)
-        },
-        myArgs
-    )
+    var res = _.deserialize(messageModel, json, myArgs, (err, message) => {
+        t.ok(message === theMessage)
+        t.notOk(err)
+        t.deepEqual(_.serialize(messageModel, message), json)
+    })
 
     t.ok(res === theMessage)
     t.end()
@@ -312,7 +307,7 @@ test("async error handling with handler", t => {
         )
     })
 
-    var a = _.deserialize(parent, { r: [1, 42] }, (err, res) => {
+    var a = _.deserialize(parent, { r: [1, 42] }, undefined, (err, res) => {
         t.notOk(res)
         t.ok(a)
         t.equal(err, "oops")
@@ -389,6 +384,7 @@ test("default reference resolving", t => {
                     { from: 3, to: 2 }
                 ]
             },
+            undefined,
             (err, res) => {
                 t2.notOk(res)
                 t2.equal("" + err, 'Error: Unresolvable references in json: "3", "4"')

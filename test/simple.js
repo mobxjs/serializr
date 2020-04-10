@@ -22,14 +22,14 @@ test("it should serialize simple object", t1 => {
         t.deepEqual(deserialize(schema, s), { x: 42 })
 
         var d = { x: 1 }
-        update(schema, a, d)
+        update(a, d, schema)
         t.deepEqual(a, {
             y: 1337,
             x: 1
         })
 
         test("it should skip missing attrs", t3 => {
-            update(schema, a, {}, (err, res) => {
+            update(a, {}, schema, undefined, (err, res) => {
                 t3.ok(res === a)
                 t3.notOk(err)
                 t3.equal(res.x, 1)
@@ -49,14 +49,14 @@ test("it should serialize simple object", t1 => {
         t.deepEqual(deserialize(schema, s), {})
 
         var d = { x: 1 }
-        update(schema, a, d)
+        update(a, d, schema)
         t.deepEqual(a, {
             y: 1337,
             x: 1
         })
 
         test("it should skip missing attrs", t3 => {
-            update(schema, a, {}, (err, res) => {
+            update(a, {}, schema, undefined, (err, res) => {
                 t3.ok(res === a)
                 t3.notOk(err)
                 t3.equal(res.x, 1)
@@ -88,7 +88,7 @@ test("it should support 'false' and 'true' propSchemas", t => {
     var a = { x: 1, y: 2 }
     t.deepEqual(_.serialize(s, a), { x: 1 })
 
-    _.update(s, a, { x: 4, y: 3 })
+    _.update(a, { x: 4, y: 3 }, s)
     t.equal(a.x, 4)
     t.equal(a.y, 2)
     t.end()
@@ -237,14 +237,14 @@ test("it should not serialize values for optional properties", t => {
     t.deepEqual(deserialize(schema, s), {})
 
     var d = { optionalProp: 1 }
-    update(schema, a, d)
+    update(a, d, schema)
     t.deepEqual(a, {
         y: 1337,
         optionalProp: 1
     })
 
     test("it should skip missing attrs", t3 => {
-        update(schema, a, {}, (err, res) => {
+        update(a, {}, schema, undefined, (err, res) => {
             t3.ok(res === a)
             t3.notOk(err)
             t3.equal(res.optionalProp, 1)
@@ -418,7 +418,7 @@ test("it should support maps", t => {
     t.deepEqual(deserialize(schema, json), source)
 
     // recycle objects if possible
-    update(schema, source, { x: { bar: 3, baz: 4 } })
+    update(source, { x: { bar: 3, baz: 4 } }, schema)
     t.deepEqual(source, { x: { bar: 3, baz: 4 } })
 
     t.end()
@@ -452,7 +452,7 @@ test("it should support ES6 maps", t => {
 
     // recycle objects if possible
     var m = source.x
-    update(schema, source, { x: { bar: 3, baz: 4 } })
+    update(source, { x: { bar: 3, baz: 4 } }, schema)
     t.deepEqual(serialize(schema, source), { x: { bar: 3, baz: 4 } })
     t.ok(source.x === m)
     t.ok(source.x instanceof Map)
@@ -492,7 +492,7 @@ test("it should support mapAsArray", t => {
 
     //recycle objects if possible
     var m = source.x
-    update(schema, source, { x: [{ id: 3, name: "Luke" }] })
+    update(source, { x: [{ id: 3, name: "Luke" }] }, schema)
     t.deepEqual(serialize(schema, source), { x: [{ id: 3, name: "Luke" }] })
     t.ok(source.x === m)
     t.ok(source.x instanceof Map)
