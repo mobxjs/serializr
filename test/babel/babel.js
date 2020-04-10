@@ -7,13 +7,13 @@ import {
     object,
     reference,
     identifier,
-    serializeAll
+    serializeAll,
 } from "../../"
 import { observable, autorun } from "mobx"
 
 const test = require("tape")
 
-test("should work in babel", t => {
+test("should work in babel", (t) => {
     class A {
         @serializable
         @observable
@@ -60,7 +60,7 @@ test("should work in babel", t => {
     t.end()
 })
 
-test("[babel] it should handle prototypes", t => {
+test("[babel] it should handle prototypes", (t) => {
     class A {
         @serializable a = "hoi"
         @serializable a2 = "oeps"
@@ -73,20 +73,20 @@ test("[babel] it should handle prototypes", t => {
 
     t.deepEqual(serialize(new A()), {
         a: "hoi",
-        a2: "oeps"
+        a2: "oeps",
     })
 
     t.deepEqual(serialize(new B()), {
         a: "hoi",
         a2: "oeps",
         b: "boe",
-        b2: "oef"
+        b2: "oef",
     })
 
     t.end()
 })
 
-test.skip("[ts] it should handle not yet defined modelschema's for classes", t => {
+test.skip("[ts] it should handle not yet defined modelschema's for classes", (t) => {
     // classes are declared as var, not as function, so aren't hoisted :'(
     class Comment {
         @serializable(identifier()) id = 0
@@ -104,8 +104,8 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
         ref: 1,
         child: [
             { id: 2, title: "foo" },
-            { id: 1, title: "bar " }
-        ]
+            { id: 1, title: "bar " },
+        ],
     }
     const m = deserialize(Message, json)
 
@@ -117,7 +117,7 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
     t.end()
 })
 
-test("issue 10", t => {
+test("issue 10", (t) => {
     class Route {
         @serializable(identifier()) id = ""
         @serializable(primitive()) pattern = ""
@@ -152,7 +152,7 @@ test("issue 10", t => {
     t.end()
 })
 
-test("[babel] @serializeAll", t => {
+test("[babel] @serializeAll", (t) => {
     @serializeAll
     class Store {
         a = 3

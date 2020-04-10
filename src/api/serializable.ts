@@ -43,10 +43,10 @@ function serializableDecorator(
             descriptor = undefined
             target = target.prototype
             // Create a factory so the constructor is called properly
-            factory = function(context: Context) {
+            factory = function (context: Context) {
                 const params: any = []
                 for (let i = 0; i < target.constructor.length; i++) {
-                    Object.keys(context.modelSchema.props).forEach(function(key) {
+                    Object.keys(context.modelSchema.props).forEach(function (key) {
                         const prop = context.modelSchema.props[key]
                         if ((prop as PropSchema).paramNumber === i) {
                             params[i] = context.json[(prop as PropSchema).jsonname!]

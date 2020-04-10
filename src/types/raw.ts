@@ -17,12 +17,12 @@ import { PropSchema, AdditionalPropArgs } from "../api/types"
  */
 export default function raw(additionalArgs?: AdditionalPropArgs) {
     let result: PropSchema = {
-        serializer: function(value) {
+        serializer: function (value) {
             return value
         },
-        deserializer: function(jsonValue, done) {
+        deserializer: function (jsonValue, done) {
             return void done(null, jsonValue)
-        }
+        },
     }
     result = processAdditionalPropArgs(result, additionalArgs)
     return result

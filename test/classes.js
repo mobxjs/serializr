@@ -1,18 +1,18 @@
 var test = require("tape")
 var _ = require("../")
 
-test("schema's can be defined on constructors", t => {
+test("schema's can be defined on constructors", (t) => {
     function Todo(title) {
         this.title = title
     }
 
     _.createModelSchema(Todo, {
-        title: true
+        title: true,
     })
 
     var source = new Todo("test")
     var json = {
-        title: "test"
+        title: "test",
     }
 
     t.deepEqual(_.serialize(source), json)
@@ -21,22 +21,22 @@ test("schema's can be defined on constructors", t => {
     t.equal(res instanceof Todo, true)
 
     _.update(res, {
-        title: "bloop"
+        title: "bloop",
     })
     t.equal(res.title, "bloop")
 
     _.update(Todo, res, {
-        title: "bloop2"
+        title: "bloop2",
     })
     t.equal(res.title, "bloop2")
 
-    test("serialize list", t2 => {
+    test("serialize list", (t2) => {
         var jsonlist = [{ title: "test1" }, { title: "test2" }]
         var todos = _.deserialize(Todo, jsonlist)
         t2.equal(todos.length, 2)
         t2.deepEqual(_.serialize(todos), jsonlist)
 
-        test("may be used to serialize plain objects", t3 => {
+        test("may be used to serialize plain objects", (t3) => {
             jsonlist[0].otherProp = "should not serialize"
             jsonlist[1].otherProp = "should not serialize"
 
@@ -54,10 +54,10 @@ test("schema's can be defined on constructors", t => {
         t2.end()
     })
 
-    test("may be used to serialize plain objects", t2 => {
+    test("may be used to serialize plain objects", (t2) => {
         var source2 = {
             title: "test",
-            otherProp: "should not serialize"
+            otherProp: "should not serialize",
         }
         t2.throws(() => {
             _.serialize(source2)
@@ -75,7 +75,7 @@ test("schema's can be defined on constructors", t => {
     t.end()
 })
 
-test("complex async schema", t => {
+test("complex async schema", (t) => {
     var postStore = []
     var commentStore = {}
 
@@ -93,37 +93,37 @@ test("complex async schema", t => {
 
     _.createModelSchema(Comment, {
         id: _.alias("__id", _.identifier()), // mark as identifier, use alias
-        message: true
+        message: true,
     })
     _.createModelSchema(Post, {
         id: true,
         message: true,
-        comments: _.list(_.reference(Comment, fetchComment))
+        comments: _.list(_.reference(Comment, fetchComment)),
     })
 
     function fetchComment(id, cb) {
         if (!commentStore[id])
-            setTimeout(function() {
+            setTimeout(function () {
                 cb("Comment not foun: " + id)
             }, 10)
         else
-            setTimeout(function() {
+            setTimeout(function () {
                 cb(null, commentStore[id])
             }, 10)
     }
 
-    test("aliased identifier is (de)serialized correctly ", t2 => {
+    test("aliased identifier is (de)serialized correctly ", (t2) => {
         var c1 = new Comment(2, "World")
         var serialized = _.serialize(c1)
         t2.deepEqual(serialized, {
             __id: 2,
-            message: "World"
+            message: "World",
         })
         t2.deepEqual(_.serialize(_.deserialize(Comment, serialized)), serialized)
         t2.end()
     })
 
-    test("simple async fetch", t2 => {
+    test("simple async fetch", (t2) => {
         var p = new Post(1, "Hello")
         var c1 = new Comment(2, "World")
         var c2 = new Comment(3, "Universe")
@@ -133,10 +133,10 @@ test("complex async schema", t => {
         t2.deepEqual(serialized, {
             id: 1,
             message: "Hello",
-            comments: [2, 3]
+            comments: [2, 3],
         })
 
-        var clone = _.deserialize(Post, serialized, function(err, r) {
+        var clone = _.deserialize(Post, serialized, function (err, r) {
             t2.notOk(err)
             t2.ok(clone === r)
             t2.equal(r.comments.length, 2)
@@ -156,25 +156,25 @@ test("complex async schema", t => {
     t.end()
 })
 
-test("it should handle not yet defined modelschema's for classes", t => {
+test("it should handle not yet defined modelschema's for classes", (t) => {
     function Message() {}
     _.createModelSchema(Message, {
         child: _.list(_.object(Comment)), // model for Comment not defined yet!
-        ref: _.reference(Comment)
+        ref: _.reference(Comment),
     })
 
     function Comment() {}
     _.createModelSchema(Comment, {
         id: _.identifier(),
-        "*": true
+        "*": true,
     })
 
     var json = {
         ref: 1,
         child: [
             { id: 2, title: "foo" },
-            { id: 1, title: "bar " }
-        ]
+            { id: 1, title: "bar " },
+        ],
     }
     var m = _.deserialize(Message, json)
 
@@ -186,7 +186,7 @@ test("it should handle not yet defined modelschema's for classes", t => {
     t.end()
 })
 
-test("test context and factories", t => {
+test("test context and factories", (t) => {
     function Message() {
         this.title = "test"
         this.comments = []
@@ -202,14 +202,14 @@ test("test context and factories", t => {
         title: "bloopie",
         comments: [
             {
-                title: "42"
-            }
-        ]
+                title: "42",
+            },
+        ],
     }
     var mContext
 
     var commentModel = {
-        factory: context => {
+        factory: (context) => {
             t.deepEqual(context.json, json.comments[0])
             t.deepEqual(context.parentContext, mContext)
             t.deepEqual(context.parentContext.target, theMessage)
@@ -218,12 +218,12 @@ test("test context and factories", t => {
             return new Comment()
         },
         props: {
-            title: true
-        }
+            title: true,
+        },
     }
 
     var messageModel = {
-        factory: context => {
+        factory: (context) => {
             mContext = context
             t.deepEqual(context.json, json)
             t.deepEqual(context.parentContext, undefined)
@@ -233,8 +233,8 @@ test("test context and factories", t => {
         },
         props: {
             title: true,
-            comments: _.list(_.object(commentModel))
-        }
+            comments: _.list(_.object(commentModel)),
+        },
     }
 
     var res = _.deserialize(
@@ -252,9 +252,9 @@ test("test context and factories", t => {
     t.end()
 })
 
-test("sync error handling", t => {
+test("sync error handling", (t) => {
     var sub = _.createSimpleSchema({
-        id: true
+        id: true,
     })
 
     var parent = _.createSimpleSchema({
@@ -263,7 +263,7 @@ test("sync error handling", t => {
                 if (id === 42) cb("oops")
                 else cb(null, null)
             })
-        )
+        ),
     })
 
     t.throws(() => {
@@ -273,9 +273,9 @@ test("sync error handling", t => {
     t.end()
 })
 
-test("async error handling without handler", t => {
+test("async error handling without handler", (t) => {
     var sub = _.createSimpleSchema({
-        id: true
+        id: true,
     })
 
     var parent = _.createSimpleSchema({
@@ -289,15 +289,15 @@ test("async error handling without handler", t => {
                     })
                 else setImmediate(() => cb(null, null))
             })
-        )
+        ),
     })
 
     var a = _.deserialize(parent, { r: [1, 42] })
 })
 
-test("async error handling with handler", t => {
+test("async error handling with handler", (t) => {
     var sub = _.createSimpleSchema({
-        id: true
+        id: true,
     })
 
     var parent = _.createSimpleSchema({
@@ -309,7 +309,7 @@ test("async error handling with handler", t => {
                     })
                 else setImmediate(() => cb(null, null))
             })
-        )
+        ),
     })
 
     var a = _.deserialize(parent, { r: [1, 42] }, (err, res) => {
@@ -320,7 +320,7 @@ test("async error handling with handler", t => {
     })
 })
 
-test("default reference resolving", t => {
+test("default reference resolving", (t) => {
     function Store() {
         this.boxes = []
         this.arrows = []
@@ -330,24 +330,24 @@ test("default reference resolving", t => {
     }
     function Arrow(from, to) {}
     _.createModelSchema(Box, {
-        id: _.identifier()
+        id: _.identifier(),
     })
     _.createModelSchema(Arrow, {
         from: _.reference(Box),
-        to: _.reference(Box)
+        to: _.reference(Box),
     })
     _.createModelSchema(Store, {
         boxes: _.list(_.object(Box)),
-        arrows: _.list(_.object(Arrow))
+        arrows: _.list(_.object(Arrow)),
     })
 
-    test("it should resolve references", t => {
+    test("it should resolve references", (t) => {
         var s = _.deserialize(Store, {
             boxes: [{ id: 1 }, { id: 2 }],
             arrows: [
                 { from: 1, to: 2 },
-                { from: 2, to: 2 }
-            ]
+                { from: 2, to: 2 },
+            ],
         })
         t.equal(s.boxes.length, 2)
         t.equal(s.arrows.length, 2)
@@ -358,17 +358,17 @@ test("default reference resolving", t => {
         t.end()
     })
 
-    test("it should resolve wrongly ordered references", t => {
+    test("it should resolve wrongly ordered references", (t) => {
         var swappedScheme = _.createModelSchema(Store, {
             arrows: _.list(_.object(Arrow)),
-            boxes: _.list(_.object(Box))
+            boxes: _.list(_.object(Box)),
         })
         var s = _.deserialize(Store, {
             arrows: [
                 { from: 1, to: 2 },
-                { from: 2, to: 2 }
+                { from: 2, to: 2 },
             ],
-            boxes: [{ id: 1 }, { id: 2 }]
+            boxes: [{ id: 1 }, { id: 2 }],
         })
         t.equal(s.boxes.length, 2)
         t.equal(s.arrows.length, 2)
@@ -379,15 +379,15 @@ test("default reference resolving", t => {
         t.end()
     })
 
-    test("it should throw on missing references", t2 => {
+    test("it should throw on missing references", (t2) => {
         _.deserialize(
             Store,
             {
                 boxes: [{ id: 1 }, { id: 2 }],
                 arrows: [
                     { from: 1, to: 4 },
-                    { from: 3, to: 2 }
-                ]
+                    { from: 3, to: 2 },
+                ],
             },
             (err, res) => {
                 t2.notOk(res)
@@ -400,7 +400,7 @@ test("default reference resolving", t => {
     t.end()
 })
 
-test("it should hand to handle colliding references", t => {
+test("it should hand to handle colliding references", (t) => {
     function Store() {
         this.boxes = []
         this.arrows = []
@@ -414,25 +414,25 @@ test("it should hand to handle colliding references", t => {
     }
     function Arrow(from, to) {}
     _.createModelSchema(Box, {
-        id: _.identifier()
+        id: _.identifier(),
     })
     _.createModelSchema(Circle, {
-        id: _.identifier()
+        id: _.identifier(),
     })
     _.createModelSchema(Arrow, {
         from: _.reference(Box),
-        to: _.reference(Circle)
+        to: _.reference(Circle),
     })
     _.createModelSchema(Store, {
         boxes: _.list(_.object(Box)),
         arrows: _.list(_.object(Arrow)),
-        circles: _.list(_.object(Circle))
+        circles: _.list(_.object(Circle)),
     })
 
     var s = _.deserialize(Store, {
         boxes: [{ id: 1 }],
         arrows: [{ from: 1, to: 1 }],
-        circles: [{ id: 1 }]
+        circles: [{ id: 1 }],
     })
 
     t.ok(s.arrows[0].from instanceof Box)
@@ -443,7 +443,7 @@ test("it should hand to handle colliding references", t => {
     t.end()
 })
 
-test("it should handle references to subtypes", t => {
+test("it should handle references to subtypes", (t) => {
     function Store() {
         this.boxes = []
         this.arrows = []
@@ -455,26 +455,26 @@ test("it should handle references to subtypes", t => {
     function Circle(id) {}
     function Arrow(from, to) {}
     _.createModelSchema(Box, {
-        id: _.identifier()
+        id: _.identifier(),
     })
     _.createModelSchema(Circle, {})
     _.getDefaultModelSchema(Circle).extends = _.getDefaultModelSchema(Box)
 
     _.createModelSchema(Arrow, {
         from: _.reference(Box),
-        to: _.reference(Circle)
+        to: _.reference(Circle),
     })
     _.createModelSchema(Store, {
         boxes: _.list(_.object(Box)),
         arrows: _.list(_.object(Arrow)),
-        circles: _.list(_.object(Circle))
+        circles: _.list(_.object(Circle)),
     })
 
-    test("it should accept subtypes", t2 => {
+    test("it should accept subtypes", (t2) => {
         var s = _.deserialize(Store, {
             boxes: [{ id: 1 }],
             arrows: [{ from: 2, to: 2 }],
-            circles: [{ id: 2 }]
+            circles: [{ id: 2 }],
         })
 
         t2.ok(s.arrows[0].from instanceof Circle)
@@ -484,12 +484,12 @@ test("it should handle references to subtypes", t => {
         t2.end()
     })
 
-    test("it should not find supertypes", t2 => {
+    test("it should not find supertypes", (t2) => {
         t2.throws(() => {
             _.deserialize(Store, {
                 boxes: [{ id: 1 }, { id: 2 }],
                 arrows: [{ from: 1, to: 2 }], // to should be Circle, not a Box
-                circles: [{ id: 3 }]
+                circles: [{ id: 3 }],
             })
         }, /Error: Unresolvable references in json: "2"/)
         t2.end()
@@ -498,26 +498,26 @@ test("it should handle references to subtypes", t => {
     t.end()
 })
 
-test("identifier can register themselves", t => {
+test("identifier can register themselves", (t) => {
     var todos = {}
 
     var s = _.createSimpleSchema({
         id: _.identifier((id, object) => (todos[id] = object)),
-        title: true
+        title: true,
     })
 
     _.deserialize(s, {
         id: 1,
-        title: "test0"
+        title: "test0",
     })
     _.deserialize(s, [
         { id: 2, title: "test2" },
-        { id: 1, title: "test1" }
+        { id: 1, title: "test1" },
     ])
 
     t.deepEqual(todos, {
         1: { id: 1, title: "test1" },
-        2: { id: 2, title: "test2" }
+        2: { id: 2, title: "test2" },
     })
     t.end()
 })

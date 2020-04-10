@@ -4,7 +4,7 @@ import {
     isPropSchema,
     isAliasedPropSchema,
     parallel,
-    processAdditionalPropArgs
+    processAdditionalPropArgs,
 } from "../utils/utils"
 import { onAfterDeserialize, onBeforeDeserialize } from "../core/deserialize"
 import { _defaultPrimitiveProp } from "../constants"
@@ -50,14 +50,14 @@ export default function list(
         "provided prop is aliased, please put aliases first"
     )
     let result: PropSchema = {
-        serializer: function(ar) {
+        serializer: function (ar) {
             if (ar === undefined) {
                 return SKIP
             }
             invariant(ar && "length" in ar && "map" in ar, "expected array (like) object")
             return ar.map(propSchema.serializer)
         },
-        deserializer: function(jsonArray, done, context) {
+        deserializer: function (jsonArray, done, context) {
             if (!Array.isArray(jsonArray)) return void done("[serializr] expected JSON array")
 
             function processItem(
@@ -106,10 +106,10 @@ export default function list(
                 }
                 done(
                     undefined,
-                    result!.filter(x => SKIP !== x)
+                    result!.filter((x) => SKIP !== x)
                 )
             })
-        }
+        },
     }
     result = processAdditionalPropArgs(result, additionalArgs)
     return result

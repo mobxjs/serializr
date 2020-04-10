@@ -24,7 +24,7 @@ export default function mapAsArray(
     invariant(isPropSchema(propSchema), "expected prop schema as first argument")
     invariant(!!keyPropertyName, "expected key property name as second argument")
     let result: PropSchema = {
-        serializer: function(m) {
+        serializer: function (m) {
             invariant(m && typeof m === "object", "expected object or Map")
             const result = []
             // eslint-disable-next-line no-unused-vars
@@ -35,10 +35,10 @@ export default function mapAsArray(
             }
             return result
         },
-        deserializer: function(jsonArray, done, context, oldValue) {
+        deserializer: function (jsonArray, done, context, oldValue) {
             list(propSchema, additionalArgs).deserializer(
                 jsonArray,
-                function(err, values) {
+                function (err, values) {
                     if (err) return void done(err)
                     const oldValueIsMap = isMapLike(oldValue)
                     let newValue
@@ -56,7 +56,7 @@ export default function mapAsArray(
                 context,
                 undefined
             )
-        }
+        },
     }
     result = processAdditionalPropArgs(result, additionalArgs)
     return result

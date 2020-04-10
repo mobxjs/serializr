@@ -66,7 +66,7 @@ export default function serializeAll(
         }
         invariant(isPropSchema(propertyType), "couldn't resolve schema")
         propSchema = Object.assign({}, propertyType, {
-            pattern: targetOrPattern
+            pattern: targetOrPattern,
         })
     }
     function decorator(target: Clazz<any>) {

@@ -8,7 +8,7 @@ const formatters: { [name: string]: (o: any) => string } = {
     },
     l: function symbol(s) {
         return s.toString()
-    }
+    },
 }
 
 export default function invariant(
@@ -20,7 +20,7 @@ export default function invariant(
         const variablesToLog: any[] = []
 
         let index = 0
-        const formattedMessage = message.replace(/%([a-zA-Z%])/g, function(match, format) {
+        const formattedMessage = message.replace(/%([a-zA-Z%])/g, function (match, format) {
             if (match === "%%") return match
 
             const formatter = formatters[format]

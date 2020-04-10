@@ -39,10 +39,10 @@ export default function createModelSchema<T extends Object>(
         targetClass: clazz,
         factory:
             factory ||
-            function() {
+            function () {
                 return new clazz()
             },
-        props: props
+        props: props,
     }
     // find super model
     if (clazz.prototype.constructor !== Object) {

@@ -33,7 +33,8 @@ export default function serialize<T>(modelSchemaOrInstance: ClazzOrModelSchema<T
     }
     const foundSchema = schema
     invariant(foundSchema, "Failed to find default schema for " + modelSchemaOrInstance)
-    if (Array.isArray(instance)) return instance.map(item => serializeWithSchema(foundSchema, item))
+    if (Array.isArray(instance))
+        return instance.map((item) => serializeWithSchema(foundSchema, item))
     return serializeWithSchema(foundSchema, instance)
 }
 
@@ -46,7 +47,7 @@ function serializeWithSchema<T>(schema: ModelSchema<T>, obj: any): T {
         // TODO: make invariant?:  invariant(!obj.constructor.prototype.constructor.serializeInfo, "object has a serializable supertype, but modelschema did not provide extends clause")
         res = {}
     }
-    Object.keys(schema.props).forEach(function(key) {
+    Object.keys(schema.props).forEach(function (key) {
         let propDef: PropDef = schema.props[key as keyof T]
         if (!propDef) return
         if (key === "*") {

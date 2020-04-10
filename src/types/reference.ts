@@ -2,7 +2,7 @@ import {
     invariant,
     isModelSchema,
     getIdentifierProp,
-    processAdditionalPropArgs
+    processAdditionalPropArgs,
 } from "../utils/utils"
 import getDefaultModelSchema from "../api/getDefaultModelSchema"
 import {
@@ -10,7 +10,7 @@ import {
     RefLookupFunction,
     AdditionalPropArgs,
     PropSchema,
-    ModelSchema
+    ModelSchema,
 } from "../api/types"
 import Context from "../core/Context"
 
@@ -138,16 +138,16 @@ export default function reference(
         }
     }
     let result: PropSchema = {
-        serializer: function(item) {
+        serializer: function (item) {
             if (!initialized) initialize()
             return item ? item[childIdentifierAttribute!] : null
         },
-        deserializer: function(identifierValue, done, context) {
+        deserializer: function (identifierValue, done, context) {
             if (!initialized) initialize()
             if (identifierValue === null || identifierValue === undefined)
                 done(null, identifierValue)
             else lookupFn!(identifierValue, done, context)
-        }
+        },
     }
     result = processAdditionalPropArgs(result, additionalArgs)
     return result

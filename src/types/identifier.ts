@@ -64,17 +64,17 @@ export default function identifier(
     let result: PropSchema = {
         identifier: true,
         serializer: _defaultPrimitiveProp.serializer,
-        deserializer: function(jsonValue, done, context) {
+        deserializer: function (jsonValue, done, context) {
             _defaultPrimitiveProp.deserializer(
                 jsonValue,
-                function(err, id) {
+                function (err, id) {
                     defaultRegisterFunction(id, context.target, context)
                     if (registerFn) registerFn(id, context.target, context)
                     done(err, id)
                 },
                 context
             )
-        }
+        },
     }
     result = processAdditionalPropArgs(result, additionalArgs)
     return result

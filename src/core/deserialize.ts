@@ -11,7 +11,7 @@ import {
     BeforeDeserializeFunc,
     PropSchema,
     ModelSchema,
-    PropDef
+    PropDef,
 } from "../api/types"
 
 function schemaHasAlias(schema: ModelSchema<any>, name: string) {
@@ -49,7 +49,7 @@ function deserializeStarProps(
                     // for individual props, use root context based callbacks
                     // this allows props to complete after completing the object itself
                     // enabling reference resolving and such
-                    context.rootContext.createCallback(r => r !== SKIP && (obj[key] = r)),
+                    context.rootContext.createCallback((r) => r !== SKIP && (obj[key] = r)),
                     context
                 )
             }
@@ -98,7 +98,7 @@ export default function deserialize<T>(
         const items: any[] = []
         parallel(
             json,
-            function(childJson, itemDone) {
+            function (childJson, itemDone) {
                 const instance = deserializeObjectWithSchema(
                     undefined,
                     schema,
@@ -150,7 +150,7 @@ export function deserializePropsWithSchema<T>(
 
     function deserializeProp(propDef: PropSchema, jsonValue: object, propName: keyof T) {
         const whenDone = context.rootContext.createCallback(
-            r => r !== SKIP && (target[propName] = r)
+            (r) => r !== SKIP && (target[propName] = r)
         )
         propDef.deserializer(
             jsonValue,

@@ -41,13 +41,13 @@ export default function object(
         "No modelschema provided. If you are importing it from another file be aware of circular dependencies."
     )
     let result: PropSchema = {
-        serializer: function(item) {
+        serializer: function (item) {
             modelSchema = getDefaultModelSchema(modelSchema)!
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
             if (item === null || item === undefined) return item
             return serialize(modelSchema, item)
         },
-        deserializer: function(childJson, done, context) {
+        deserializer: function (childJson, done, context) {
             modelSchema = getDefaultModelSchema(modelSchema)!
             invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
             if (childJson === null || childJson === undefined) return void done(null, childJson)
@@ -58,7 +58,7 @@ export default function object(
                 done,
                 undefined
             )
-        }
+        },
     }
     result = processAdditionalPropArgs(result, additionalArgs)
     return result

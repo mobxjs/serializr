@@ -3,7 +3,7 @@ import {
     isAliasedPropSchema,
     isPropSchema,
     isMapLike,
-    processAdditionalPropArgs
+    processAdditionalPropArgs,
 } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import list from "./list"
@@ -27,7 +27,7 @@ export default function map(
         "provided prop is aliased, please put aliases first"
     )
     let result: PropSchema = {
-        serializer: function(m: Map<any, any> | { [key: string]: any }) {
+        serializer: function (m: Map<any, any> | { [key: string]: any }) {
             invariant(m && typeof m === "object", "expected object or Map")
             const result: { [key: string]: any } = {}
             if (isMapLike(m)) {
@@ -37,15 +37,15 @@ export default function map(
             }
             return result
         },
-        deserializer: function(jsonObject, done, context, oldValue) {
+        deserializer: function (jsonObject, done, context, oldValue) {
             if (!jsonObject || typeof jsonObject !== "object")
                 return void done("[serializr] expected JSON object")
             const keys = Object.keys(jsonObject)
             list(propSchema, additionalArgs).deserializer(
-                keys.map(function(key) {
+                keys.map(function (key) {
                     return jsonObject[key]
                 }),
-                function(err, values) {
+                function (err, values) {
                     if (err) return void done(err)
                     const isMap = isMapLike(oldValue)
                     let newValue
@@ -63,7 +63,7 @@ export default function map(
                 },
                 context
             )
-        }
+        },
     }
     result = processAdditionalPropArgs(result, additionalArgs)
     return result

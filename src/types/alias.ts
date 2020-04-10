@@ -2,7 +2,7 @@ import {
     invariant,
     isPropSchema,
     isAliasedPropSchema,
-    isIdentifierPropSchema
+    isIdentifierPropSchema,
 } from "../utils/utils"
 import { _defaultPrimitiveProp } from "../constants"
 import { PropSchema, PropDef } from "../api/types"
@@ -32,6 +32,6 @@ export default function alias(name: string, propSchema?: PropDef): PropSchema {
         deserializer: propSchema.deserializer,
         identifier: isIdentifierPropSchema(propSchema) || undefined,
         beforeDeserialize: propSchema.beforeDeserialize,
-        afterDeserialize: propSchema.afterDeserialize
+        afterDeserialize: propSchema.afterDeserialize,
     }
 }

@@ -4,7 +4,7 @@ import { PropSchema } from "../api/types"
 
 /**
  * Optional indicates that this model property shouldn't be serialized if it isn't present.
- * 
+ *
  * Note that if we use `optional` together with another prop schema such as `custom`,
  * the prop schema for `custom` will be applied first and the result of that serialization
  * will be used to feed into `optional`.

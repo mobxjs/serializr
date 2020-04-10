@@ -17,14 +17,14 @@ import {
     getDefaultModelSchema,
     custom,
     AdditionalPropArgs,
-    SKIP
+    SKIP,
 } from "../../"
 
 import { observable, autorun } from "mobx"
 
 import test = require("tape")
 
-test("should work in typescript", t => {
+test("should work in typescript", (t) => {
     class A {
         @serializable
         @observable
@@ -71,7 +71,7 @@ test("should work in typescript", t => {
     t.end()
 })
 
-test("typescript class with constructor params", t => {
+test("typescript class with constructor params", (t) => {
     class Rectangle {
         @serializable
         public someNumber: number
@@ -120,7 +120,7 @@ test("typescript class with constructor params", t => {
     t.end()
 })
 
-test("typescript class with only constructor params", t => {
+test("typescript class with only constructor params", (t) => {
     class Rectangle {
         @serializable(alias("identifier", identifier()))
         public id: string
@@ -149,7 +149,7 @@ test("typescript class with only constructor params", t => {
     t.end()
 })
 
-test("[ts] it should handle prototypes", t => {
+test("[ts] it should handle prototypes", (t) => {
     class A {
         @serializable a = "hoi"
         @serializable a2 = "oeps"
@@ -162,20 +162,20 @@ test("[ts] it should handle prototypes", t => {
 
     t.deepEqual(serialize(new A()), {
         a: "hoi",
-        a2: "oeps"
+        a2: "oeps",
     })
 
     t.deepEqual(serialize(new B()), {
         a: "hoi",
         a2: "oeps",
         b: "boe",
-        b2: "oef"
+        b2: "oef",
     })
 
     t.end()
 })
 
-test("[ts] custom prop schemas", t => {
+test("[ts] custom prop schemas", (t) => {
     function customSerializer(v) {
         return v
     }
@@ -204,12 +204,12 @@ test("[ts] custom prop schemas", t => {
     const initial = {
         a: "hoi",
         a2: "oeps",
-        a3: "lulu"
+        a3: "lulu",
     }
     const updated = {
         a: "all",
         a2: "new",
-        a3: "lala"
+        a3: "lala",
     }
     t.deepEqual(result, initial)
 
@@ -221,7 +221,7 @@ test("[ts] custom prop schemas", t => {
     })
 })
 
-test.skip("[ts] it should handle not yet defined modelschema's for classes", t => {
+test.skip("[ts] it should handle not yet defined modelschema's for classes", (t) => {
     // classes are declared as var, not as function, so aren't hoisted :'(
     class Comment {
         @serializable(identifier()) id = 0
@@ -240,8 +240,8 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
         ref: 1,
         child: [
             { id: 2, title: "foo" },
-            { id: 1, title: "bar " }
-        ]
+            { id: 1, title: "bar " },
+        ],
     }
     const m = deserialize(Message, json)
 
@@ -253,7 +253,7 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", t =
     t.end()
 })
 
-test("[ts] array parameters", t => {
+test("[ts] array parameters", (t) => {
     class User {
         @serializable nick
         @serializable age
@@ -275,7 +275,7 @@ test("[ts] array parameters", t => {
     t.end()
 })
 
-test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeserialize'", t => {
+test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeserialize'", (t) => {
     const jsonInput = {
         id1: "1101",
         id11: 1102,
@@ -286,22 +286,22 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             {
                 id1: "1121",
                 text1: "good data",
-                valid: true
+                valid: true,
             },
             {
                 id1: "1122",
                 text1: "ignored",
-                valid: false
+                valid: false,
             },
             {
                 id1: "1123",
                 text1: "good data",
-                valid: true
+                valid: true,
             },
             null,
             undefined,
             1234,
-            "invalid"
+            "invalid",
         ],
         listRefObj1: [
             "1121",
@@ -316,43 +316,43 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             null,
             1234,
             "invalid",
-            "1121"
+            "1121",
         ],
         mapObj1: {
             1131: {
                 id1: "1131",
                 text1: "good data",
-                valid: true
+                valid: true,
             },
             1132: {
                 id1: "1132",
                 text1: "ignored",
-                valid: false
+                valid: false,
             },
             1133: {
                 id1: "1133",
                 text1: "good data",
-                valid: true
+                valid: true,
             },
             1134: null,
-            1234: null
+            1234: null,
         },
         mapRefObj1: {
             1131: "1131",
             1132: "1132",
             1133: "1133",
             1134: "1134",
-            1234: "1234"
+            1234: "1234",
         },
         mapArrayRefObj1: ["1131", "1132", "1133", "1134", "1234"],
         obj1: {
             id1: "1141",
             text1: "yee",
-            valid: true
+            valid: true,
         },
         primitiveNumber1: 12,
         primitiveText1: "foo",
-        aliasText: "yo"
+        aliasText: "yo",
     }
 
     const jsonResult = {
@@ -364,40 +364,40 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             {
                 id: "1121",
                 text: "good data",
-                valid: true
+                valid: true,
             },
             {
                 id: "1123",
                 text: "good data",
-                valid: true
-            }
+                valid: true,
+            },
         ],
         listRefObj: ["1121", "1123", "1131", "1133", "1121"],
         mapObj: {
             1131: {
                 id: "1131",
                 text: "good data",
-                valid: true
+                valid: true,
             },
             1133: {
                 id: "1133",
                 text: "good data",
-                valid: true
-            }
+                valid: true,
+            },
         },
         mapRefObj: {
             1131: "1131",
-            1133: "1133"
+            1133: "1133",
         },
         mapArrayRefObj: ["1131", "1133"],
         obj: {
             id: "1141",
             text: "yee",
-            valid: true
+            valid: true,
         },
         primitiveNumber: 12,
         primitiveText: "foo hee haa",
-        aliasText: "yo hee haa"
+        aliasText: "yo hee haa",
     }
 
     function customSerializer(v) {
@@ -417,20 +417,20 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
     }
 
     const renameOpts = {
-        beforeDeserialize: function(callback, jsonValue, jsonParentValue, propNameOrIndex) {
+        beforeDeserialize: function (callback, jsonValue, jsonParentValue, propNameOrIndex) {
             const jsonAttrName = propNameOrIndex + "1"
             jsonValue = jsonValue || jsonParentValue[jsonAttrName]
             callback(null, jsonValue)
-        }
+        },
     }
 
     const replaceValueOpts: AdditionalPropArgs = {
-        beforeDeserialize: function(callback, jsonValue, jsonParentValue, propNameOrIndex) {
+        beforeDeserialize: function (callback, jsonValue, jsonParentValue, propNameOrIndex) {
             const jsonAttrName = propNameOrIndex + "1"
             jsonValue = (jsonValue || jsonParentValue[jsonAttrName]) + " hee"
             callback(null, jsonValue)
         },
-        afterDeserialize: function(
+        afterDeserialize: function (
             callback,
             error,
             newValue,
@@ -441,18 +441,18 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             propDef
         ) {
             callback(undefined, newValue + " haa")
-        }
+        },
     }
 
     const resumeOnErrorOpts = {
-        beforeDeserialize: function(callback, jsonValue, jsonParentValue, propNameOrIndex) {
+        beforeDeserialize: function (callback, jsonValue, jsonParentValue, propNameOrIndex) {
             const jsonAttrName = propNameOrIndex + "1"
             jsonValue = jsonValue || jsonParentValue[jsonAttrName]
             callback(null, jsonValue)
         },
         afterDeserialize(callback, error) {
             callback(null, "ok now")
-        }
+        },
     }
 
     const removeInvalidItemsOpts: AdditionalPropArgs = {
@@ -475,7 +475,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
                     if (numItemsWaiting === 0) {
                         if (Array.isArray(result)) {
                             // clear gaps in array
-                            result = result.filter(function() {
+                            result = result.filter(function () {
                                 return true
                             })
                         }
@@ -514,7 +514,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
                 result = {}
                 const keys = Object.keys(jsonValue)
                 numItemsWaiting = keys.length
-                keys.forEach(key => {
+                keys.forEach((key) => {
                     getValidItem(jsonValue[key], key)
                 })
             }
@@ -522,7 +522,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
         /**
          * remove item in case it caused an error during deserialization
          */
-        afterDeserialize: function(
+        afterDeserialize: function (
             callback,
             error,
             newValue,
@@ -546,7 +546,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             } else {
                 callback(error, newValue)
             }
-        }
+        },
     }
 
     class SubData {
@@ -592,7 +592,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
     }, 1000)
 })
 
-test("[ts] @serializeAll", t => {
+test("[ts] @serializeAll", (t) => {
     @serializeAll
     class Store {
         a = 3
@@ -613,7 +613,7 @@ test("[ts] @serializeAll", t => {
     t.end()
 })
 
-test("[ts] @serializeAll(schema)", t => {
+test("[ts] @serializeAll(schema)", (t) => {
     class StarValue {
         @serializable(optional())
         public x?: number
@@ -640,7 +640,7 @@ test("[ts] @serializeAll(schema)", t => {
     t.end()
 })
 
-test("[ts] @serializeAll(list schema)", t => {
+test("[ts] @serializeAll(list schema)", (t) => {
     class StarValue {
         @serializable(optional())
         public x?: number
@@ -667,7 +667,7 @@ test("[ts] @serializeAll(list schema)", t => {
     t.end()
 })
 
-test("[ts] tests from serializeAll documentation", t => {
+test("[ts] tests from serializeAll documentation", (t) => {
     @serializeAll
     class Store {
         [key: string]: number
@@ -698,13 +698,13 @@ test("[ts] tests from serializeAll documentation", t => {
     t.end()
 })
 
-test("list(custom(...)) with SKIP", t => {
+test("list(custom(...)) with SKIP", (t) => {
     class Store {
         @serializable(
             list(
                 custom(
-                    x => x,
-                    x => (2 === x ? SKIP : x)
+                    (x) => x,
+                    (x) => (2 === x ? SKIP : x)
                 )
             )
         )

@@ -92,14 +92,14 @@ export default function custom(
     invariant(typeof deserializer === "function", "second argument should be a function or promise")
     let result: PropSchema = {
         serializer: serializer,
-        deserializer: function(jsonValue, done, context, oldValue) {
+        deserializer: function (jsonValue, done, context, oldValue) {
             const result = deserializer(jsonValue, context, oldValue, done)
             // FIXME: checking for result === undefined instead of Function.length
             // would be nicer, but strictly speaking a breaking change.
             if (deserializer.length !== 4) {
                 done(null, result)
             }
-        }
+        },
     }
     result = processAdditionalPropArgs(result, additionalArgs)
     return result

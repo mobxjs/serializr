@@ -9,7 +9,7 @@ export function GUARDED_NOOP(err?: any) {
 
 export function once<F extends Function>(fn: F): F {
     let fired = false
-    return function() {
+    return function () {
         if (!fired) {
             fired = true
             return fn.apply(null, arguments)
@@ -25,7 +25,7 @@ export function parallel<T, R>(
 ) {
     // TODO: limit parallelization?
     if (ar.length === 0) return void cb(null, [])
-    let left = ar.filter(x => true).length // only count items processed by forEach
+    let left = ar.filter((x) => true).length // only count items processed by forEach
     const resultArray: R[] = []
     let failed = false
     ar.forEach((value, idx) => {

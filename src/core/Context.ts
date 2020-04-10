@@ -67,7 +67,7 @@ export default class Context<T = any> {
                             new Error(
                                 'Unresolvable references in json: "' +
                                     Object.keys(this.pendingRefs)
-                                        .filter(uuid => this.pendingRefs[uuid].length > 0)
+                                        .filter((uuid) => this.pendingRefs[uuid].length > 0)
                                         .join('", "') +
                                     '"'
                             )
@@ -87,7 +87,7 @@ export default class Context<T = any> {
     await(modelSchema: ModelSchema<any>, uuid: string, callback: (err?: any, value?: any) => void) {
         invariant(this.isRoot, "await can only be called on the root context")
         if (uuid in this.resolvedRefs) {
-            const match = this.resolvedRefs[uuid].filter(function(resolved) {
+            const match = this.resolvedRefs[uuid].filter(function (resolved) {
                 return isAssignableTo(resolved.modelSchema, modelSchema)
             })[0]
             if (match) return void callback(null, match.value)
@@ -97,7 +97,7 @@ export default class Context<T = any> {
         this.pendingRefs[uuid].push({
             modelSchema: modelSchema,
             uuid: uuid,
-            callback: callback
+            callback: callback,
         })
     }
 
@@ -107,7 +107,7 @@ export default class Context<T = any> {
         if (!this.resolvedRefs[uuid]) this.resolvedRefs[uuid] = []
         this.resolvedRefs[uuid].push({
             modelSchema: modelSchema,
-            value: value
+            value: value,
         })
         if (uuid in this.pendingRefs) {
             for (let i = this.pendingRefs[uuid].length - 1; i >= 0; i--) {
@@ -134,8 +134,8 @@ export default class Context<T = any> {
     cancelAwaits() {
         invariant(this.isRoot, "cancelAwaits can only be called on the root context")
         const self = this
-        Object.keys(this.pendingRefs).forEach(function(uuid) {
-            self.pendingRefs[uuid].forEach(function(refOpts) {
+        Object.keys(this.pendingRefs).forEach(function (uuid) {
+            self.pendingRefs[uuid].forEach(function (refOpts) {
                 self.pendingRefsCount--
                 refOpts.callback(new Error("Reference resolution canceled for " + uuid))
             })
