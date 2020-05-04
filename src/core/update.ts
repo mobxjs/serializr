@@ -37,7 +37,7 @@ export default function update(
     modelSchema: any,
     target: any,
     json: any,
-    callback: any,
+    callback?: any,
     customArgs?: any
 ) {
     const inferModelSchema = arguments.length === 2 || typeof arguments[2] === "function" // only target and json // callback as third arg
