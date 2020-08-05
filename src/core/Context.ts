@@ -10,7 +10,7 @@ export default class Context<T = any> {
     public target: any
     private hasError: boolean
     public rootContext: Context<any>
-    private args: any
+    public args: any
     private pendingRefs!: {
         [uuid: string]: {
             modelSchema: ModelSchema<any>
