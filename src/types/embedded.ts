@@ -2,12 +2,15 @@ import deserialize from "../core/deserialize";
 import serialize from "../core/serialize";
 import { SKIP } from "../constants";
 import custom from "./custom";
+import { ClazzOrModelSchema } from "../api/types";
 
-interface Type<T> {
-    new (...args: any[]): T
-}
-
-export default function embedded<T>(type: Type<T>) {
+/**
+ * This allows to embed the property values in the resulting json output
+ * and vice-versa.
+ *
+ * @param type {ClazzOrModelSchema<T>} Some class or model schema.
+ */
+export default function embedded<T>(type: ClazzOrModelSchema<T>) {
     return custom(
         (value, _key, _sourceObject, jsonOutput) => {
             const serialized = serialize(value)
