@@ -2,6 +2,7 @@ import {
     serializable,
     alias,
     date,
+    embedded,
     list,
     map,
     mapAsArray,
@@ -18,6 +19,7 @@ import {
     custom,
     AdditionalPropArgs,
     SKIP,
+    createModelSchema,
 } from "../../"
 
 import { observable, autorun } from "mobx"
@@ -713,5 +715,46 @@ test("list(custom(...)) with SKIP", (t) => {
 
     t.deepEqual(deserialize(Store, { list: [1, 2, 3] }), { list: [1, 3] })
 
+    t.end()
+})
+
+test("embedded(type)", (t) => {
+    class PhoneNumber {
+        constructor(
+            public number: string,
+            public extension?: string) {
+
+        }
+    }
+
+    class Company {
+        constructor(
+            public name: string,
+            public phone: PhoneNumber) {
+
+        }
+    }
+
+    createModelSchema(PhoneNumber, {
+        number: primitive(),
+        extension: optional(primitive())
+    });
+
+    createModelSchema(Company, {
+        name: primitive(),
+        phone: embedded(PhoneNumber)
+    })
+
+    const person = new Company('The Company', new PhoneNumber('+55123456789'))
+    const serialized = serialize(person)
+
+    t.deepEqual(serialized, {
+        name: person.name,
+        number: person.phone.number
+    })
+
+    const deserialized = deserialize(Company, serialized)
+
+    t.deepEqual(deserialized, person)
     t.end()
 })

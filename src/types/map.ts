@@ -27,13 +27,13 @@ export default function map(
         "provided prop is aliased, please put aliases first"
     )
     let result: PropSchema = {
-        serializer: function (m: Map<any, any> | { [key: string]: any }) {
+        serializer: function (m: Map<any, any> | { [key: string]: any }, _, jsonOutput) {
             invariant(m && typeof m === "object", "expected object or Map")
             const result: { [key: string]: any } = {}
             if (isMapLike(m)) {
-                m.forEach((value, key) => (result[key] = propSchema.serializer(value, key, m)))
+                m.forEach((value, key) => (result[key] = propSchema.serializer(value, key, m, jsonOutput)))
             } else {
-                for (const key in m) result[key] = propSchema.serializer(m[key], key, m)
+                for (const key in m) result[key] = propSchema.serializer(m[key], key, m, jsonOutput)
             }
             return result
         },
