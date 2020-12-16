@@ -3,6 +3,8 @@
 
 name: Node.js CI
 
+
+  
 on:
   push:
     branches: [ master ]
@@ -13,6 +15,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    
 
     strategy:
       matrix:
@@ -24,4 +27,8 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: yarn build-test && yarn test && git diff --exit-code lib README.md
+    - run: yarn install --frozen-lockfile
+    - run: yarn build-test
+    - run: yarn test
+    - run: git diff --exit-code lib README.md
+    - uses: coverallsapp/github-action@v1.1.2
