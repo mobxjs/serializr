@@ -16,7 +16,9 @@
         "build-test-babel": "babel test/babel/babel.js -o test/babel/babel-compiled.js",
         "prettier": "prettier --write {src,test}/**/*.{ts,js}",
         "clean": "rimraf lib test/typescript/ts.js test/babel/babel-compiled.js",
-        "watch-docs": "nodemon -w gendoc.tsx -w src -e ts,tsx,md -x ts-node --transpile-only --project gendoc.tsconfig.json ./gendoc.tsx"
+        "watch-docs": "nodemon -w gendoc.tsx -w src -e ts,tsx,md -x ts-node --transpile-only --project gendoc.tsconfig.json ./gendoc.tsx",
+        "postversion": "git push && git push --tags",
+        "preversion": "yarn build && yarn build-test && yarn test && git diff --exit-code"
     },
     "nyc": {
         "all": true,
