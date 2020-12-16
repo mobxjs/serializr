@@ -32,3 +32,5 @@ jobs:
     - run: yarn test
     - run: git diff --exit-code lib README.md
     - uses: coverallsapp/github-action@v1.1.2
+      with: 
+        github-token: ${{ secrets.github_token }}
