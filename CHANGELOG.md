@@ -1,3 +1,8 @@
+# 2.0.4
+
+* Fix Callback for update function should be optional. ([#138](https://github.com/mobxjs/serializr/pull/138))
+* Fix [#135](https://github.com/mobxjs/serializr/issues/135) Context args is private. ([#137](https://github.com/mobxjs/serializr/pull/137)))
+
 # 2.0.0
 * #117 TypeScript conversion. Type definitions should now match behavior exactly. By @NaridaL
 * **BREAKING CHANGE**: `@serializeAll("*": ModelSchema)` is no longer valid. Instead you should pass
