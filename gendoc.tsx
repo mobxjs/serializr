@@ -292,7 +292,7 @@ function Type(type: any) {
                     const sig = type.declaration.signatures[0]
                     return (
                         <>
-                            {type.inUnion && "("}(<Parameters of={sig.parameters} />) =>{" "}
+                            {type.inUnion && "("}(<Parameters of={sig.parameters} />) =&gt;{" "}
                             <Type {...sig.type} />
                             {type.inUnion && ")"}
                         </>
