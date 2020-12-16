@@ -20,14 +20,14 @@ import { ClazzOrModelSchema } from "../api/types"
  * @param customArgs custom arguments that are available as `context.args` during the deserialization process. This can be used as dependency injection mechanism to pass in, for example, stores.
  * @returns deserialized object, possibly incomplete.
  */
-export function update<T>(
+export default function update<T>(
     modelschema: ClazzOrModelSchema<T>,
     instance: T,
     json: any,
     callback?: (err: any, result: T) => void,
     customArgs?: any
 ): void
-export function update<T>(
+export default function update<T>(
     instance: T,
     json: any,
     callback?: (err: any, result: T) => void,

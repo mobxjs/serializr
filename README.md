@@ -797,7 +797,11 @@ Sets the default model schema for class / constructor function. Everywhere where
 
 When passing an instance of this class to `serialize`, it is not required to pass the model schema as first argument anymore, because the default schema will be inferred from the instance type.
 
-### _function_ `update`(_modelSchema_: any, _target_: any, _json_: any, _callback_?: any, _customArgs_?: any): void <sub><a href="src/core/update.ts#L36">src</a></sub><!-- END API AUTOGEN -->
+### _function_ `update`&lt;T&gt;(_modelschema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;T&gt;, _instance_: T, _json_: any, _callback_?: undefined | ((_err_: any, _result_: T) => void), _customArgs_?: any): void <sub><a href="src/core/update.ts#L23">src</a></sub>
+
+Similar to deserialize, but updates an existing object instance. Properties will always updated entirely, but properties not present in the json will be kept as is. Further this method behaves similar to deserialize.
+
+### _function_ `update`&lt;T&gt;(_instance_: T, _json_: any, _callback_?: undefined | ((_err_: any, _result_: T) => void), _customArgs_?: any): void <sub><a href="src/core/update.ts#L30">src</a></sub><!-- END API AUTOGEN -->
 
 # Recipes and examples
 
