@@ -32,7 +32,10 @@ export default function serialize<T>(modelSchemaOrInstance: ClazzOrModelSchema<T
         schema = getDefaultModelSchema(schema)
     }
     const foundSchema = schema
-    invariant(foundSchema, "Failed to find default schema for " + modelSchemaOrInstance)
+    if (!foundSchema) {
+        // only call modelSchemaOrInstance.toString() on error
+        invariant(foundSchema, "Failed to find default schema for " + modelSchemaOrInstance)
+    }
     if (Array.isArray(instance))
         return instance.map((item) => serializeWithSchema(foundSchema, item))
     return serializeWithSchema(foundSchema, instance)
@@ -78,7 +81,8 @@ function serializeStarProps(schema: ModelSchema<any>, propDef: PropDef, obj: any
                     if (jsonValue === SKIP) {
                         return
                     }
-                    // TODO: propDef.jsonname could be a transform function on key
+                    // TODO: propDef.jsonname could be a transform function on
+                    // key
                     target[key] = jsonValue
                 }
             }

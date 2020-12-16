@@ -1,3 +1,7 @@
+# 
+
+* Fix [#141](https://github.com/mobxjs/serializr/issues/141)
+
 # 2.0.4
 
 * Fix Callback for update function should be optional. ([#138](https://github.com/mobxjs/serializr/pull/138))
