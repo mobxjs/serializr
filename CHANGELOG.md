@@ -1,4 +1,4 @@
-# 
+# 2.0.5
 
 * Fix [#141](https://github.com/mobxjs/serializr/issues/141)
 * Fix [#139](https://github.com/mobxjs/serializr/issues/139) `update` exports should be `default`.
