@@ -1,6 +1,6 @@
 {
     "name": "serializr",
-    "version": "2.0.4",
+    "version": "2.0.5",
     "description": "Serialize and deserialize complex object graphs to JSON",
     "main": "lib/serializr.umd.js",
     "module": "lib/serializr.es.js",
