@@ -1,39 +1,25 @@
-import typescriptPlugin from "rollup-plugin-typescript2"
+import typescriptPlugin from "@rollup/plugin-typescript"
 import typescript from "typescript"
 import { terser } from "rollup-plugin-terser"
 
 const LICENSE = "/** serializr - (c) Michel Weststrate 2016 - MIT Licensed */"
 
-function config(format /* : "umd" | "es" */, compress /*: boolean */) {
-    return {
-        input: "src/serializr.ts",
-        output: [
-            {
-                format: format,
-                file:
-                    "lib/" +
-                    (format === "umd" ? "" : "es/") +
-                    "serializr" +
-                    (compress ? ".min" : "") +
-                    ".js",
-                sourcemap: true,
-                name: "serializr",
-                exports: "named"
-            }
-        ],
-        plugins: [
-            typescriptPlugin({
-                typescript,
-                tsconfig: __dirname + "/tsconfig.json",
-                abortOnError: false,
-                exclude: [], // don't exclude .d.ts files
-                tsconfigOverride: {
-                    compilerOptions: {
-                    }
-                },
-                useTsconfigDeclarationDir: true
-            }),
-            compress &&
+export default {
+    input: "src/serializr.ts",
+    output: [
+        ["es", false],
+        ["es", true],
+        ["umd", false],
+        ["umd", true],
+    ].map(([format, compress]) => ({
+        format: format,
+        entryFileNames: "[name].[format]" + (compress ? ".min" : "") + ".js",
+        sourcemap: true,
+        dir: "lib",
+        name: "serializr",
+        exports: "named",
+        plugins: compress
+            ? [
                 terser({
                     compress: {
                         passes: 3,
@@ -48,14 +34,14 @@ function config(format /* : "umd" | "es" */, compress /*: boolean */) {
                     output: {
                         preamble: LICENSE
                     }
-                })
-        ].filter(x => x),
-        onwarn: function(warning, warn) {
-            if ("THIS_IS_UNDEFINED" === warning.code) return
-            // if ('CIRCULAR_DEPENDENCY' === warning.code) return
-            warn(warning)
-        }
-    }
+                }),
+            ]
+            : [],
+    })),
+    plugins: [typescriptPlugin({ typescript })],
+    onwarn: function (warning, warn) {
+        if ("THIS_IS_UNDEFINED" === warning.code) return
+        // if ('CIRCULAR_DEPENDENCY' === warning.code) return
+        warn(warning)
+    },
 }
-
-export default [config("es", false), config("es", true), config("umd", false), config("umd", true)]
