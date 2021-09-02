@@ -296,9 +296,9 @@ The context object is an advanced feature and can be used to obtain additional c
 
 1.  first argument of factory functions
 2.  third argument of the lookup callback of `ref` prop schema's (see below)
-3.  third argument of the `deserializer` of a custom propSchema
+3.  second argument of the `deserializer` of a custom propSchema
 
-When deserializing a model elememt / property, the following fields are available on the context object:
+When deserializing a model element / property, the following fields are available on the context object:
 
 -   `json`: Returns the complete current json object that is being deserialized
 -   `target`: The object currently being deserialized. This is the object that is returned from the factory function.
@@ -730,7 +730,7 @@ When using typescript, the decorator can also be used on fields declared as cons
 ```ts
 class Todo {
     @serializable(primitive())
-    title // shorthand for primitves
+    title // shorthand for primitives
 
     @serializable
     done
