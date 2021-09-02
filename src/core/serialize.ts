@@ -14,7 +14,9 @@ import { ClazzOrModelSchema, PropSchema, ModelSchema, PropDef } from "../api/typ
  */
 export default function serialize<T>(modelSchema: ClazzOrModelSchema<T>, instance: T): any
 export default function serialize<T>(instance: T): any
-export default function serialize<T>(modelSchemaOrInstance: ClazzOrModelSchema<T> | T, arg2?: T) {
+export default function serialize<T>(modelSchema: ClazzOrModelSchema<T>, instance: T[]): any
+export default function serialize<T>(instance: T[]): any
+export default function serialize<T>(modelSchemaOrInstance: ClazzOrModelSchema<T> | T | [], arg2?: T | []) {
     invariant(
         arguments.length === 1 || arguments.length === 2,
         "serialize expects one or 2 arguments"
