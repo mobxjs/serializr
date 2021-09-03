@@ -11,7 +11,8 @@ export type AdditionalPropArgs = Pick<
 export type PropSerializer = (
     sourcePropertyValue: any,
     key: string | number | symbol,
-    sourceObject: any
+    sourceObject: any,
+    jsonOutput: any
 ) => any | typeof SKIP
 export type PropDeserializer = (
     jsonValue: any,

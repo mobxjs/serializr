@@ -24,14 +24,14 @@ export default function mapAsArray(
     invariant(isPropSchema(propSchema), "expected prop schema as first argument")
     invariant(!!keyPropertyName, "expected key property name as second argument")
     let result: PropSchema = {
-        serializer: function (m) {
+        serializer: function (m, _, jsonOutput) {
             invariant(m && typeof m === "object", "expected object or Map")
             const result = []
             // eslint-disable-next-line no-unused-vars
             if (isMapLike(m)) {
-                m.forEach((value, key) => result.push(propSchema.serializer(value, key, m)))
+                m.forEach((value, key) => result.push(propSchema.serializer(value, key, m, jsonOutput)))
             } else {
-                for (let key in m) result.push(propSchema.serializer(m[key], key, m))
+                for (let key in m) result.push(propSchema.serializer(m[key], key, m, jsonOutput))
             }
             return result
         },

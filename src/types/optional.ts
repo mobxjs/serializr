@@ -28,8 +28,8 @@ export default function optional(propSchema?: PropSchema | boolean): PropSchema 
         typeof propSerializer === "function",
         "expected prop schema to have a callable serializer"
     )
-    const serializer: PropSchema["serializer"] = (sourcePropertyValue, key, sourceObject) => {
-        const result = propSerializer(sourcePropertyValue, key, sourceObject)
+    const serializer: PropSchema["serializer"] = (sourcePropertyValue, key, sourceObject, jsonOutput) => {
+        const result = propSerializer(sourcePropertyValue, key, sourceObject, jsonOutput)
         if (result === undefined) {
             return SKIP
         }

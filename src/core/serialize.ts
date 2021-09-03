@@ -60,7 +60,7 @@ function serializeWithSchema<T>(schema: ModelSchema<T>, obj: any): T {
             return
         }
         if (propDef === true) propDef = _defaultPrimitiveProp
-        const jsonValue = propDef.serializer(obj[key], key, obj)
+        const jsonValue = propDef.serializer(obj[key], key, obj, res)
         if (jsonValue === SKIP) {
             return
         }
@@ -79,7 +79,7 @@ function serializeStarProps(schema: ModelSchema<any>, propDef: PropDef, obj: any
                         target[key] = value
                     }
                 } else {
-                    const jsonValue = propDef.serializer(value, key, obj)
+                    const jsonValue = propDef.serializer(value, key, obj, target)
                     if (jsonValue === SKIP) {
                         return
                     }
