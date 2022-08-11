@@ -3,35 +3,32 @@
 
 name: Node.js CI
 
-
-  
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
+    push:
+        branches: [master]
+    pull_request:
+        branches: [master]
 
 jobs:
-  build:
+    build:
+        runs-on: ubuntu-latest
 
-    runs-on: ubuntu-latest
-    
+        strategy:
+            matrix:
+                node-version: [12.x, 14.x, 16.x, 18.x]
 
-    strategy:
-      matrix:
-        node-version: [10.x, 12.x, 14.x]
-
-    steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: yarn install --frozen-lockfile
-    - run: yarn build-test
-    - run: yarn test
-    - run: git diff --exit-code lib README.md
-    - uses: coverallsapp/github-action@v1.1.2
-      with: 
-        github-token: ${{ secrets.github_token }}
-      if: ${{ matrix.node-version == '14.x' }}
+        steps:
+            - uses: actions/checkout@v2
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - run: yarn install --immutable
+            - run: yarn build
+            - run: yarn build-test
+            - run: yarn test
+            - run: git diff --exit-code lib README.md
+            - uses: coverallsapp/github-action@v1.1.2
+              with:
+                  github-token: ${{ secrets.github_token }}
+              if: ${{ matrix.node-version == '14.x' }}
