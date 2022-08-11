@@ -5,9 +5,11 @@
         "sourceMap": false,
         "module": "commonjs",
         "removeComments": false,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
+        "useDefineForClassFields": true,
+        "esModuleInterop": true
     },
     "files": [
-        "ts.ts"
+        "ts.ts", "mobx-ts.ts"
     ]
 }

@@ -1,5 +1,5 @@
-import { invariant, processAdditionalPropArgs } from "../utils/utils"
-import { PropSchema, AdditionalPropArgs } from "../api/types"
+import { invariant, processAdditionalPropArgs } from "../utils/utils";
+import { PropSchema, AdditionalPropArgs } from "../api/types";
 
 /**
  * Similar to primitive, serializes instances of Date objects
@@ -10,15 +10,15 @@ export default function date(additionalArgs?: AdditionalPropArgs): PropSchema {
     // TODO: add format option?
     let result: PropSchema = {
         serializer: function (value) {
-            if (value === null || value === undefined) return value
-            invariant(value instanceof Date, "Expected Date object")
-            return value.getTime()
+            if (value === null || value === undefined) return value;
+            invariant(value instanceof Date, "Expected Date object");
+            return value.getTime();
         },
         deserializer: function (jsonValue, done) {
-            if (jsonValue === null || jsonValue === undefined) return void done(null, jsonValue)
-            return void done(null, new Date(jsonValue))
+            if (jsonValue === null || jsonValue === undefined) return void done(null, jsonValue);
+            return void done(null, new Date(jsonValue));
         },
-    }
-    result = processAdditionalPropArgs(result, additionalArgs)
-    return result
+    };
+    result = processAdditionalPropArgs(result, additionalArgs);
+    return result;
 }

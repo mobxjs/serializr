@@ -3,9 +3,9 @@ import {
     isPropSchema,
     isAliasedPropSchema,
     isIdentifierPropSchema,
-} from "../utils/utils"
-import { _defaultPrimitiveProp } from "../constants"
-import { PropSchema, PropDef } from "../api/types"
+} from "../utils/utils";
+import { _defaultPrimitiveProp } from "../constants";
+import { PropSchema, PropDef } from "../api/types";
 
 /**
  * Alias indicates that this model property should be named differently in the generated json.
@@ -22,10 +22,10 @@ import { PropSchema, PropDef } from "../api/types"
  * @param propSchema propSchema to (de)serialize the contents of this field
  */
 export default function alias(name: string, propSchema?: PropDef): PropSchema {
-    invariant(name && typeof name === "string", "expected prop name as first argument")
-    propSchema = !propSchema || propSchema === true ? _defaultPrimitiveProp : propSchema
-    invariant(isPropSchema(propSchema), "expected prop schema as second argument")
-    invariant(!isAliasedPropSchema(propSchema), "provided prop is already aliased")
+    invariant(name && typeof name === "string", "expected prop name as first argument");
+    propSchema = !propSchema || propSchema === true ? _defaultPrimitiveProp : propSchema;
+    invariant(isPropSchema(propSchema), "expected prop schema as second argument");
+    invariant(!isAliasedPropSchema(propSchema), "provided prop is already aliased");
     return {
         jsonname: name,
         serializer: propSchema.serializer,
@@ -33,5 +33,5 @@ export default function alias(name: string, propSchema?: PropDef): PropSchema {
         identifier: isIdentifierPropSchema(propSchema) || undefined,
         beforeDeserialize: propSchema.beforeDeserialize,
         afterDeserialize: propSchema.afterDeserialize,
-    }
+    };
 }

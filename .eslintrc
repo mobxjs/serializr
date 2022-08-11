@@ -5,21 +5,35 @@
         "node": true,
         "es6": true
     },
-    "parser": "babel-eslint",
+    "parser": "@typescript-eslint/parser",
     "extends": [
         "eslint:recommended",
-        "plugin:import/errors"
+        "plugin:import/typescript",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
     ],
     "plugins": [
         "import"
     ],
+    "parserOptions": {
+        "project": ["./tsconfig.json"]
+    },
     "rules": {
-        "semi": ["error", "never"],
+        "semi": ["error", "always"],
         "quotes": ["error", "double"],
         "indent": ["error", 4],
         "no-implicit-globals": 2,
         "no-restricted-globals": 2,
         "no-shadow": 2,
-        "no-use-before-define": ["error", { "functions" : false }]
+        "@typescript-eslint/no-explicit-any": ["off"],
+        "@typescript-eslint/no-unsafe-assignment": ["off"],
+        "@typescript-eslint/restrict-template-expressions": ["off"],
+        "@typescript-eslint/no-unsafe-member-access": ["off"],
+        "@typescript-eslint/no-unsafe-return": ["off"],
+        "@typescript-eslint/no-unsafe-argument": ["off"],
+        "@typescript-eslint/no-non-null-assertion": ["off"],
+        "@typescript-eslint/no-use-before-define": ["error", { "functions" : false }],
+        "@typescript-eslint/no-unsafe-call": ["off"]
     }
 }

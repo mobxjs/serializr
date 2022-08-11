@@ -1,8 +1,8 @@
 /*
  * Deserialization
  */
-import { invariant } from "../utils/utils"
-import { getTargetContext } from "./Context"
+import { invariant } from "../utils/utils";
+import { getTargetContext } from "./Context";
 
 /**
  * Cancels an asynchronous deserialization or update operation for the specified target object.
@@ -12,9 +12,9 @@ export default function cancelDeserialize<T>(instance: T): void {
     invariant(
         typeof instance === "object" && instance && !Array.isArray(instance),
         "cancelDeserialize needs an object"
-    )
-    const context = getTargetContext(instance)
+    );
+    const context = getTargetContext(instance);
     if (context) {
-        context.cancelAwaits()
+        context.cancelAwaits();
     }
 }

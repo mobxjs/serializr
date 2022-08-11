@@ -1,0 +1,6 @@
+{
+    "entryPoints": [
+        "src/serializr.ts"
+    ],
+    "out": "docs"
+}

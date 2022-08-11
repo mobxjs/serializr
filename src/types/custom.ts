@@ -1,7 +1,7 @@
-import { invariant, processAdditionalPropArgs } from "../utils/utils"
-import { AdditionalPropArgs, PropSchema, PropSerializer } from "../api/types"
-import { SKIP } from "../constants"
-import Context from "../core/Context"
+import { invariant, processAdditionalPropArgs } from "../utils/utils";
+import { AdditionalPropArgs, PropSchema, PropSerializer } from "../api/types";
+import { SKIP } from "../constants";
+import Context from "../core/Context";
 
 /**
  * Can be used to create simple custom propSchema. Multiple things can be done inside of a custom
@@ -70,12 +70,12 @@ export default function custom(
         callback: (err: any, result: any | typeof SKIP) => void
     ) => void,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): PropSchema;
 export default function custom(
     serializer: PropSerializer,
     deserializer: (jsonValue: any, context: Context, oldValue: any) => any | typeof SKIP,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): PropSchema;
 export default function custom(
     serializer: PropSerializer,
     deserializer:
@@ -88,19 +88,22 @@ export default function custom(
           ) => void),
     additionalArgs?: AdditionalPropArgs
 ): PropSchema {
-    invariant(typeof serializer === "function", "first argument should be function")
-    invariant(typeof deserializer === "function", "second argument should be a function or promise")
+    invariant(typeof serializer === "function", "first argument should be function");
+    invariant(
+        typeof deserializer === "function",
+        "second argument should be a function or promise"
+    );
     let result: PropSchema = {
         serializer: serializer,
         deserializer: function (jsonValue, done, context, oldValue) {
-            const result = deserializer(jsonValue, context, oldValue, done)
+            const result2 = deserializer(jsonValue, context, oldValue, done);
             // FIXME: checking for result === undefined instead of Function.length
             // would be nicer, but strictly speaking a breaking change.
             if (deserializer.length !== 4) {
-                done(null, result)
+                done(null, result2);
             }
         },
-    }
-    result = processAdditionalPropArgs(result, additionalArgs)
-    return result
+    };
+    result = processAdditionalPropArgs(result, additionalArgs);
+    return result;
 }

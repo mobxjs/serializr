@@ -1,15 +1,15 @@
 const formatters: { [name: string]: (o: any) => string } = {
     j: function json(v) {
         try {
-            return JSON.stringify(v)
+            return JSON.stringify(v);
         } catch (error) {
-            return "[UnexpectedJSONParseError]: " + error.message
+            return `[UnexpectedJSONParseError]: ${(error as any).message}`;
         }
     },
     l: function symbol(s) {
-        return s.toString()
+        return s.toString();
     },
-}
+};
 
 export default function invariant(
     condition: any,
@@ -17,30 +17,30 @@ export default function invariant(
     ...variables: any[]
 ): asserts condition {
     if (!condition) {
-        const variablesToLog: any[] = []
+        const variablesToLog: any[] = [];
 
-        let index = 0
+        let index = 0;
         const formattedMessage = message.replace(/%([a-zA-Z%])/g, function (match, format) {
-            if (match === "%%") return match
+            if (match === "%%") return match;
 
-            const formatter = formatters[format]
+            const formatter = formatters[format];
 
             if (typeof formatter === "function") {
-                const variable = variables[index++]
+                const variable = variables[index++];
 
-                variablesToLog.push(variable)
+                variablesToLog.push(variable);
 
-                return formatter(variable)
+                return formatter(variable);
             }
 
-            return match
-        })
+            return match;
+        });
 
         if (console && variablesToLog.length > 0) {
             // eslint-disable-next-line no-console
-            console.log(...variablesToLog)
+            console.log(...variablesToLog);
         }
 
-        throw new Error("[serializr] " + (formattedMessage || "Illegal State"))
+        throw new Error("[serializr] " + (formattedMessage || "Illegal State"));
     }
 }

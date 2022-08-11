@@ -3,16 +3,16 @@ import {
     isModelSchema,
     getIdentifierProp,
     processAdditionalPropArgs,
-} from "../utils/utils"
-import getDefaultModelSchema from "../api/getDefaultModelSchema"
+} from "../utils/utils";
+import getDefaultModelSchema from "../api/getDefaultModelSchema";
 import {
     ClazzOrModelSchema,
     RefLookupFunction,
     AdditionalPropArgs,
     PropSchema,
     ModelSchema,
-} from "../api/types"
-import Context from "../core/Context"
+} from "../api/types";
+import Context from "../core/Context";
 
 function createDefaultRefLookup(modelSchema: ModelSchema<any>) {
     return function resolve(
@@ -20,8 +20,8 @@ function createDefaultRefLookup(modelSchema: ModelSchema<any>) {
         cb: (err?: any, result?: any) => any,
         context: Context<any>
     ) {
-        context.rootContext.await(modelSchema, uuid, cb)
-    }
+        context.rootContext.await(modelSchema, uuid, cb);
+    };
 }
 
 /**
@@ -83,16 +83,16 @@ export default function reference(
     modelSchema: ClazzOrModelSchema<any>,
     lookupFn?: RefLookupFunction,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): PropSchema;
 export default function reference(
     modelSchema: ClazzOrModelSchema<any>,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): PropSchema;
 export default function reference(
     identifierAttr: string,
     lookupFn: RefLookupFunction,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
+): PropSchema;
 export default function reference(
     target: ClazzOrModelSchema<any> | string,
     lookupFnOrAdditionalPropArgs?: RefLookupFunction | AdditionalPropArgs,
@@ -101,54 +101,54 @@ export default function reference(
     invariant(
         !!target,
         "No modelSchema provided. If you are importing it from another file be aware of circular dependencies."
-    )
+    );
     let lookupFn =
         "function" === typeof lookupFnOrAdditionalPropArgs
             ? lookupFnOrAdditionalPropArgs
-            : undefined
+            : undefined;
     additionalArgs =
         additionalArgs ||
-        (lookupFn ? undefined : (lookupFnOrAdditionalPropArgs as AdditionalPropArgs | undefined))
-    let initialized = false
-    let childIdentifierAttribute: string | undefined
+        (lookupFn ? undefined : (lookupFnOrAdditionalPropArgs as AdditionalPropArgs | undefined));
+    let initialized = false;
+    let childIdentifierAttribute: string | undefined;
     function initialize() {
-        initialized = true
+        initialized = true;
         invariant(
             typeof target !== "string" || typeof lookupFn === "function",
             "if the reference target is specified by attribute name, a lookup function is required"
-        )
+        );
         invariant(
             !lookupFn || typeof lookupFn === "function",
             "second argument should be a lookup function or additional arguments object"
-        )
+        );
         if (typeof target === "string") {
-            childIdentifierAttribute = target
+            childIdentifierAttribute = target;
         } else {
-            const modelSchema = getDefaultModelSchema(target)!
+            const modelSchema = getDefaultModelSchema(target)!;
             invariant(
                 isModelSchema(modelSchema),
-                "expected model schema or string as first argument for 'ref', got " + modelSchema
-            )
-            lookupFn = lookupFn || createDefaultRefLookup(modelSchema)
-            childIdentifierAttribute = getIdentifierProp(modelSchema)
+                `expected model schema or string as first argument for 'ref', got ${modelSchema}`
+            );
+            lookupFn = lookupFn || createDefaultRefLookup(modelSchema);
+            childIdentifierAttribute = getIdentifierProp(modelSchema);
             invariant(
                 !!childIdentifierAttribute,
                 "provided model schema doesn't define an identifier() property and cannot be used by 'ref'."
-            )
+            );
         }
     }
     let result: PropSchema = {
         serializer: function (item) {
-            if (!initialized) initialize()
-            return item ? item[childIdentifierAttribute!] : null
+            if (!initialized) initialize();
+            return item ? item[childIdentifierAttribute!] : null;
         },
         deserializer: function (identifierValue, done, context) {
-            if (!initialized) initialize()
+            if (!initialized) initialize();
             if (identifierValue === null || identifierValue === undefined)
-                done(null, identifierValue)
-            else lookupFn!(identifierValue, done, context)
+                done(null, identifierValue);
+            else lookupFn!(identifierValue, done, context);
         },
-    }
-    result = processAdditionalPropArgs(result, additionalArgs)
-    return result
+    };
+    result = processAdditionalPropArgs(result, additionalArgs);
+    return result;
 }

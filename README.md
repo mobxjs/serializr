@@ -50,28 +50,28 @@ import {
     object,
     identifier,
     serialize,
-    deserialize
-} from "serializr"
+    deserialize,
+} from "serializr";
 
 // Example model classes
 class User {
-    uuid = Math.floor(Math.random() * 10000)
-    displayName = "John Doe"
+    uuid = Math.floor(Math.random() * 10000);
+    displayName = "John Doe";
 }
 
 class Message {
-    message = "Test"
-    author = null
-    comments = []
+    message = "Test";
+    author = null;
+    comments = [];
 }
 
 function fetchUserSomewhere(uuid) {
     // Lets pretend to actually fetch a user; but not.
     // In a real app this might be a database query
-    const user = new User()
-    user.uuid = uuid
-    user.displayName = `John Doe ${uuid}`
-    return user
+    const user = new User();
+    user.uuid = uuid;
+    user.displayName = `John Doe ${uuid}`;
+    return user;
 }
 
 function findUserById(uuid, callback, context) {
@@ -79,20 +79,20 @@ function findUserById(uuid, callback, context) {
     // uuid is the identifier being resolved
     // callback is a node style callback function to be invoked with the found object (as second arg) or an error (first arg)
     // context is an object detailing the execution context of the serializer now
-    callback(null, fetchUserSomewhere(uuid))
+    callback(null, fetchUserSomewhere(uuid));
 }
 
 // Create model schemas
 createModelSchema(Message, {
     message: primitive(),
     author: reference(User, findUserById),
-    comments: list(object(Message))
-})
+    comments: list(object(Message)),
+});
 
 createModelSchema(User, {
     uuid: identifier(),
-    displayName: primitive()
-})
+    displayName: primitive(),
+});
 
 // can now deserialize and serialize!
 const message = deserialize(Message, {
@@ -101,14 +101,14 @@ const message = deserialize(Message, {
     comments: [
         {
             message: "Welcome!",
-            author: 23
-        }
-    ]
-})
+            author: 23,
+        },
+    ],
+});
 
-const json = serialize(message)
+const json = serialize(message);
 
-console.dir(message, { colors: true, depth: 10 })
+console.dir(message, { colors: true, depth: 10 });
 ```
 
 ## Using decorators (optional)
@@ -126,27 +126,27 @@ import {
     serialize,
     deserialize,
     getDefaultModelSchema,
-    serializable
-} from "serializr"
+    serializable,
+} from "serializr";
 
 class User {
     @serializable(identifier())
-    uuid = Math.random()
+    uuid = Math.random();
 
     @serializable
-    displayName = "John Doe"
+    displayName = "John Doe";
 }
 
 class Message {
     @serializable
-    message = "Test"
+    message = "Test";
 
     @serializable(object(User))
-    author = null
+    author = null;
 
     // Self referencing decorators work in Babel 5.x and Typescript. See below for more.
     @serializable(list(object(Message)))
-    comments = []
+    comments = [];
 }
 
 // You can now deserialize and serialize!
@@ -156,17 +156,17 @@ const message = deserialize(Message, {
     comments: [
         {
             message: "Welcome!",
-            author: { uuid: 1, displayName: "Bob" }
-        }
-    ]
-})
+            author: { uuid: 1, displayName: "Bob" },
+        },
+    ],
+});
 
-console.dir(message, { colors: true, depth: 10 })
+console.dir(message, { colors: true, depth: 10 });
 
 // We can call serialize without the first argument here
 //because the schema can be inferred from the decorated classes
 
-const json = serialize(message)
+const json = serialize(message);
 ```
 
 **Decorator: Caveats**
@@ -175,15 +175,15 @@ Babel 6.x does not allow decorators to self-reference during their creation, so 
 
 ```javascript
 class Message {
-    @serializable message = "Test"
+    @serializable message = "Test";
 
     @serializable(object(User))
-    author = null
+    author = null;
 
-    comments = []
+    comments = [];
 
     constructor() {
-        getDefaultModelSchema(Message).props["comments"] = list(object(Message))
+        getDefaultModelSchema(Message).props["comments"] = list(object(Message));
     }
 }
 ```
@@ -243,12 +243,12 @@ A simple model schema looks like this:
 
 ```javascript
 const todoSchema = {
-    factory: context => new Todo(),
+    factory: (context) => new Todo(),
     extends: ModelSchema,
     props: {
-        modelfield: PropSchema
-    }
-}
+        modelfield: PropSchema,
+    },
+};
 ```
 
 The `factory` tells how to construct new instances during deserialization.
@@ -280,7 +280,7 @@ PropSchemas are composable. See the API section below for the details, but these
 
 It is possible to define your own prop schemas. You can define your own propSchema by creating a function that returns an object with the following signature:
 
-```typings
+```typescript
 {
     serializer: (sourcePropertyValue: any) => jsonValue,
     deserializer: (jsonValue: any, callback: (err, targetPropertyValue: any) => void, context?, currentPropertyValue?) => void
@@ -317,7 +317,7 @@ It is possible to define those functions by passing them as additional property 
 
 ```javascript
 const myHandler = {
-    beforeDeserialize: function(
+    beforeDeserialize: function (
         callback,
         jsonValue,
         jsonParentValue,
@@ -326,14 +326,14 @@ const myHandler = {
         propDef
     ) {
         if (typeof jsonValue === "string") {
-            callback(null, jsonValue)
+            callback(null, jsonValue);
         } else if (typeof jsonValue === "number") {
-            callback(null, jsonValue.toString())
+            callback(null, jsonValue.toString());
         } else {
-            callback(new Error("something went wrong before deserialization"))
+            callback(new Error("something went wrong before deserialization"));
         }
     },
-    afterDeserialize: function(
+    afterDeserialize: function (
         callback,
         error,
         newValue,
@@ -344,18 +344,18 @@ const myHandler = {
         propDef
     ) {
         if (!error && newValue !== "needs change") {
-            callback(null, newValue)
+            callback(null, newValue);
         } else if (!error && newValue === "needs change") {
-            callback(new Error(), "changed value")
+            callback(new Error(), "changed value");
         } else {
-            callback(error)
+            callback(error);
         }
-    }
-}
+    },
+};
 
 class MyData {
     @serializable(primitive(myHandler))
-    mySimpleField
+    mySimpleField;
 }
 ```
 
@@ -363,8 +363,8 @@ A more detailed example can be found in [test/typescript/ts.ts](test/typescript/
 
 <!-- START API AUTOGEN -->
 <!-- THIS SECTION WAS AUTOGENERATED BY gendoc.tsx! DO NOT EDIT! -->
-API
----
+
+## API
 
 ### _interface_ `ModelSchema`&lt;T&gt;<sub><a href="src/api/types.ts#L65">src</a></sub>
 
@@ -430,11 +430,11 @@ If you want to skip serialization or deserialization, you can use SKIP.
 const schema = createSimpleSchema({
     a: custom(
         () => SKIP,
-        v => v,
+        (v) => v
     ),
-})
-serialize(s, { a: 4 }) // {}
-deserialize(s, { "a": 4 }) // { a: 4 }
+});
+serialize(s, { a: 4 }); // {}
+deserialize(s, { a: 4 }); // { a: 4 }
 ```
 
 ```ts
@@ -444,16 +444,16 @@ class TodoState {
     // Todo.category is @serializable(reference(...))
     @serializable(list(object(Todo)))
     @observable
-    todos: Todo[]
+    todos: Todo[];
 
     // we want to serialize the categories, so that the references in
     // this.todos can be resolved, but we don't want to set this property
     @serializable(
-        list(object(TodoCategory),
-        { afterDeserialize: callback => callback(undefined, SKIP) }))
+        list(object(TodoCategory), { afterDeserialize: (callback) => callback(undefined, SKIP) })
+    )
     @computed
     get categories() {
-        return this.todos.map(todo => todo.category)
+        return this.todos.map((todo) => todo.category);
     }
 }
 ```
@@ -464,10 +464,10 @@ Alias indicates that this model property should be named differently in the gene
 
 ```ts
 createModelSchema(Todo, {
-    title: alias('task', primitive()),
-})
+    title: alias("task", primitive()),
+});
 
-serialize(new Todo('test')) // { "task": "test" }
+serialize(new Todo("test")); // { "task": "test" }
 ```
 
 ### _function_ `cancelDeserialize`&lt;T&gt;(_instance_: T): void <sub><a href="src/core/cancelDeserialize.ts#L11">src</a></sub>
@@ -480,17 +480,17 @@ Creates a model schema that (de)serializes an object created by a constructor fu
 
 ```ts
 function Todo(title, done) {
-    this.title = title
-    this.done = done
+    this.title = title;
+    this.done = done;
 }
 
 createModelSchema(Todo, {
     title: true,
     done: true,
-})
+});
 
-const json = serialize(new Todo('Test', false))
-const todo = deserialize(Todo, json)
+const json = serialize(new Todo("Test", false));
+const todo = deserialize(Todo, json);
 ```
 
 ### _function_ `createSimpleSchema`&lt;T&gt;(_props_: [Props](#type-propst----src)): [ModelSchema](#interface-modelschematsrc)&lt;T&gt; <sub><a href="src/api/createSimpleSchema.ts#L19">src</a></sub>
@@ -501,10 +501,10 @@ Creates a model schema that (de)serializes from / to plain javascript objects. I
 const todoSchema = createSimpleSchema({
     title: true,
     done: true,
-})
+});
 
-const json = serialize(todoSchema, { title: 'Test', done: false })
-const todo = deserialize(todoSchema, json)
+const json = serialize(todoSchema, { title: "Test", done: false });
+const todo = deserialize(todoSchema, json);
 ```
 
 ### _function_ `custom`(_serializer_: [PropSerializer](#type-propserializer--sourcepropertyvalue-any-key-string--number--symbol-sourceobject-any--any--typeof-skip-src), _deserializer_: (_jsonValue_: any, _context_: [Context](typedoc-id-undefined), _oldValue_: any, _callback_: (_err_: any, _result_: any | typeof [SKIP](typedoc-id-undefined)) => void) => void, _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/custom.ts#L64">src</a></sub>
@@ -579,20 +579,20 @@ class Todo {}
 
 createModelSchema(SubTask, {
     title: true,
-})
+});
 createModelSchema(Todo, {
     title: true,
     subTask: list(object(SubTask)),
-})
+});
 
 const todo = deserialize(Todo, {
-    title: 'Task',
+    title: "Task",
     subTask: [
         {
-            title: 'Sub task 1',
+            title: "Sub task 1",
         },
     ],
-})
+});
 ```
 
 ### _function_ `map`(_propSchema_: [PropSchema](#interface-propschemasrc), _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/map.ts#L19">src</a></sub>
@@ -615,18 +615,18 @@ class Todo {}
 
 createModelSchema(SubTask, {
     title: true,
-})
+});
 createModelSchema(Todo, {
     title: true,
     subTask: object(SubTask),
-})
+});
 
 const todo = deserialize(Todo, {
-    title: 'Task',
+    title: "Task",
     subTask: {
-        title: 'Sub task',
+        title: "Sub task",
     },
-})
+});
 ```
 
 ### _function_ `optional`(_propSchema_?: [PropSchema](#interface-propschemasrc) | boolean): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/optional.ts#L23">src</a></sub>
@@ -638,10 +638,15 @@ Note that if we use `optional` together with another prop schema such as `custom
 ```ts
 createModelSchema(Todo, {
     title: optional(primitive()),
-    user: optional(custom(value => value?.name, () => SKIP))
-})
+    user: optional(
+        custom(
+            (value) => value?.name,
+            () => SKIP
+        )
+    ),
+});
 
-serialize(new Todo()) // {}
+serialize(new Todo()); // {}
 ```
 
 ### _function_ `primitive`(_additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/primitive.ts#L16">src</a></sub>
@@ -651,9 +656,9 @@ Indicates that this field contains a primitive value (or Date) which should be s
 ```ts
 createModelSchema(Todo, {
     title: primitive(),
-})
+});
 
-serialize(new Todo('test')) // { "title": "test" }
+serialize(new Todo("test")); // { "title": "test" }
 ```
 
 ### _function_ `raw`(_additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/raw.ts#L18">src</a></sub>
@@ -690,31 +695,31 @@ class Post {}
 createModelSchema(User, {
     uuid: identifier(),
     displayname: primitive(),
-})
+});
 
 createModelSchema(Post, {
     author: reference(User, findUserById),
     message: primitive(),
-})
+});
 
 function findUserById(uuid, callback) {
-    fetch('http://host/user/' + uuid)
-        .then(userData => {
-            deserialize(User, userData, callback)
+    fetch("http://host/user/" + uuid)
+        .then((userData) => {
+            deserialize(User, userData, callback);
         })
-        .catch(callback)
+        .catch(callback);
 }
 
 deserialize(
     Post,
     {
-        message: 'Hello World',
+        message: "Hello World",
         author: 234,
     },
     (err, post) => {
-        console.log(post)
+        console.log(post);
     }
-)
+);
 ```
 
 ### _function_ `reference`(_modelSchema_: [ClazzOrModelSchema](#type-clazzormodelschemat--modelschemat--clazzt-src)&lt;any&gt;, _additionalArgs_?: [AdditionalPropArgs](#type-additionalpropargs--pickpropschema-beforedeserialize--afterdeserialize--pattern-src)): [PropSchema](#interface-propschemasrc) <sub><a href="src/types/reference.ts#L87">src</a></sub>
@@ -730,19 +735,19 @@ When using typescript, the decorator can also be used on fields declared as cons
 ```ts
 class Todo {
     @serializable(primitive())
-    title // shorthand for primitives
+    title; // shorthand for primitives
 
     @serializable
-    done
+    done;
 
     constructor(title, done) {
-        this.title = title
-        this.done = done
+        this.title = title;
+        this.done = done;
     }
 }
 
-const json = serialize(new Todo('Test', false))
-const todo = deserialize(Todo, json)
+const json = serialize(new Todo("Test", false));
+const todo = deserialize(Todo, json);
 ```
 
 ### _function_ `serializable`(_target_: any, _key_: string, _baseDescriptor_?: [PropertyDescriptor](typedoc-id-undefined)): void <sub><a href="src/api/serializable.ts#L102">src</a></sub>
@@ -760,33 +765,32 @@ The `serializeAll` decorator can used on a class to signal that all primitive pr
 ```ts
 @serializeAll
 class Store {
-    a = 3
-    b
+    a = 3;
+    b;
 }
 
-const store = new Store()
-store.c = 5
-store.d = {}
-serialize(store) // { "c": 5 }
+const store = new Store();
+store.c = 5;
+store.d = {};
+serialize(store); // { "c": 5 }
 ```
 
 ```ts
 class DataType {
     @serializable
-    x
+    x;
     @serializable
-    y
+    y;
 }
 
 @serializeAll(/^[a-z]$/, DataType)
-class ComplexStore {
-}
+class ComplexStore {}
 
-const store = new ComplexStore()
-store.a = {x: 1, y: 2}
-store.b = {}
-store.somethingElse = 5
-serialize(store) // { a: {x: 1, y: 2}, b: { x: undefined, y: undefined } }
+const store = new ComplexStore();
+store.a = { x: 1, y: 2 };
+store.b = {};
+store.somethingElse = 5;
+serialize(store); // { a: {x: 1, y: 2}, b: { x: undefined, y: undefined } }
 ```
 
 ### _function_ `serializeAll`(_pattern_: [RegExp](typedoc-id-undefined), _propertyType_: [PropDef](#type-propdef--propschema--boolean--undefined-src) | [Clazz](#type-clazzt----src)&lt;any&gt;): (_clazz_: [Clazz](#type-clazzt----src)&lt;any&gt;) => [Clazz](#type-clazzt----src)&lt;any&gt; <sub><a href="src/core/serializeAll.ts#L44">src</a></sub>
@@ -813,47 +817,47 @@ const todoSchema = {
     props: {
         task: primitive(),
         owner: reference("_userId", UserStore.findUserById), // attribute of the owner attribute of  a todo + lookup function
-        subTasks: alias("children", list(object(todoSchema)))
-    }
-}
+        subTasks: alias("children", list(object(todoSchema))),
+    },
+};
 
 const todo = deserialize(
     todoSchema,
     { task: "grab coffee", owner: 17, children: [] },
     (err, todo) => {
-        console.log("finished loading todos")
+        console.log("finished loading todos");
     }
-)
+);
 
-const todoJson = serialize(todoSchema, todo)
+const todoJson = serialize(todoSchema, todo);
 ```
 
 ## 2. Create schema and store it on constructor
 
 ```javascript
 function Todo(parentTodo) {
-    this.parent = parentTodo // available in subTasks
+    this.parent = parentTodo; // available in subTasks
 }
 
 const todoSchema = {
-    factory: context => new Todo(context.parent),
+    factory: (context) => new Todo(context.parent),
     props: {
         task: primitive(),
         owner: reference("_userId", UserStore.findUserById), // attribute of the owner attribute of  a todo + lookup function
-        subTasks: alias("children", list(object(todoSchema)))
-    }
-}
-setDefaultModelSchema(Todo, todoSchema)
+        subTasks: alias("children", list(object(todoSchema))),
+    },
+};
+setDefaultModelSchema(Todo, todoSchema);
 
 const todo = deserialize(
     Todo, // just pass the constructor name, schema will be picked up
     { task: "grab coffee", owner: 17, children: [] },
     (err, todos) => {
-        console.log("finished loading todos")
+        console.log("finished loading todos");
     }
-)
+);
 
-const todoJson = serialize(todo) // no need to pass schema explicitly
+const todoJson = serialize(todo); // no need to pass schema explicitly
 ```
 
 ## 3. Create schema for simple argumentless constructors
@@ -863,16 +867,16 @@ function Todo() {}
 
 // creates a default factory, () => new Todo(), stores the schema as default model schema
 createModelSchema(Todo, {
-    task: primitive()
-})
+    task: primitive(),
+});
 
 const todo = deserialize(
     Todo, // just pass the constructor name, schema will be picked up
     { task: "grab coffee", owner: 17, children: [] },
     (err, todos) => console.log("finished loading todos")
-)
+);
 
-const todoJson = serialize(todo) // no need to pass schema explicitly
+const todoJson = serialize(todo); // no need to pass schema explicitly
 ```
 
 ## 4. Create schema for simple argumentless constructors using decorators
@@ -880,13 +884,13 @@ const todoJson = serialize(todo) // no need to pass schema explicitly
 ```javascript
 class Todo {
     @serializable(primitive())
-    task = "Grab coffee"
+    task = "Grab coffee";
 
     @serializable(reference("_userId", UserStore.findUserById))
-    owner = null
+    owner = null;
 
     @serializable(alias("children", list(object(todoSchema))))
-    subTasks = []
+    subTasks = [];
 }
 
 // note that (de)serialize also accepts lists
@@ -896,25 +900,25 @@ const todos = deserialize(
         {
             task: "grab coffee",
             owner: 17,
-            children: []
-        }
+            children: [],
+        },
     ],
     (err, todos) => console.log("finished loading todos")
-)
+);
 
-const todoJson = serialize(todos)
+const todoJson = serialize(todos);
 ```
 
 ## 5. use custom factory methods to reuse model object instances
 
 ```javascript
-const someTodoStoreById = {}
+const someTodoStoreById = {};
 
-getDefaultModelSchema(Todo).factory = context => {
-    const json = context.json
-    if (someTodoStoreById[json.id]) return someTodoStoreById[json.id] // reuse instance
-    return (someTodoStoreById[json.id] = new Todo())
-}
+getDefaultModelSchema(Todo).factory = (context) => {
+    const json = context.json;
+    if (someTodoStoreById[json.id]) return someTodoStoreById[json.id]; // reuse instance
+    return (someTodoStoreById[json.id] = new Todo());
+};
 ```
 
 ## 6. use custom arguments to inject stores to models
@@ -930,112 +934,112 @@ class User {
 }
 
 // create model schema with custom factory
-createModelSchema(User, { username: true }, context => {
-    return new User(context.args.someStore)
-})
+createModelSchema(User, { username: true }, (context) => {
+    return new User(context.args.someStore);
+});
 
 // don't want singletons!
-const someStore = new SomeStore()
+const someStore = new SomeStore();
 // provide somestore through context of the deserialization process
 const user = deserialize(User, someJson, (err, user) => console.log("done"), {
-    someStore: someStore
-})
+    someStore: someStore,
+});
 ```
 
 ## 7. Putting it together: MobX store with plain objects, classes and internal references
 
 ```javascript
 // models.js:
-import { observable, computed } from "mobx"
-import { serializable, identifier } from "serializr"
+import { observable, computed } from "mobx";
+import { serializable, identifier } from "serializr";
 
 function randomId() {
-    return Math.floor(Math.random() * 100000)
+    return Math.floor(Math.random() * 100000);
 }
 
 export class Box {
     @serializable(identifier())
-    id = randomId()
+    id = randomId();
 
     @serializable
     @observable
-    x = 0
+    x = 0;
 
     @serializable
     @observable
-    y = 0
+    y = 0;
 
     @serializable
     @observable
-    location = 0
+    location = 0;
 
     constructor(location, x, y) {
-        this.location = location
-        this.x = x
-        this.y = y
+        this.location = location;
+        this.x = x;
+        this.y = y;
     }
 
     @serializable
     @computed
     get area() {
-        return this.x * this.y
+        return this.x * this.y;
     }
 }
 
 export class Arrow {
     @serializable(identifier())
-    id = randomId()
+    id = randomId();
 
     @serializable(reference(Box))
-    from
+    from;
 
     @serializable(reference(Box))
-    to
+    to;
 }
 
 // store.js:
-import { observable, transaction } from "mobx"
-import { createSimpleSchema, identifier, list, serialize, deserialize, update } from "serializr"
-import { Box, Arrow } from "./models"
+import { observable, transaction } from "mobx";
+import { createSimpleSchema, identifier, list, serialize, deserialize, update } from "serializr";
+import { Box, Arrow } from "./models";
 
 // The store that holds our domain: boxes and arrows
 const store = observable({
     boxes: [],
     arrows: [],
-    selection: null
-})
+    selection: null,
+});
 
 // Model of the store itself
 const storeModel = createSimpleSchema({
     boxes: list(object(Box)),
     arrows: list(object(Arrow)),
-    selection: reference(Box)
-})
+    selection: reference(Box),
+});
 
 // Example Data
 // You can push data in as a class
-store.boxes.push(new Box("Rotterdam", 100, 100), new Box("Vienna", 650, 300))
+store.boxes.push(new Box("Rotterdam", 100, 100), new Box("Vienna", 650, 300));
 
 // Or it can be an raw javascript object with the right properties
 store.arrows.push({
     id: randomId(),
     from: store.boxes[0],
-    to: store.boxes[1]
-})
+    to: store.boxes[1],
+});
 
 // (de) serialize functions
 function serializeState(store) {
-    return serialize(storeModel, store)
+    return serialize(storeModel, store);
 }
 
 function deserializeState(store, json) {
     transaction(() => {
-        update(storeModel, store, json)
-    })
+        update(storeModel, store, json);
+    });
 }
 
 // Print ... out for debugging
-console.dir(serializeState(store), { depth: 10, colors: true })
+console.dir(serializeState(store), { depth: 10, colors: true });
 ```
 
 ---

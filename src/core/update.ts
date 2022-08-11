@@ -2,11 +2,11 @@
  * Update
  */
 
-import { invariant, isModelSchema, GUARDED_NOOP } from "../utils/utils"
-import getDefaultModelSchema from "../api/getDefaultModelSchema"
-import Context from "./Context"
-import { deserializePropsWithSchema } from "./deserialize"
-import { ClazzOrModelSchema } from "../api/types"
+import { invariant, isModelSchema, GUARDED_NOOP } from "../utils/utils";
+import getDefaultModelSchema from "../api/getDefaultModelSchema";
+import Context from "./Context";
+import { deserializePropsWithSchema } from "./deserialize";
+import { ClazzOrModelSchema } from "../api/types";
 
 /**
  * Similar to deserialize, but updates an existing object instance.
@@ -26,40 +26,33 @@ export default function update<T>(
     json: any,
     callback?: (err: any, result: T) => void,
     customArgs?: any
-): void
+): void;
 export default function update<T>(
     instance: T,
     json: any,
     callback?: (err: any, result: T) => void,
     customArgs?: any
-): void
-export default function update(
-    modelSchema: any,
-    target: any,
-    json: any,
-    callback?: any,
-    customArgs?: any
-) {
-    const inferModelSchema = arguments.length === 2 || typeof arguments[2] === "function" // only target and json // callback as third arg
-
-    if (inferModelSchema) {
-        target = arguments[0]
-        modelSchema = getDefaultModelSchema(target)
-        json = arguments[1]
-        callback = arguments[2]
-        customArgs = arguments[3]
+): void;
+export default function update(...args: any[]) {
+    let modelSchema;
+    if (typeof args[0] === "function" || isModelSchema(args[0])) {
+        // First overload
+        modelSchema = getDefaultModelSchema(args[0]);
+        args.shift();
     } else {
-        modelSchema = getDefaultModelSchema(modelSchema)
+        modelSchema = getDefaultModelSchema(args[0]);
     }
-    invariant(isModelSchema(modelSchema), "update failed to determine schema")
+    const [target, json, callback, customArgs] = args;
+
+    invariant(isModelSchema(modelSchema), "update failed to determine schema");
     invariant(
         typeof target === "object" && target && !Array.isArray(target),
         "update needs an object"
-    )
-    const context = new Context(undefined, modelSchema, json, callback || GUARDED_NOOP, customArgs)
-    context.setTarget(target)
-    const lock = context.createCallback(GUARDED_NOOP)
-    const result = deserializePropsWithSchema(context, modelSchema, json, target)
-    lock()
-    return result
+    );
+    const context = new Context(undefined, modelSchema, json, callback || GUARDED_NOOP, customArgs);
+    context.setTarget(target);
+    const lock = context.createCallback(GUARDED_NOOP);
+    const result = deserializePropsWithSchema(context, modelSchema, json, target);
+    lock();
+    return result;
 }
