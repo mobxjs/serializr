@@ -62,11 +62,34 @@ export type Props<T = any> = {
 };
 export type PropDef = PropSchema | boolean | undefined;
 
+/**
+ * Define an object exposing a couple of methods that are used
+ * to discriminate between subschema.
+ */
+export interface DiscriminatorSpec {
+    /**
+     * This method is invoked during deserialization to check if the
+     * data should be deserialized as the specific type.
+     * @param src An object to inspect
+     * @returns `true` if the json matched the discriminator condition.
+     */
+    isActualType(src: any): boolean;
+
+    /**
+     * If available this method is invoked during serialization and is meant to
+     * add discriminator information to the result json.
+     * @param result The result of the deserialization
+     */
+    storeDiscriminator?(result: any): void;
+}
+
 export interface ModelSchema<T> {
     targetClass?: Clazz<any>;
     factory: (context: Context) => T;
     props: Props<T>;
     extends?: ModelSchema<any>;
+    subSchemas?: ModelSchema<any>[];
+    discriminator?: DiscriminatorSpec;
 }
 
 export type Clazz<T> = new (...args: any[]) => T;

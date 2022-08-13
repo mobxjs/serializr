@@ -16,34 +16,33 @@ export default function serialize<T>(modelSchema: ClazzOrModelSchema<T>, instanc
 export default function serialize<T>(instance: T): any;
 export default function serialize<T>(modelSchema: ClazzOrModelSchema<T>, instance: T[]): any;
 export default function serialize<T>(instance: T[]): any;
-export default function serialize<T>(
-    modelSchemaOrInstance: ClazzOrModelSchema<T> | T | [],
-    arg2?: T | []
-) {
-    invariant(
-        arguments.length === 1 || arguments.length === 2,
-        "serialize expects one or 2 arguments"
-    );
-    const instance = (arg2 ?? modelSchemaOrInstance) as T;
-    let schema = (arg2 && modelSchemaOrInstance) as ClazzOrModelSchema<T> | undefined;
-    if (Array.isArray(instance)) {
-        if (instance.length === 0) return [];
-        // don't bother finding a schema
-        else if (!schema) schema = getDefaultModelSchema(instance[0]);
-        else if (typeof schema !== "object") schema = getDefaultModelSchema(schema);
-    } else if (!schema) {
-        schema = getDefaultModelSchema(instance);
+export default function serialize<T>(...args: [ClazzOrModelSchema<T>, T | T[]] | [T | T[]]) {
+    invariant(args.length === 1 || args.length === 2, "serialize expects one or 2 arguments");
+
+    let schema: ClazzOrModelSchema<T> | undefined;
+    let value: T | T[];
+    if (args.length === 1) {
+        schema = undefined;
+        value = args[0];
+    } else {
+        [schema, value] = args;
+    }
+
+    if (Array.isArray(value)) {
+        return value.map((item) => (schema ? serialize(schema, item) : serialize(item)));
+    }
+
+    if (!schema) {
+        schema = getDefaultModelSchema(value);
     } else if (typeof schema !== "object") {
         schema = getDefaultModelSchema(schema);
     }
-    const foundSchema = schema;
-    if (!foundSchema) {
+
+    if (!schema) {
         // only call modelSchemaOrInstance.toString() on error
-        invariant(foundSchema, `Failed to find default schema for ${modelSchemaOrInstance}`);
+        invariant(schema, `Failed to find default schema for ${value}`);
     }
-    if (Array.isArray(instance))
-        return instance.map((item) => serializeWithSchema(foundSchema, item));
-    return serializeWithSchema(foundSchema, instance);
+    return serializeWithSchema(schema, value);
 }
 
 function serializeWithSchema<T>(schema: ModelSchema<T>, obj: any): T {
@@ -69,6 +68,9 @@ function serializeWithSchema<T>(schema: ModelSchema<T>, obj: any): T {
         }
         res[propDef.jsonname || key] = jsonValue;
     });
+    if (schema.discriminator?.storeDiscriminator) {
+        schema.discriminator.storeDiscriminator(res);
+    }
     return res;
 }
 

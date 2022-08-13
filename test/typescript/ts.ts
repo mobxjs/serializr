@@ -18,6 +18,8 @@ import {
     custom,
     AdditionalPropArgs,
     SKIP,
+    subSchema,
+    DEFAULT_DISCRIMINATOR_ATTR,
 } from "../../";
 
 import test = require("tape");
@@ -685,5 +687,223 @@ test("list(custom(...)) with SKIP", (t) => {
 
     t.deepEqual(deserialize(Store, { list: [1, 2, 3] }), { list: [1, 3] });
 
+    t.end();
+});
+
+test("[ts] heterogeneous array serialization", (t) => {
+    class Person {
+        @serializable name: string;
+        @serializable surname: string;
+    }
+
+    class Car {
+        @serializable model: string;
+        @serializable color: string;
+    }
+
+    const serialized = serialize([
+        Object.assign(new Person(), {
+            name: "John",
+            surname: "Doe",
+        }),
+        Object.assign(new Car(), {
+            model: "Fiat 500",
+            color: "Red",
+        }),
+    ]);
+
+    t.deepEqual(serialized, [
+        {
+            name: "John",
+            surname: "Doe",
+        },
+        {
+            model: "Fiat 500",
+            color: "Red",
+        },
+    ]);
+
+    t.end();
+});
+
+test("[ts] class hierarchy with simple discriminator", (t) => {
+    class Todo {
+        @serializable
+        id: string;
+
+        @serializable
+        text: string;
+    }
+
+    @subSchema("picture")
+    class PictureTodo extends Todo {
+        @serializable
+        pictureUrl: string;
+    }
+
+    @subSchema("video")
+    class VideoTodo extends Todo {
+        @serializable
+        videoUrl: string;
+    }
+
+    const src = [
+        Object.assign(new PictureTodo(), {
+            id: "pic1",
+            text: "Lorem Ipsum",
+            pictureUrl:
+                "https://i.etsystatic.com/13081791/c/900/715/0/288/il/b7343b/2529177643/il_340x270.2529177643_h9nm.jpg",
+        }),
+        Object.assign(new VideoTodo(), {
+            id: "vid1",
+            text: "Lorem Ipsum",
+            videoUrl: "https://www.youtube.com/watch?v=oMLHqAUyhEk",
+        }),
+    ];
+
+    const picSerialized = serialize(src[0]);
+    const serialized = serialize(src) as any[];
+
+    t.equal(picSerialized.id, src[0].id);
+    t.equal(picSerialized[DEFAULT_DISCRIMINATOR_ATTR], "picture");
+
+    t.equal(serialized[0].id, src[0].id);
+    t.equal(serialized[0][DEFAULT_DISCRIMINATOR_ATTR], "picture");
+    t.equal(serialized[1].id, src[1].id);
+    t.equal(serialized[1][DEFAULT_DISCRIMINATOR_ATTR], "video");
+
+    const [deserPic, deserVid] = deserialize(Todo, serialized);
+    t.true(deserPic instanceof PictureTodo, "Deserialized pic should be instance of PictureTodo");
+    t.true(deserVid instanceof VideoTodo, "Deserialized pic should be instance of VideoTodo");
+
+    t.deepEqual(src[0], deserPic);
+    t.deepEqual(src[1], deserVid);
+    t.end();
+});
+
+test("[ts] class hierarchy with complex discriminator", (t) => {
+    class Todo {
+        @serializable
+        id: string;
+
+        @serializable
+        text: string;
+    }
+
+    @subSchema({
+        isActualType: (src) => !!src["pictureUrl"],
+    })
+    class PictureTodo extends Todo {
+        @serializable
+        pictureUrl: string;
+    }
+
+    @subSchema({
+        isActualType: (src) => !!src["videoUrl"],
+    })
+    class VideoTodo extends Todo {
+        @serializable
+        videoUrl: string;
+    }
+
+    const src = [
+        Object.assign(new PictureTodo(), {
+            id: "pic1",
+            text: "Lorem Ipsum",
+            pictureUrl:
+                "https://i.etsystatic.com/13081791/c/900/715/0/288/il/b7343b/2529177643/il_340x270.2529177643_h9nm.jpg",
+        }),
+        Object.assign(new VideoTodo(), {
+            id: "vid1",
+            text: "Lorem Ipsum",
+            videoUrl: "https://www.youtube.com/watch?v=oMLHqAUyhEk",
+        }),
+    ];
+
+    const [deserPic, deserVid] = deserialize(Todo, serialize(src) as any[]);
+    t.true(deserPic instanceof PictureTodo, "Deserialized pic should be instance of PictureTodo");
+    t.true(deserVid instanceof VideoTodo, "Deserialized pic should be instance of VideoTodo");
+
+    t.deepEqual(src[0], deserPic);
+    t.deepEqual(src[1], deserVid);
+    t.end();
+});
+
+test("[ts] class hierarchy with multiple levels", (t) => {
+    class Todo {
+        @serializable
+        id: string;
+
+        @serializable
+        text: string;
+    }
+
+    @subSchema("picture")
+    class PictureTodo extends Todo {
+        @serializable
+        pictureUrl: string;
+    }
+
+    @subSchema("betterPicture", Todo)
+    class BetterPictureTodo extends PictureTodo {
+        @serializable
+        altText: string;
+    }
+
+    @subSchema("video")
+    class VideoTodo extends Todo {
+        @serializable
+        videoUrl: string;
+    }
+
+    const src = [
+        Object.assign(new PictureTodo(), {
+            id: "pic1",
+            text: "Lorem Ipsum",
+            pictureUrl:
+                "https://i.etsystatic.com/13081791/c/900/715/0/288/il/b7343b/2529177643/il_340x270.2529177643_h9nm.jpg",
+        }),
+        Object.assign(new BetterPictureTodo(), {
+            id: "pic1",
+            text: "Lorem Ipsum",
+            pictureUrl:
+                "https://i.etsystatic.com/13081791/c/900/715/0/288/il/b7343b/2529177643/il_340x270.2529177643_h9nm.jpg",
+            altText: "Alt text",
+        }),
+        Object.assign(new VideoTodo(), {
+            id: "vid1",
+            text: "Lorem Ipsum",
+            videoUrl: "https://www.youtube.com/watch?v=oMLHqAUyhEk",
+        }),
+    ];
+
+    const serialized = serialize(src) as any[];
+
+    t.equal(serialized[0].id, src[0].id);
+    t.equal(serialized[0][DEFAULT_DISCRIMINATOR_ATTR], "picture");
+    t.equal(serialized[1].id, src[1].id);
+    t.equal(serialized[1][DEFAULT_DISCRIMINATOR_ATTR], "betterPicture");
+    t.equal(serialized[2].id, src[2].id);
+    t.equal(serialized[2][DEFAULT_DISCRIMINATOR_ATTR], "video");
+
+    const [deserPic, deserBetterPic, deserVid] = deserialize(Todo, serialized);
+    t.true(deserPic instanceof PictureTodo, "Deserialized pic should be instance of PictureTodo");
+    t.false(
+        deserPic instanceof BetterPictureTodo,
+        "Deserialized pic should not be instance of BetterPictureTodo"
+    );
+    t.true(
+        deserBetterPic instanceof BetterPictureTodo,
+        "Deserialized betterPic should be instance of BetterPictureTodo"
+    );
+    t.true(
+        deserBetterPic instanceof PictureTodo,
+        "Deserialized betterPic should be instance (also) of PictureTodo"
+    );
+    t.true(deserVid instanceof VideoTodo, "Deserialized pic should be instance of VideoTodo");
+
+    t.deepEqual(src[0], deserPic);
+    t.deepEqual(src[1], deserBetterPic);
+    t.deepEqual(src[2], deserVid);
     t.end();
 });

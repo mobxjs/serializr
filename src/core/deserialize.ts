@@ -53,6 +53,20 @@ function deserializeStarProps(
         }
 }
 
+function identifyActualSchema(json: any, baseSchema: ModelSchema<any>) {
+    if (baseSchema.subSchemas?.length) {
+        for (const subSchema of baseSchema.subSchemas) {
+            if (subSchema.discriminator) {
+                if (subSchema.discriminator.isActualType(json)) {
+                    return subSchema;
+                }
+            }
+        }
+    }
+    // If we can't find a specific schema we go with the base.
+    return baseSchema;
+}
+
 /**
  * Deserializes a json structure into an object graph.
  *
@@ -124,8 +138,10 @@ export function deserializeObjectWithSchema(
     if (json === null || json === undefined || typeof json !== "object")
         return void callback(null, null);
 
-    const context = new Context(parentContext, modelSchema, json, callback, customArgs);
-    const target = modelSchema.factory(context);
+    const actualSchema = identifyActualSchema(json, modelSchema);
+
+    const context = new Context(parentContext, actualSchema, json, callback, customArgs);
+    const target = actualSchema.factory(context);
     // todo async invariant
     invariant(!!target, "No object returned from factory");
     // TODO: make invariant?            invariant(schema.extends ||
@@ -133,7 +149,7 @@ export function deserializeObjectWithSchema(
     // supertype, but modelschema did not provide extends clause")
     context.setTarget(target);
     const lock = context.createCallback(GUARDED_NOOP);
-    deserializePropsWithSchema(context, modelSchema, json, target);
+    deserializePropsWithSchema(context, actualSchema, json, target);
     lock();
     return target;
 }
