@@ -8,6 +8,17 @@ coverage
 *.log
 .DS_Store
 test/typescript/ts.js
+test/typescript/mobx-ts.js
 test/babel/babel-compiled.js
 .nyc_output
 out
+docs
+
+# See https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions

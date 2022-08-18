@@ -1,4 +1,4 @@
-import primitive from "./types/primitive"
+import primitive from "./types/primitive";
 
 /**
  * If you want to skip serialization or deserialization, you can use SKIP.
@@ -33,6 +33,6 @@ import primitive from "./types/primitive"
  *     }
  * }
  */
-export const SKIP = typeof Symbol !== "undefined" ? Symbol("SKIP") : { SKIP: true }
+export const SKIP = typeof Symbol !== "undefined" ? Symbol("SKIP") : { SKIP: true };
 
-export const _defaultPrimitiveProp = primitive()
+export const _defaultPrimitiveProp = primitive();

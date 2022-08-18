@@ -1,14 +1,14 @@
-import { SKIP } from "../constants"
+import { SKIP } from "../constants";
 import {
     invariant,
     isPropSchema,
     isAliasedPropSchema,
     parallel,
     processAdditionalPropArgs,
-} from "../utils/utils"
-import { onAfterDeserialize, onBeforeDeserialize } from "../core/deserialize"
-import { _defaultPrimitiveProp } from "../constants"
-import { AdditionalPropArgs, PropSchema } from "../api/types"
+} from "../utils/utils";
+import { onAfterDeserialize, onBeforeDeserialize } from "../core/deserialize";
+import { _defaultPrimitiveProp } from "../constants";
+import { AdditionalPropArgs, PropSchema } from "../api/types";
 
 /**
  * List indicates that this property contains a list of things.
@@ -43,22 +43,22 @@ export default function list(
     propSchema: PropSchema,
     additionalArgs?: AdditionalPropArgs
 ): PropSchema {
-    propSchema = propSchema || _defaultPrimitiveProp
-    invariant(isPropSchema(propSchema), "expected prop schema as first argument")
+    propSchema = propSchema || _defaultPrimitiveProp;
+    invariant(isPropSchema(propSchema), "expected prop schema as first argument");
     invariant(
         !isAliasedPropSchema(propSchema),
         "provided prop is aliased, please put aliases first"
-    )
+    );
     let result: PropSchema = {
         serializer: function (ar) {
             if (ar === undefined) {
-                return SKIP
+                return SKIP;
             }
-            invariant(ar && "length" in ar && "map" in ar, "expected array (like) object")
-            return ar.map(propSchema.serializer)
+            invariant(ar && "length" in ar && "map" in ar, "expected array (like) object");
+            return ar.map(propSchema.serializer);
         },
         deserializer: function (jsonArray, done, context) {
-            if (!Array.isArray(jsonArray)) return void done("[serializr] expected JSON array")
+            if (!Array.isArray(jsonArray)) return void done("[serializr] expected JSON array");
 
             function processItem(
                 jsonValue: any,
@@ -67,9 +67,9 @@ export default function list(
             ) {
                 function callbackBefore(err: any, value: any) {
                     if (!err) {
-                        propSchema.deserializer(value, deserializeDone, context)
+                        propSchema.deserializer(value, deserializeDone, context);
                     } else {
-                        onItemDone(err)
+                        onItemDone(err);
                     }
                 }
 
@@ -84,9 +84,9 @@ export default function list(
                             itemIndex,
                             context,
                             propSchema
-                        )
+                        );
                     } else {
-                        onItemDone(err, value)
+                        onItemDone(err, value);
                     }
                 }
 
@@ -97,20 +97,20 @@ export default function list(
                     itemIndex,
                     context,
                     propSchema
-                )
+                );
             }
 
-            parallel(jsonArray, processItem, (err, result) => {
+            parallel(jsonArray, processItem, (err, result2) => {
                 if (err) {
-                    return void done(err)
+                    return void done(err);
                 }
                 done(
                     undefined,
-                    result!.filter((x) => SKIP !== x)
-                )
-            })
+                    result2!.filter((x) => SKIP !== x)
+                );
+            });
         },
-    }
-    result = processAdditionalPropArgs(result, additionalArgs)
-    return result
+    };
+    result = processAdditionalPropArgs(result, additionalArgs);
+    return result;
 }

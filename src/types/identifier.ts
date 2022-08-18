@@ -1,10 +1,10 @@
-import { invariant, processAdditionalPropArgs } from "../utils/utils"
-import { _defaultPrimitiveProp } from "../constants"
-import { AdditionalPropArgs, PropSchema, RegisterFunction } from "../api/types"
+import { invariant, processAdditionalPropArgs } from "../utils/utils";
+import { _defaultPrimitiveProp } from "../constants";
+import { AdditionalPropArgs, PropSchema, RegisterFunction } from "../api/types";
 
 const defaultRegisterFunction: RegisterFunction = (id, value, context) => {
-    context.rootContext.resolve(context.modelSchema, id, context.target)
-}
+    context.rootContext.resolve(context.modelSchema, id, context.target);
+};
 
 /**
  *
@@ -43,24 +43,24 @@ const defaultRegisterFunction: RegisterFunction = (id, value, context) => {
 export function identifier(
     registerFn?: RegisterFunction,
     additionalArgs?: AdditionalPropArgs
-): PropSchema
-export function identifier(additionalArgs?: AdditionalPropArgs): PropSchema
+): PropSchema;
+export function identifier(additionalArgs?: AdditionalPropArgs): PropSchema;
 export default function identifier(
     arg1?: RegisterFunction | AdditionalPropArgs,
     arg2?: AdditionalPropArgs
 ) {
-    let registerFn: RegisterFunction
-    let additionalArgs: AdditionalPropArgs | undefined
+    let registerFn: RegisterFunction;
+    let additionalArgs: AdditionalPropArgs | undefined;
     if (typeof arg1 === "function") {
-        registerFn = arg1
-        additionalArgs = arg2
+        registerFn = arg1;
+        additionalArgs = arg2;
     } else {
-        additionalArgs = arg1
+        additionalArgs = arg1;
     }
     invariant(
         !additionalArgs || typeof additionalArgs === "object",
         "Additional property arguments should be an object, register function should be omitted or a funtion"
-    )
+    );
     let result: PropSchema = {
         identifier: true,
         serializer: _defaultPrimitiveProp.serializer,
@@ -68,14 +68,14 @@ export default function identifier(
             _defaultPrimitiveProp.deserializer(
                 jsonValue,
                 function (err, id) {
-                    defaultRegisterFunction(id, context.target, context)
-                    if (registerFn) registerFn(id, context.target, context)
-                    done(err, id)
+                    defaultRegisterFunction(id, context.target, context);
+                    if (registerFn) registerFn(id, context.target, context);
+                    done(err, id);
                 },
                 context
-            )
+            );
         },
-    }
-    result = processAdditionalPropArgs(result, additionalArgs)
-    return result
+    };
+    result = processAdditionalPropArgs(result, additionalArgs);
+    return result;
 }

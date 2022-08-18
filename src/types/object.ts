@@ -1,8 +1,8 @@
-import { invariant, isModelSchema, processAdditionalPropArgs } from "../utils/utils"
-import getDefaultModelSchema from "../api/getDefaultModelSchema"
-import serialize from "../core/serialize"
-import { deserializeObjectWithSchema } from "../core/deserialize"
-import { ClazzOrModelSchema, AdditionalPropArgs, PropSchema } from "../api/types"
+import { invariant, isModelSchema, processAdditionalPropArgs } from "../utils/utils";
+import getDefaultModelSchema from "../api/getDefaultModelSchema";
+import serialize from "../core/serialize";
+import { deserializeObjectWithSchema } from "../core/deserialize";
+import { ClazzOrModelSchema, AdditionalPropArgs, PropSchema } from "../api/types";
 
 /**
  * `object` indicates that this property contains an object that needs to be (de)serialized
@@ -39,27 +39,27 @@ export default function object(
     invariant(
         typeof modelSchema === "object" || typeof modelSchema === "function",
         "No modelschema provided. If you are importing it from another file be aware of circular dependencies."
-    )
+    );
     let result: PropSchema = {
         serializer: function (item) {
-            modelSchema = getDefaultModelSchema(modelSchema)!
-            invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
-            if (item === null || item === undefined) return item
-            return serialize(modelSchema, item)
+            modelSchema = getDefaultModelSchema(modelSchema)!;
+            invariant(isModelSchema(modelSchema), `expected modelSchema, got ${modelSchema}`);
+            if (item === null || item === undefined) return item;
+            return serialize(modelSchema, item);
         },
         deserializer: function (childJson, done, context) {
-            modelSchema = getDefaultModelSchema(modelSchema)!
-            invariant(isModelSchema(modelSchema), "expected modelSchema, got " + modelSchema)
-            if (childJson === null || childJson === undefined) return void done(null, childJson)
+            modelSchema = getDefaultModelSchema(modelSchema)!;
+            invariant(isModelSchema(modelSchema), `expected modelSchema, got ${modelSchema}`);
+            if (childJson === null || childJson === undefined) return void done(null, childJson);
             return void deserializeObjectWithSchema(
                 context,
                 modelSchema,
                 childJson,
                 done,
                 undefined
-            )
+            );
         },
-    }
-    result = processAdditionalPropArgs(result, additionalArgs)
-    return result
+    };
+    result = processAdditionalPropArgs(result, additionalArgs);
+    return result;
 }

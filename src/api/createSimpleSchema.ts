@@ -1,4 +1,4 @@
-import { Props, ModelSchema } from "./types"
+import { Props, ModelSchema } from "./types";
 
 /**
  * Creates a model schema that (de)serializes from / to plain javascript objects.
@@ -16,11 +16,11 @@ import { Props, ModelSchema } from "./types"
  * @param props property mapping,
  * @returns model schema
  */
-export default function createSimpleSchema<T extends Object>(props: Props): ModelSchema<T> {
+export default function createSimpleSchema<T extends object>(props: Props): ModelSchema<T> {
     return {
         factory: function () {
-            return {} as any
+            return {} as any;
         },
         props: props,
-    }
+    };
 }

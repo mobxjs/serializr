@@ -18,222 +18,194 @@ import {
     custom,
     AdditionalPropArgs,
     SKIP,
-} from "../../"
+} from "../../";
 
-import { observable, autorun } from "mobx"
-
-import test = require("tape")
+import test = require("tape");
 
 test("should work in typescript", (t) => {
     class A {
         @serializable
-        @observable
-        w
+        w;
 
         @serializable
-        @observable
-        x = 3
+        x = 3;
 
-        @observable
         @serializable(primitive())
-        y = 4
+        y = 4;
 
         @serializable(true)
-        z = 5
+        z = 5;
     }
 
-    const a = new A()
-
-    let res
-    let called = 0
-    autorun(() => {
-        called++
-        res = serialize(a)
-    })
-
-    t.equal(called, 1)
-    t.deepEqual(res, { w: undefined, x: 3, y: 4, z: 5 })
-    a.z++ // no autorun
-    t.equal(a.z, 6)
-
-    a.y++
-    t.equal(called, 2)
-    t.deepEqual(res, { w: undefined, x: 3, y: 5, z: 6 })
-
-    a.x++
-    t.equal(called, 3)
-    t.deepEqual(res, { w: undefined, x: 4, y: 5, z: 6 })
-
-    const b = deserialize(A, { x: 1, y: 2, z: 3 })
-    t.deepEqual(serialize(b), { w: undefined, x: 1, y: 2, z: 3 })
-    t.ok(b instanceof A)
-
-    t.end()
-})
+    const a = new A();
+    const res = serialize(a);
+    t.deepEqual(res, { w: undefined, x: 3, y: 4, z: 5 });
+    t.end();
+});
 
 test("typescript class with constructor params", (t) => {
     class Rectangle {
         @serializable
-        public someNumber: number
+        public someNumber: number;
 
         @serializable(alias("identifier", identifier()))
-        public id: string
+        public id: string;
 
         @serializable(alias("desc", optional()))
-        public description?: string
+        public description?: string;
 
         @serializable(alias("width", true))
-        public width: number
+        public width: number;
 
         @serializable(alias("height", true))
-        public height: number
+        public height: number;
 
         constructor(id: string, width: number, height: number) {
-            this.id = id
-            this.width = width
-            this.height = height
+            this.id = id;
+            this.width = width;
+            this.height = height;
         }
 
         public getArea(): number {
-            return this.width * this.height
+            return this.width * this.height;
         }
     }
 
-    const a = new Rectangle("A", 10, 20)
-    a.someNumber = 123
+    const a = new Rectangle("A", 10, 20);
+    a.someNumber = 123;
 
-    let json = serialize(a)
-    t.equal(false, json.hasOwnProperty("desc"))
-    t.equal(false, json.hasOwnProperty("description"))
-    const b = deserialize(Rectangle, json)
-    t.equal(a.id, b.id)
-    t.equal(a.width, b.width)
-    t.equal(a.height, b.height)
-    t.equal(a.someNumber, b.someNumber)
-    t.equal(b.getArea(), 200)
+    let json = serialize(a);
+    t.equal(false, json.hasOwnProperty("desc"));
+    t.equal(false, json.hasOwnProperty("description"));
+    const b = deserialize(Rectangle, json);
+    t.equal(a.id, b.id);
+    t.equal(a.width, b.width);
+    t.equal(a.height, b.height);
+    t.equal(a.someNumber, b.someNumber);
+    t.equal(b.getArea(), 200);
 
-    a.description = "example"
-    json = serialize(a)
-    t.equal("example", json["desc"])
-    t.equal(false, json.hasOwnProperty("description"))
+    a.description = "example";
+    json = serialize(a);
+    t.equal("example", json["desc"]);
+    t.equal(false, json.hasOwnProperty("description"));
 
-    t.end()
-})
+    t.end();
+});
 
 test("typescript class with only constructor params", (t) => {
     class Rectangle {
         @serializable(alias("identifier", identifier()))
-        public id: string
+        public id: string;
 
         @serializable(alias("width", true))
-        public width: number
+        public width: number;
 
         @serializable(alias("height", true))
-        public height: number
+        public height: number;
 
         constructor(id: string, width: number, height: number) {
-            this.id = id
-            this.width = width
-            this.height = height
+            this.id = id;
+            this.width = width;
+            this.height = height;
         }
     }
 
-    const a = new Rectangle("A", 10, 20)
+    const a = new Rectangle("A", 10, 20);
 
-    let json = serialize(a)
-    const b = deserialize(Rectangle, json)
-    t.equal(a.id, b.id)
-    t.equal(a.width, b.width)
-    t.equal(a.height, b.height)
+    let json = serialize(a);
+    const b = deserialize(Rectangle, json);
+    t.equal(a.id, b.id);
+    t.equal(a.width, b.width);
+    t.equal(a.height, b.height);
 
-    t.end()
-})
+    t.end();
+});
 
 test("[ts] it should handle prototypes", (t) => {
     class A {
-        @serializable a = "hoi"
-        @serializable a2 = "oeps"
+        @serializable a = "hoi";
+        @serializable a2 = "oeps";
     }
 
     class B extends A {
-        @serializable b = "boe"
-        @serializable b2 = "oef"
+        @serializable b = "boe";
+        @serializable b2 = "oef";
     }
 
     t.deepEqual(serialize(new A()), {
         a: "hoi",
         a2: "oeps",
-    })
+    });
 
     t.deepEqual(serialize(new B()), {
         a: "hoi",
         a2: "oeps",
         b: "boe",
         b2: "oef",
-    })
+    });
 
-    t.end()
-})
+    t.end();
+});
 
 test("[ts] custom prop schemas", (t) => {
     function customSerializer(v) {
-        return v
+        return v;
     }
 
     function customDeserializer(jsonValue, context, oldValue) {
-        return jsonValue
+        return jsonValue;
     }
 
     function customCallbackDeserializer(jsonValue, context, oldValue, done) {
-        done(null, jsonValue)
+        done(null, jsonValue);
     }
 
     function customAsyncDeserializer(jsonValue, context, oldValue, done) {
         setTimeout(() => {
-            done(null, jsonValue)
-        }, 1)
+            done(null, jsonValue);
+        }, 1);
     }
 
     class A {
-        @serializable(custom(customSerializer, customDeserializer)) a = "hoi"
-        @serializable(custom(customSerializer, customCallbackDeserializer)) a2 = "oeps"
-        @serializable(custom(customSerializer, customAsyncDeserializer)) a3 = "lulu"
+        @serializable(custom(customSerializer, customDeserializer)) a = "hoi";
+        @serializable(custom(customSerializer, customCallbackDeserializer)) a2 = "oeps";
+        @serializable(custom(customSerializer, customAsyncDeserializer)) a3 = "lulu";
     }
 
-    let result = serialize(new A())
+    let result = serialize(new A());
     const initial = {
         a: "hoi",
         a2: "oeps",
         a3: "lulu",
-    }
+    };
     const updated = {
         a: "all",
         a2: "new",
         a3: "lala",
-    }
-    t.deepEqual(result, initial)
+    };
+    t.deepEqual(result, initial);
 
     deserialize(A, updated, (err, resultObj) => {
-        err ? t.end(err) : null
-        result = serialize(resultObj)
-        t.deepEqual(result, updated)
-        t.end()
-    })
-})
+        err ? t.end(err) : null;
+        result = serialize(resultObj);
+        t.deepEqual(result, updated);
+        t.end();
+    });
+});
 
 test.skip("[ts] it should handle not yet defined modelschema's for classes", (t) => {
     // classes are declared as var, not as function, so aren't hoisted :'(
     class Comment {
-        @serializable(identifier()) id = 0
-        @serializable(true) title
+        @serializable(identifier()) id = 0;
+        @serializable(true) title;
     }
 
     class Message {
         @serializable(list(object(Comment)))
-        child = []
+        child = [];
 
         @serializable(reference(Comment))
-        ref = null
+        ref = null;
     }
 
     const json = {
@@ -242,38 +214,38 @@ test.skip("[ts] it should handle not yet defined modelschema's for classes", (t)
             { id: 2, title: "foo" },
             { id: 1, title: "bar " },
         ],
-    }
-    const m = deserialize(Message, json)
+    };
+    const m = deserialize(Message, json);
 
-    t.equal(m.child.length, 2)
-    t.ok(m.child[1] === m.ref)
+    t.equal(m.child.length, 2);
+    t.ok(m.child[1] === m.ref);
 
-    t.deepEqual(serialize(m), json)
+    t.deepEqual(serialize(m), json);
 
-    t.end()
-})
+    t.end();
+});
 
 test("[ts] array parameters", (t) => {
     class User {
-        @serializable nick
-        @serializable age
-        @serializable gender
-        @serializable(list(primitive())) hobbies
-        @serializable(list(primitive())) friends
+        @serializable nick;
+        @serializable age;
+        @serializable gender;
+        @serializable(list(primitive())) hobbies;
+        @serializable(list(primitive())) friends;
     }
 
-    const user = new User()
+    const user = new User();
 
-    user.age = 22
-    user.nick = "Nick"
-    user.hobbies = ["debugging"]
+    user.age = 22;
+    user.nick = "Nick";
+    user.hobbies = ["debugging"];
 
-    const result = serialize(user)
+    const result = serialize(user);
 
-    t.deepEqual(result, { age: 22, nick: "Nick", gender: undefined, hobbies: ["debugging"] })
+    t.deepEqual(result, { age: 22, nick: "Nick", gender: undefined, hobbies: ["debugging"] });
 
-    t.end()
-})
+    t.end();
+});
 
 test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeserialize'", (t) => {
     const jsonInput = {
@@ -353,7 +325,7 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
         primitiveNumber1: 12,
         primitiveText1: "foo",
         aliasText: "yo",
-    }
+    };
 
     const jsonResult = {
         id: "1101",
@@ -398,37 +370,37 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
         primitiveNumber: 12,
         primitiveText: "foo hee haa",
         aliasText: "yo hee haa",
-    }
+    };
 
     function customSerializer(v) {
-        return v
+        return v;
     }
 
     function customDeserializer(jsonValue, context, oldValue) {
-        return jsonValue
+        return jsonValue;
     }
 
     function customAsyncDeserializer(jsonValue, context, oldValue, done) {
         if (jsonValue === "trigger error") {
-            done(new Error("this error should be overruled in afterDeserialize"))
+            done(new Error("this error should be overruled in afterDeserialize"));
         } else {
-            done(null, jsonValue)
+            done(null, jsonValue);
         }
     }
 
     const renameOpts = {
         beforeDeserialize: function (callback, jsonValue, jsonParentValue, propNameOrIndex) {
-            const jsonAttrName = propNameOrIndex + "1"
-            jsonValue = jsonValue || jsonParentValue[jsonAttrName]
-            callback(null, jsonValue)
+            const jsonAttrName = propNameOrIndex + "1";
+            jsonValue = jsonValue || jsonParentValue[jsonAttrName];
+            callback(null, jsonValue);
         },
-    }
+    };
 
     const replaceValueOpts: AdditionalPropArgs = {
         beforeDeserialize: function (callback, jsonValue, jsonParentValue, propNameOrIndex) {
-            const jsonAttrName = propNameOrIndex + "1"
-            jsonValue = (jsonValue || jsonParentValue[jsonAttrName]) + " hee"
-            callback(null, jsonValue)
+            const jsonAttrName = propNameOrIndex + "1";
+            jsonValue = (jsonValue || jsonParentValue[jsonAttrName]) + " hee";
+            callback(null, jsonValue);
         },
         afterDeserialize: function (
             callback,
@@ -440,20 +412,20 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
             context,
             propDef
         ) {
-            callback(undefined, newValue + " haa")
+            callback(undefined, newValue + " haa");
         },
-    }
+    };
 
     const resumeOnErrorOpts = {
         beforeDeserialize: function (callback, jsonValue, jsonParentValue, propNameOrIndex) {
-            const jsonAttrName = propNameOrIndex + "1"
-            jsonValue = jsonValue || jsonParentValue[jsonAttrName]
-            callback(null, jsonValue)
+            const jsonAttrName = propNameOrIndex + "1";
+            jsonValue = jsonValue || jsonParentValue[jsonAttrName];
+            callback(null, jsonValue);
         },
         afterDeserialize(callback, error) {
-            callback(null, "ok now")
+            callback(null, "ok now");
         },
-    }
+    };
 
     const removeInvalidItemsOpts: AdditionalPropArgs = {
         /**
@@ -461,62 +433,62 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
          * also does this for reference objects asynchronously
          */
         beforeDeserialize(callback, jsonValue, jsonParentValue, propNameOrIndex, context, propDef) {
-            let numItemsWaiting = 0
-            const jsonAttrName = propNameOrIndex + "1"
-            jsonValue = jsonValue || jsonParentValue[jsonAttrName]
-            let result = jsonValue
+            let numItemsWaiting = 0;
+            const jsonAttrName = propNameOrIndex + "1";
+            jsonValue = jsonValue || jsonParentValue[jsonAttrName];
+            let result = jsonValue;
 
             function getValidItem(inputValue, nameOrIndex) {
                 function onItemCallback(err) {
                     if (!err) {
-                        result[nameOrIndex] = inputValue
+                        result[nameOrIndex] = inputValue;
                     }
-                    numItemsWaiting -= 1
+                    numItemsWaiting -= 1;
                     if (numItemsWaiting === 0) {
                         if (Array.isArray(result)) {
                             // clear gaps in array
                             result = result.filter(function () {
-                                return true
-                            })
+                                return true;
+                            });
                         }
-                        callback(null, result)
+                        callback(null, result);
                     }
                 }
 
                 if (inputValue) {
                     if (typeof inputValue === "object") {
                         if (inputValue.valid === true) {
-                            onItemCallback(null)
+                            onItemCallback(null);
                         } else {
-                            onItemCallback(new Error("not a valid item"))
+                            onItemCallback(new Error("not a valid item"));
                         }
                     } else if (("" + propNameOrIndex).indexOf("Ref") >= 0) {
                         context.rootContext.await(
                             getDefaultModelSchema(SubData),
                             inputValue,
                             onItemCallback
-                        )
+                        );
                     } else {
-                        onItemCallback(new Error("object expected"))
+                        onItemCallback(new Error("object expected"));
                     }
                 } else {
-                    onItemCallback(new Error("not a valid reference"))
+                    onItemCallback(new Error("not a valid reference"));
                 }
             }
 
             if (Array.isArray(jsonValue)) {
-                result = []
-                numItemsWaiting = jsonValue.length
+                result = [];
+                numItemsWaiting = jsonValue.length;
                 jsonValue.forEach((value, index) => {
-                    getValidItem(value, index)
-                })
+                    getValidItem(value, index);
+                });
             } else if (typeof jsonValue === "object") {
-                result = {}
-                const keys = Object.keys(jsonValue)
-                numItemsWaiting = keys.length
+                result = {};
+                const keys = Object.keys(jsonValue);
+                numItemsWaiting = keys.length;
                 keys.forEach((key) => {
-                    getValidItem(jsonValue[key], key)
-                })
+                    getValidItem(jsonValue[key], key);
+                });
             }
         },
         /**
@@ -534,169 +506,169 @@ test("[ts] additional lifecycle handlers 'beforeDeserialize' and 'afterDeseriali
         ) {
             if (error && error.itemKey) {
                 // TODO: put some code here which is actually used
-                throw new Error("this never gets run!")
+                throw new Error("this never gets run!");
                 if (Array.isArray(jsonValue)) {
-                    const nextArray = jsonValue.splice(error.itemKey, 1)
-                    callback(error, nextArray)
+                    const nextArray = jsonValue.splice(error.itemKey, 1);
+                    callback(error, nextArray);
                 } else {
-                    const nextObj = Object.assign({}, jsonValue)
-                    delete nextObj[error.itemKey]
-                    callback(error, nextObj)
+                    const nextObj = Object.assign({}, jsonValue);
+                    delete nextObj[error.itemKey];
+                    callback(error, nextObj);
                 }
             } else {
-                callback(error, newValue)
+                callback(error, newValue);
             }
         },
-    }
+    };
 
     class SubData {
-        @serializable(identifier(renameOpts)) id
-        @serializable(primitive(renameOpts)) text
-        @serializable(primitive(renameOpts)) valid
+        @serializable(identifier(renameOpts)) id;
+        @serializable(primitive(renameOpts)) text;
+        @serializable(primitive(renameOpts)) valid;
     }
 
     class FinalData {
-        @serializable(identifier(renameOpts)) id
-        @serializable(custom(customSerializer, customDeserializer, renameOpts)) custom
+        @serializable(identifier(renameOpts)) id;
+        @serializable(custom(customSerializer, customDeserializer, renameOpts)) custom;
         @serializable(custom(customSerializer, customAsyncDeserializer, resumeOnErrorOpts))
-        customAsync
-        @serializable(date(renameOpts)) date
-        @serializable(list(object(SubData, renameOpts), removeInvalidItemsOpts)) listObj
-        @serializable(list(reference(SubData, renameOpts), removeInvalidItemsOpts)) listRefObj
-        @serializable(map(object(SubData, renameOpts), removeInvalidItemsOpts)) mapObj
-        @serializable(map(reference(SubData, renameOpts), removeInvalidItemsOpts)) mapRefObj
+        customAsync;
+        @serializable(date(renameOpts)) date;
+        @serializable(list(object(SubData, renameOpts), removeInvalidItemsOpts)) listObj;
+        @serializable(list(reference(SubData, renameOpts), removeInvalidItemsOpts)) listRefObj;
+        @serializable(map(object(SubData, renameOpts), removeInvalidItemsOpts)) mapObj;
+        @serializable(map(reference(SubData, renameOpts), removeInvalidItemsOpts)) mapRefObj;
         @serializable(mapAsArray(reference(SubData, renameOpts), "id", removeInvalidItemsOpts))
-        mapArrayRefObj
-        @serializable(object(SubData, renameOpts)) obj
-        @serializable(primitive(renameOpts)) primitiveNumber
-        @serializable(primitive(replaceValueOpts)) primitiveText
-        @serializable(alias("aliasText", primitive(replaceValueOpts))) aliasPrimitiveText
+        mapArrayRefObj;
+        @serializable(object(SubData, renameOpts)) obj;
+        @serializable(primitive(renameOpts)) primitiveNumber;
+        @serializable(primitive(replaceValueOpts)) primitiveText;
+        @serializable(alias("aliasText", primitive(replaceValueOpts))) aliasPrimitiveText;
     }
 
-    let resultIsFinal = false
+    let resultIsFinal = false;
     const prelimResult = deserialize(FinalData, jsonInput, (err, result) => {
-        resultIsFinal = true
-        err ? t.end(err) : null
-        t.deepEqual(serialize(result), jsonResult)
-        t.end()
-    })
+        resultIsFinal = true;
+        err ? t.end(err) : null;
+        t.deepEqual(serialize(result), jsonResult);
+        t.end();
+    });
 
     setTimeout(() => {
-        cancelDeserialize(prelimResult)
-    }, 100)
+        cancelDeserialize(prelimResult);
+    }, 100);
 
     setTimeout(() => {
         if (!resultIsFinal) {
-            t.end(new Error("deserialization canceled due to timeout"))
+            t.end(new Error("deserialization canceled due to timeout"));
         }
-    }, 1000)
-})
+    }, 1000);
+});
 
 test("[ts] @serializeAll", (t) => {
     @serializeAll
     class Store {
-        a = 3
-        b
+        a = 3;
+        b;
     }
 
-    const store = new Store()
-    ;(store as any).c = 5
-    ;(store as any).d = {}
+    const store = new Store();
+    (store as any).c = 5;
+    (store as any).d = {};
 
-    t.deepEqual(serialize(store), { a: 3, c: 5 })
+    t.deepEqual(serialize(store), { a: 3, b: undefined, c: 5 });
 
-    const store2 = deserialize(Store, { a: 2, b: 3, c: 4 })
-    t.equal(store2.a, 2)
-    t.equal(store2.b, 3)
-    t.equal((store2 as any).c, 4)
+    const store2 = deserialize(Store, { a: 2, b: 3, c: 4 });
+    t.equal(store2.a, 2);
+    t.equal(store2.b, 3);
+    t.equal((store2 as any).c, 4);
 
-    t.end()
-})
+    t.end();
+});
 
 test("[ts] @serializeAll(schema)", (t) => {
     class StarValue {
         @serializable(optional())
-        public x?: number
+        public x?: number;
     }
 
     @serializeAll(/^\d\.\d+$/, StarValue)
     class StoreWithStarSchema {
-        [key: string]: StarValue
+        [key: string]: StarValue;
     }
 
-    const store = new StoreWithStarSchema()
-    store["1.4"] = { x: 1 }
-    store["1.77"] = {}
-    ;(store as any).c = 5
-    ;(store as any).d = {}
+    const store = new StoreWithStarSchema();
+    store["1.4"] = { x: 1 };
+    store["1.77"] = {};
+    (store as any).c = 5;
+    (store as any).d = {};
 
-    t.deepEqual(serialize(store), { "1.4": { x: 1 }, "1.77": {} })
+    t.deepEqual(serialize(store), { "1.4": { x: 1 }, "1.77": {} });
 
-    const store2 = deserialize(StoreWithStarSchema, { "1.4": { x: 1 }, "1.77": {}, c: 4 })
-    t.deepEqual(store["1.4"], { x: 1 })
-    t.deepEqual(store["1.77"], {})
-    t.equal((store2 as any).c, undefined)
+    const store2 = deserialize(StoreWithStarSchema, { "1.4": { x: 1 }, "1.77": {}, c: 4 });
+    t.deepEqual(store["1.4"], { x: 1 });
+    t.deepEqual(store["1.77"], {});
+    t.equal((store2 as any).c, undefined);
 
-    t.end()
-})
+    t.end();
+});
 
 test("[ts] @serializeAll(list schema)", (t) => {
     class StarValue {
         @serializable(optional())
-        public x?: number
+        public x?: number;
     }
 
     @serializeAll(/^\d\.\d+$/, list(object(StarValue)))
     class StoreWithStarSchema {
-        [key: string]: StarValue[]
+        [key: string]: StarValue[];
     }
 
-    const store = new StoreWithStarSchema()
-    store["1.4"] = [{ x: 1 }]
-    store["1.77"] = [{}]
-    ;(store as any).c = 5
-    ;(store as any).d = {}
+    const store = new StoreWithStarSchema();
+    store["1.4"] = [{ x: 1 }];
+    store["1.77"] = [{}];
+    (store as any).c = 5;
+    (store as any).d = {};
 
-    t.deepEqual(serialize(store), { "1.4": [{ x: 1 }], "1.77": [{}] })
+    t.deepEqual(serialize(store), { "1.4": [{ x: 1 }], "1.77": [{}] });
 
-    const store2 = deserialize(StoreWithStarSchema, { "1.4": [{ x: 1 }], "1.77": [{}], c: 4 })
-    t.deepEqual(store["1.4"], [{ x: 1 }])
-    t.deepEqual(store["1.77"], [{}])
-    t.equal((store2 as any).c, undefined)
+    const store2 = deserialize(StoreWithStarSchema, { "1.4": [{ x: 1 }], "1.77": [{}], c: 4 });
+    t.deepEqual(store["1.4"], [{ x: 1 }]);
+    t.deepEqual(store["1.77"], [{}]);
+    t.equal((store2 as any).c, undefined);
 
-    t.end()
-})
+    t.end();
+});
 
 test("[ts] tests from serializeAll documentation", (t) => {
     @serializeAll
     class Store {
-        [key: string]: number
+        [key: string]: number;
     }
 
-    const store = new Store()
-    store.c = 5
-    ;(store as any).d = {}
-    t.deepEqual(serialize(store), { c: 5 })
+    const store = new Store();
+    store.c = 5;
+    (store as any).d = {};
+    t.deepEqual(serialize(store), { c: 5 });
 
     class DataType {
         @serializable
-        x?: number
+        x?: number;
         @serializable(optional())
-        y?: number
+        y?: number;
     }
     @serializeAll(/^[a-z]$/, DataType)
     class ComplexStore {
-        [key: string]: DataType
+        [key: string]: DataType;
     }
 
-    const complexStore = new ComplexStore()
-    complexStore.a = { x: 1, y: 2 }
-    complexStore.b = {}
-    ;(complexStore as any).somethingElse = 5
-    t.deepEqual(serialize(complexStore), { a: { x: 1, y: 2 }, b: { x: undefined } })
+    const complexStore = new ComplexStore();
+    complexStore.a = { x: 1, y: 2 };
+    complexStore.b = {};
+    (complexStore as any).somethingElse = 5;
+    t.deepEqual(serialize(complexStore), { a: { x: 1, y: 2 }, b: { x: undefined } });
 
-    t.end()
-})
+    t.end();
+});
 
 test("list(custom(...)) with SKIP", (t) => {
     class Store {
@@ -708,10 +680,10 @@ test("list(custom(...)) with SKIP", (t) => {
                 )
             )
         )
-        list: number[]
+        list: number[];
     }
 
-    t.deepEqual(deserialize(Store, { list: [1, 2, 3] }), { list: [1, 3] })
+    t.deepEqual(deserialize(Store, { list: [1, 2, 3] }), { list: [1, 3] });
 
-    t.end()
-})
+    t.end();
+});
