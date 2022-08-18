@@ -14,7 +14,7 @@ Want to maintain a small open source project or having great ideas for this proj
 # Api Documentation
 
 The auto-generated documentation for the APIs is published using gitpages at:
-https://serializr.github.io/serializr/
+https://github.com/mobxjs/serializr
 
 # Introduction
 
