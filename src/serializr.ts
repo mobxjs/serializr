@@ -13,6 +13,7 @@ export * from "./api/types";
  */
 export { default as serialize } from "./core/serialize";
 export { default as serializeAll } from "./core/serializeAll";
+export { default as subSchema } from "./core/subSchema";
 export { default as cancelDeserialize } from "./core/cancelDeserialize";
 export { default as deserialize } from "./core/deserialize";
 export { default as update } from "./core/update";
@@ -30,4 +31,4 @@ export { default as map } from "./types/map";
 export { default as mapAsArray } from "./types/mapAsArray";
 export { default as raw } from "./types/raw";
 
-export { SKIP } from "./constants";
+export { SKIP, DEFAULT_DISCRIMINATOR_ATTR } from "./constants";

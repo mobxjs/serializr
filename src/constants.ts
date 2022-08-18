@@ -35,4 +35,11 @@ import primitive from "./types/primitive";
  */
 export const SKIP = typeof Symbol !== "undefined" ? Symbol("SKIP") : { SKIP: true };
 
+/**
+ * When using the decorator shorthand we store the given value in
+ * a specific attribute of the result structure. This constant contains
+ * the attribute name used in such scenario.
+ */
+export const DEFAULT_DISCRIMINATOR_ATTR = "_type";
+
 export const _defaultPrimitiveProp = primitive();

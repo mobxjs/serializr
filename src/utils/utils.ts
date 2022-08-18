@@ -1,5 +1,6 @@
+import { AdditionalPropArgs, ModelSchema, PropSchema } from "../api/types";
+
 import invariant from "./invariant";
-import { ModelSchema, AdditionalPropArgs, PropSchema } from "../api/types";
 
 export function GUARDED_NOOP(err?: any) {
     if (err)
