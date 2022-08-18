@@ -3,8 +3,6 @@ name: Generate and publish Docs
 on:
     push:
         branches: [master]
-    pull_request:
-        branches: [master]
 
 # Allow one concurrent deployment
 concurrency:
