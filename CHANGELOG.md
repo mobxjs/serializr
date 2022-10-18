@@ -1,5 +1,9 @@
 # 2.0.5
 
+* [#175 serialize null list](https://github.com/mobxjs/serializr/pull/175)
+
+# 2.0.5
+
 * Fix [#141](https://github.com/mobxjs/serializr/issues/141)
 * Fix [#139](https://github.com/mobxjs/serializr/issues/139) `update` exports should be `default`.
 
