@@ -333,6 +333,19 @@ test("it should respect lists", (t) => {
     t.end()
 })
 
+test("it should respect lists when null", (t) => {
+    var schema = _.createSimpleSchema({
+        x: _.list(primitive()),
+    })
+
+    var source = { x: null }
+    var json = source
+    t.deepEqual(serialize(schema, source), json)
+    t.deepEqual(deserialize(schema, json), source)
+
+    t.end()
+})
+
 test("it should respect childs", (t) => {
     var childSchema = _.createSimpleSchema({
         x: primitive(),

@@ -54,10 +54,16 @@ export default function list(
             if (ar === undefined) {
                 return SKIP;
             }
+            if (ar === null) {
+                return null;
+            }
+
             invariant(ar && "length" in ar && "map" in ar, "expected array (like) object");
             return ar.map(propSchema.serializer);
         },
         deserializer: function (jsonArray, done, context) {
+            if (jsonArray === null) return void done(null, jsonArray);
+
             if (!Array.isArray(jsonArray)) return void done("[serializr] expected JSON array");
 
             function processItem(
