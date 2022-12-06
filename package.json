@@ -45,7 +45,8 @@
     },
     "files": [
         "lib",
-        "serializr.d.ts"
+        "serializr.d.ts",
+        "src"
     ],
     "devDependencies": {
         "@babel/cli": "^7.2.3",
