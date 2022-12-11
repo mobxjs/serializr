@@ -1,6 +1,13 @@
+# 3.0.2
+
+* [#177 Add source to files uploaded](https://github.com/mobxjs/serializr/pull/177)
+
+# 3.0.1
+
+* [#175 serialize null list](https://github.com/mobxjs/serializr/pull/175) 
+
 # 2.0.5
 
-* [#175 serialize null list](https://github.com/mobxjs/serializr/pull/175)
 
 # 2.0.5
 
