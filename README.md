@@ -404,7 +404,7 @@ const deser = deserialize(Todo, ser);
 console.log(deser instanceof PictureTodo); // true
 ```
 
-See https://serializr.github.io/serializr/docs/functions/subSchema.html for more information.
+See https://mobxjs.github.io/serializr/functions/subSchema.html for more information.
 
 # Future ideas
 
