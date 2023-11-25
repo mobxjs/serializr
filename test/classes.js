@@ -521,3 +521,72 @@ test("identifier can register themselves", (t) => {
     })
     t.end()
 })
+
+test("it should handle polymorphism", (t) => {
+    class Store {
+        constructor(id = 0, shapes = []) {
+            this.id = id
+            this.shapes = shapes
+        }
+    }
+
+    class Shape {
+        constructor(id) {
+            this.id = id
+        }
+    }
+
+    class Sphere extends Shape {
+        constructor(id, radius = -1) {
+            super(id)
+            this.radius = radius
+        }
+    }
+
+    class Box extends Shape {
+        constructor(id, side = -10) {
+            super(id)
+            this.side = side
+        }
+    }
+
+    _.createModelSchema(Shape, {
+        id: _.identifier(),
+    })
+
+    _.createModelSchema(Sphere, { radius: true })
+    _.getDefaultModelSchema(Sphere).extends = _.getDefaultModelSchema(Shape)
+
+    _.createModelSchema(Box, { side: true })
+    _.getDefaultModelSchema(Box).extends = _.getDefaultModelSchema(Shape)
+
+    _.subSchema("sphere", Shape)(Sphere)
+    _.subSchema("box", Shape)(Box)
+
+    _.createModelSchema(Store, {
+        shapes: _.list(_.object(Shape)),
+    })
+
+    test("it should accept subtypes", (t) => {
+        var store = new Store(100, [
+            new Sphere(1, 10),
+            new Box(2, 20),
+            new Sphere(10, 100),
+            new Box(3, 40),
+        ])
+
+        const json = _.serialize(store)
+        const s = _.deserialize(Store, json)
+
+        t.ok(s.shapes[0] instanceof Sphere)
+        t.equal(s.shapes[0].radius, 10)
+        t.ok(s.shapes[1] instanceof Box)
+        t.equal(s.shapes[1].side, 20)
+        t.ok(s.shapes[2] instanceof Sphere)
+        t.equal(s.shapes[2].radius, 100)
+        t.ok(s.shapes[3] instanceof Box)
+        t.equal(s.shapes[3].side, 40)
+        t.end()
+    })
+    t.end()
+})
