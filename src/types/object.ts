@@ -40,12 +40,12 @@ export default function object(
         typeof modelSchema === "object" || typeof modelSchema === "function",
         "No modelschema provided. If you are importing it from another file be aware of circular dependencies."
     );
-    let result: PropSchema = {
+    const result: PropSchema = {
         serializer: function (item) {
-            modelSchema = getDefaultModelSchema(modelSchema)!;
-            invariant(isModelSchema(modelSchema), `expected modelSchema, got ${modelSchema}`);
+            const actualSchema = getDefaultModelSchema(item) || getDefaultModelSchema(modelSchema)!;
+            invariant(isModelSchema(actualSchema), `expected modelSchema, got ${actualSchema}`);
             if (item === null || item === undefined) return item;
-            return serialize(modelSchema, item);
+            return serialize(actualSchema, item);
         },
         deserializer: function (childJson, done, context) {
             modelSchema = getDefaultModelSchema(modelSchema)!;
@@ -60,6 +60,5 @@ export default function object(
             );
         },
     };
-    result = processAdditionalPropArgs(result, additionalArgs);
-    return result;
+    return processAdditionalPropArgs(result, additionalArgs);
 }
