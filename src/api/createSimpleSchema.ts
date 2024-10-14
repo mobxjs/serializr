@@ -16,7 +16,7 @@ import { Props, ModelSchema } from "./types";
  * @param props property mapping,
  * @returns model schema
  */
-export default function createSimpleSchema<T extends object>(props: Props): ModelSchema<T> {
+export default function createSimpleSchema<T extends object>(props: Props<T>): ModelSchema<T> {
     return {
         factory: function () {
             return {} as any;
