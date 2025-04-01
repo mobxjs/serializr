@@ -53,12 +53,18 @@ function deserializeStarProps(
         }
 }
 
-function identifyActualSchema(json: any, baseSchema: ModelSchema<any>) {
+function identifyActualSchema(json: any, baseSchema: ModelSchema<any>): ModelSchema<any> {
     if (baseSchema.subSchemas?.length) {
         for (const subSchema of baseSchema.subSchemas) {
             if (subSchema.discriminator) {
                 if (subSchema.discriminator.isActualType(json)) {
                     return subSchema;
+                }
+
+                const subtypeSchema = identifyActualSchema(json, subSchema)
+                // If we got subSchema back -- ignore it, because we've checked its discriminator already.
+                if (subtypeSchema !== subSchema) {
+                    return subtypeSchema
                 }
             }
         }
