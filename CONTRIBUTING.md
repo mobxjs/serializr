@@ -22,4 +22,17 @@ Thank you for considering contributing to Serializr! Please follow these guideli
 6. **Search Existing Issues**  
    Before opening a new issue, please search the existing issues to avoid duplicates.
 
+## Setting up the environment
+
+At the moment to setup your working environment you must do the following steps:
+
+-   `yarn`
+-   `yarn build`
+
+Once this is done you will be able to run automated tests with
+
+-   `yarn test`
+
+**NOTE:** if you accidentally run `npm install` please revert any change it introduces. It is a known issue that running `npm install` corrupts the dependency tree
+
 We appreciate your contributions and look forward to collaborating with you!
