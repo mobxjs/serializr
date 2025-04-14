@@ -1,6 +1,6 @@
 {
     "name": "serializr",
-    "version": "3.0.2",
+    "version": "3.0.4",
     "description": "Serialize and deserialize complex object graphs to JSON",
     "main": "lib/serializr.umd.js",
     "module": "lib/serializr.es.js",
@@ -36,7 +36,7 @@
     ],
     "repository": {
         "type": "git",
-        "url": "https://github.com/mobxjs/serializr.git"
+        "url": "git+https://github.com/mobxjs/serializr.git"
     },
     "author": "Michel Weststrate",
     "license": "MIT",
