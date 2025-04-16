@@ -1,5 +1,4 @@
 {
-    "version": "1.7.5",
     "compilerOptions": {
         "target": "esnext",
         "sourceMap": false,
@@ -9,7 +8,5 @@
         "useDefineForClassFields": true,
         "esModuleInterop": true
     },
-    "files": [
-        "ts.ts", "mobx-ts.ts"
-    ]
+    "files": ["ts.test.ts", "mobx-ts.test.ts"]
 }
