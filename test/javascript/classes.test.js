@@ -1,20 +1,16 @@
 import {
-    serializable,
-    primitive,
-    serialize,
-    update,
+    alias,
+    createModelSchema,
+    createSimpleSchema,
     deserialize,
+    getDefaultModelSchema,
+    identifier,
     list,
     object,
     reference,
-    identifier,
-    serializeAll,
+    serialize,
     subSchema,
-    createModelSchema,
-    createSimpleSchema,
-    alias,
-    getDefaultModelSchema,
-    DEFAULT_DISCRIMINATOR_ATTR,
+    update,
 } from "../../src/serializr"
 
 describe("Javascript classes", () => {

@@ -1,35 +1,6 @@
-import {
-    serializable,
-    alias,
-    date,
-    list,
-    map,
-    mapAsArray,
-    object,
-    optional,
-    identifier,
-    reference,
-    primitive,
-    serialize,
-    cancelDeserialize,
-    deserialize,
-    serializeAll,
-    getDefaultModelSchema,
-    custom,
-    AdditionalPropArgs,
-    SKIP,
-} from "../../src/serializr"
+import { deserialize, primitive, serializable, serialize } from "../../src/serializr"
 
-import test from "tape"
-
-import {
-    observable,
-    autorun,
-    runInAction,
-    getObserverTree,
-    getDependencyTree,
-    makeObservable,
-} from "mobx"
+import { autorun, makeObservable, observable, runInAction } from "mobx"
 
 describe("Basic functionality", () => {
     it("Typescript should work with MobX reactive class", () => {
