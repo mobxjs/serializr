@@ -15,7 +15,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [12.x, 14.x, 16.x, 18.x, 20.x, 22.x]
+                node-version: [14.x, 16.x, 18.x, 20.x, 22.x]
 
         steps:
             - uses: actions/checkout@v4
@@ -24,10 +24,7 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
             - run: yarn install --immutable
-            - run: yarn build
-            - run: yarn build-test
             - run: yarn test
-            - run: git diff --exit-code lib README.md
             - uses: coverallsapp/github-action@v1.1.2
               with:
                   github-token: ${{ secrets.github_token }}

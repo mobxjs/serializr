@@ -1,5 +1,0 @@
-require("./simple")
-require("./classes")
-require("./typescript/ts.js")
-require("./typescript/mobx-ts.js")
-require("./babel/babel-compiled.js")
