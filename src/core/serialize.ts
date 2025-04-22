@@ -3,11 +3,32 @@ import { ClazzOrModelSchema, ModelSchema, PropDef } from "../api/types";
 import { SKIP, _defaultPrimitiveProp } from "../constants";
 import { invariant, isPrimitive } from "../utils/utils";
 
-type FunctionPropertyNames<T> = {
+type Primitive = string | number | boolean | null | undefined | symbol | bigint;
+
+// Helper type to identify keys of properties that are functions
+type FunctionKeys<T> = {
 	[K in keyof T]: T[K] extends Function ? K : never;
 }[keyof T];
 
-export type Serialized<T> = Omit<T, FunctionPropertyNames<T>>;
+// Helper type to recursively serialize object properties, excluding functions
+type SerializeObjectProperties<T extends object> = {
+	[P in keyof Omit<T, FunctionKeys<T>>]: Serialized<T[P]>;
+};
+
+/**
+ * Recursively defines a type that represents the serialized form of T.
+ * - Primitive types remain unchanged.
+ * - Functions are omitted.
+ * - Array elements are recursively serialized.
+ * - Object properties are recursively serialized (excluding functions).
+ */
+export type Serialized<T> = T extends Primitive
+	? T // Keep primitives as is
+	: T extends Array<infer U>
+		? Array<Serialized<U>> // Handle arrays recursively
+		: T extends object
+			? SerializeObjectProperties<T> // Handle objects recursively, omitting functions
+			: T; // Fallback for other types (like Date, RegExp, etc. which might need specific handling depending on the serialization library)
 
 /**
  * Serializes an object (graph) into json using the provided model schema.
