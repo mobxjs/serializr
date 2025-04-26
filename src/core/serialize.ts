@@ -3,6 +3,33 @@ import { ClazzOrModelSchema, ModelSchema, PropDef } from "../api/types";
 import { SKIP, _defaultPrimitiveProp } from "../constants";
 import { invariant, isPrimitive } from "../utils/utils";
 
+type Primitive = string | number | boolean | null | undefined | symbol | bigint;
+
+// Helper type to identify keys of properties that are functions
+type FunctionKeys<T> = {
+	[K in keyof T]: T[K] extends Function ? K : never;
+}[keyof T];
+
+// Helper type to recursively serialize object properties, excluding functions
+type SerializeObjectProperties<T extends object> = {
+	[P in keyof Omit<T, FunctionKeys<T>>]: Serialized<T[P]>;
+};
+
+/**
+ * Recursively defines a type that represents the serialized form of T.
+ * - Primitive types remain unchanged.
+ * - Functions are omitted.
+ * - Array elements are recursively serialized.
+ * - Object properties are recursively serialized (excluding functions).
+ */
+export type Serialized<T> = T extends Primitive
+	? T // Keep primitives as is
+	: T extends Array<infer U>
+		? Array<Serialized<U>> // Handle arrays recursively
+		: T extends object
+			? SerializeObjectProperties<T> // Handle objects recursively, omitting functions
+			: T; // Fallback for other types (like Date, RegExp, etc. which might need specific handling depending on the serialization library)
+
 /**
  * Serializes an object (graph) into json using the provided model schema.
  * The model schema can be omitted if the object type has a default model schema associated with it.
@@ -12,11 +39,11 @@ import { invariant, isPrimitive } from "../utils/utils";
  * @param arg2 object(s) to serialize
  * @returns serialized representation of the object
  */
-export default function serialize<T>(modelSchema: ClazzOrModelSchema<T>, instance: T): any;
-export default function serialize<T>(instance: T): any;
-export default function serialize<T>(modelSchema: ClazzOrModelSchema<T>, instance: T[]): any;
-export default function serialize<T>(instance: T[]): any;
-export default function serialize<T>(...args: [ClazzOrModelSchema<T>, T | T[]] | [T | T[]]) {
+export default function serialize<T>(modelSchema: ClazzOrModelSchema<T>, instance: T): Serialized<T>;
+export default function serialize<T>(instance: T): Serialized<T>;
+export default function serialize<T>(modelSchema: ClazzOrModelSchema<T>, instance: T[]): Serialized<T>[];
+export default function serialize<T>(instance: T[]): Serialized<T>[];
+export default function serialize<T>(...args: [ClazzOrModelSchema<T>, T | T[]] | [T | T[]]): Serialized<T> | Serialized<T>[] {
     invariant(args.length === 1 || args.length === 2, "serialize expects one or 2 arguments");
 
     let schema: ClazzOrModelSchema<T> | undefined;
@@ -29,7 +56,7 @@ export default function serialize<T>(...args: [ClazzOrModelSchema<T>, T | T[]] |
     }
 
     if (Array.isArray(value)) {
-        return value.map((item) => (schema ? serialize(schema, item) : serialize(item)));
+        return value.map((item) => (schema ? serialize(schema, item) : serialize(item))) as Serialized<T>[];
     }
 
     if (!schema) {
@@ -42,7 +69,7 @@ export default function serialize<T>(...args: [ClazzOrModelSchema<T>, T | T[]] |
         // only call modelSchemaOrInstance.toString() on error
         invariant(schema, `Failed to find default schema for ${value}`);
     }
-    return serializeWithSchema(schema, value);
+    return serializeWithSchema(schema, value) as Serialized<T>;
 }
 
 function serializeWithSchema<T>(schema: ModelSchema<T>, obj: any): T {
